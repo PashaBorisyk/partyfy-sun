@@ -1,0 +1,35 @@
+<configuration>
+
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>*** %-5level - \(%logger{30}\)%green(%X{debugId}) %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!--<logger name="com.jolbox.bonecp" level="INFO">-->
+        <!--<appender-ref ref="STDOUT" />-->
+    <!--</logger>-->
+
+    <logger name="play" level="INFO"/>
+    <logger name="application" level="DEBUG"/>
+    <logger name="admin" level="DEBUG"/>
+
+    <root level="${log.root:-info}">
+        <appender-ref ref="STDOUT" />
+    </root>
+    <logger name="slick.basic.BasicBackend.action"          level="ON" />
+    <logger name="slick.basic.BasicBackend.stream"          level="ON" />
+    <logger name="slick.compiler.InsertCompiler"            level="ON" />
+    <logger name="slick.jdbc.DriverDataSource"              level="ON" />
+    <logger name="slick.jdbc.JdbcBackend.statement"         level="ON" />
+    <logger name="slick.jdbc.JdbcBackend.parameter"         level="ON" />
+    <logger name="slick.jdbc.JdbcBackend.benchmark"         level="ON" />
+    <logger name="slick.jdbc.StatementInvoker.result"       level="ON" />
+    <logger name="slick.jdbc.JdbcModelBuilder"              level="ON" />
+    <logger name="slick.memory.HeapBackend"                 level="ON" />
+    <logger name="slick.memory.QueryInterpreter"            level="ON" />
+    <logger name="slick.util.AsyncExecutor"                 level="ON" />
+
+</configuration>
+

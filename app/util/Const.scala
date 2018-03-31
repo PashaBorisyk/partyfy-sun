@@ -1,0 +1,94 @@
+package util
+
+
+object Const {
+   
+   val USER_ID = "user_id"
+   val NICKNAME = "nickname"
+   val ADVANCED_USER_ID = "advanced_user_id"
+   val PASSWORD = "password"
+   val SURNAME = "surname"
+   val NAME = "name"
+   val VK = "vk"
+   val INSTAGRAM = "instagram"
+   val FACEBOOK = "facebook"
+   val NICK_PHOTO = "nick_photo"
+   val FRIENDS_NICKS = "friends_nicks"
+   val NUMBER = "number"
+   val USERS_ARRAY = "users_array"
+   val USER_SELF_NICK = "user_self_nick"
+   val USER_TO_FRIENDS_NICK = "user_to_friends_nick"
+   val EVENTS_ARRAY = "events_array"
+   val EVENT_ID = "event_id"
+   val CREATOR_NICK = "creator_nick"
+   val EVENT_DATE = "event_date"
+   val LONGTITUDE = "longtitude"
+   val LATITUDE = "latitude"
+   val COUNTRY = "country"
+   val CITY = "city"
+   val STREET = "street"
+   val LOCAL_NAME = "local_name"
+   val EVENT_MEMBER_ARRAY = "event_number_array"
+   val EVENT_DESCRIPTION = "event_description"
+   val EVENT_PHOTO = "event_photo"
+   val PHOTO_NAME = "photo_name"
+   val DELETE_EVENT = "delete_event"
+   val EVENT_LAST_READ_EVENT_ID = "event_last_read_id"
+   val IS_FOR_ONE_GENDER = "is_for_one_gender"
+   val USER = "user"
+   val PART_PICTURE = "part_picture"
+   val PART_FILE = "part-file"
+   val PART_DESCRIPTION = "part_description"
+   val GENDER = "gender"
+   val GENDER_MALE = "gender_male"
+   val GENDER_FEMALE = "gender_female"
+   val FLAG = "flag"
+   val IS_ADMIN = "is_admin"
+   val IS_WRITER = "is_writer"
+   val IS_MALE = "is_male"
+   val IS_REGISTERED = "is_registered"
+   val QUERY = "query"
+   val HIPE_APPLICATION_SHARED_PREFERENCES = "hipe_application_shared_preferences"
+   val FLAG_USER_REGISTER = "flag_user_register"
+   val FLAG_USER_UPDATE = "flag_user_update"
+   val FLAG_USER_GET_USER = "flag_user_get_user"
+   val FLAG_EVENT_CREATE = "flag_event_create"
+   val FLAG_EVENT_UPDATE = "flag_event_update"
+   val LIVING_PLACE = "living_place"
+   val MESSAGE_INFORMATIVE_REMOVE_EVENT = "message_informative_remove_event"
+   val TYPE = "type"
+   val TYPE_EVENT = "type_event"
+   val TYPE_USER = "type_user"
+   val FILE_PATH = "file_path"
+   val USER_IMAGE_LARGE = "user_image_large"
+   val USER_IMAGE_SMALL = "user_image_small"
+   val CREATE_USER_PHOTO_FILE = "create_user_photo_file"
+   val ACCESS_FINE_LOCATION_PERMISSION_CODE = 4321
+   val STATUS_EVENT_CREATED = 264
+   val STATUS_USER_CREATED = 265
+   val STATUS_FILE_CREATED = 261
+   val STATUS_USER_LOGGED_IN_OK = 267
+   val STATUS_USER_ALREADY_EXISTS = 268
+   val STATUS_EVENT_ALREADY_EXISTS = 269
+   val STATUS_USER_ADDED_TO_FREINDS = 270
+   val STATUS_USER_REMOVED_FROM_FRIENDS = 271
+   val STATUS_FRIENDS_LIST_ACCESSED = 272
+   val STATUS_USER_NOT_EXISTS = 466
+   val STATUS_EVENT_NOT_EXISTS = 467
+   val STATUS_FILE_NOT_EXISTS = 468
+   val STATUS_FILE_CREATION_ERROR = 568
+   val WEEK_IN_MILLS = 3600 * 24 * 7 * 1000
+   val FILE_UPLOADER_COMMAND = "file_upload_command"
+   val FILE_COMMAND_CREATE_LARGE_PHOTO = 0x001
+   val FILE_COMMAND_CREATE_SMALL_PHOTO = 0x002
+   val FILE_CREATE_SIMPLE = 0x003
+   val IMAGE_WIDTH = "image_width"
+   val IMAGE_HEIGHT = "image_height"
+   
+   val IMG_SIZE_HUGE_WIDTH = 1440
+   val IMG_SIZE_LARGE_WIDTH = 1080
+   val IMG_SIZE_MEDIUM_WIDTH = 720
+   val IMG_SIZE_SMALL_WIDTH = 360
+   val IMG_SIZE_MINI_WIDTH = 90
+   
+}

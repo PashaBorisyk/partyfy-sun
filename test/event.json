@@ -1,0 +1,19 @@
+{
+  "id": 1,
+  "creatorId": 3451,
+  "dateMills": 12345345,
+  "creationDateMills": 23434234,
+  "maxMembers": 12,
+  "longtitude": 3.0,
+  "latitude": 9.0,
+  "country": "USA",
+  "city": "NY",
+  "street": "Manhatthan",
+  "localName": "Party",
+  "description": "No THK",
+  "isPublic": true,
+  "isForOneGender": false,
+  "isForMale": false,
+  "eventImageId": 9,
+  "creatorsImageId": 21
+}

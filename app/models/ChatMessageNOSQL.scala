@@ -1,8 +1,6 @@
 package models
 
 import java.io.Serializable
-import util._
-import services.MongoDBExecutor
 
 case class ChatMessageNOSQL(
    
@@ -14,6 +12,6 @@ case class ChatMessageNOSQL(
                          senderNickname:String = "",
                          message: String = "message example",
                          informative: Boolean = false,
-                         execute: Long = 1
+                         execute: Long = 0
 
 ) extends Serializable

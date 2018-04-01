@@ -1,18 +1,17 @@
 package db.services
 
+import db.services.interfaces.ChatMessageService
+import implicits.implicits._
 import javax.inject.Inject
-
 import models.ChatMessageNOSQL
 import services.MongoDBExecutor
 import util._
-import implicits.implicits._
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class ChatMessageService @Inject()(
+class ChatMessageServiceImpl @Inject()(
                                      private val db: MongoDBExecutor
-                                  
-                                  )(implicit ec: ExecutionContext) {
+                                  )(implicit ec: ExecutionContext) extends ChatMessageService {
    
    lazy val chatCollection = {
       logger.info("Connecting to chat_message_collection")
@@ -21,14 +20,14 @@ class ChatMessageService @Inject()(
       r
    }
    
-   def create(chatMessage:ChatMessageNOSQL) = {
+   override def create(chatMessage:ChatMessageNOSQL) = {
       logger.info(s"ChatMessagesService.create($chatMessage)")
       Future{
          chatCollection.insert(chatMessage.toDBObject())
       }
    }
    
-   def getByEventId(eventId:Long) = {
+   override def getByEventId(eventId:Long) = {
       logger.info(s"ChatMessagesService.getByEventId($eventId)")
       Future{
          chatCollection.find(ChatMessageNOSQL().toDBObject()).map{ s =>

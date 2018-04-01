@@ -1,19 +1,19 @@
 package controllers.rest
 
-import play.api.mvc.{AbstractController, ControllerComponents}
-import javax.inject.Inject
-
-import db.services.{ChatMessageService, EventService, UserService}
+import db.services.interfaces.ChatMessageService
+import db.services.{EventServiceImpl, UserServiceImpl}
 import implicits.implicits._
+import javax.inject.Inject
+import play.api.mvc.{AbstractController, ControllerComponents}
 import util._
 
 import scala.concurrent.ExecutionContext
 
 class EventControllerImpl @Inject()(
-                                      cc: ControllerComponents,
-                                      val eventService: EventService,
-                                      val userService: UserService,
-                                      val chats:ChatMessageService
+                                     cc: ControllerComponents,
+                                     val eventService: EventServiceImpl,
+                                     val userService: UserServiceImpl,
+                                     val chats:ChatMessageService
                                    )(implicit ec: ExecutionContext)
    extends AbstractController(cc) {
    

@@ -1,15 +1,16 @@
 package db.services
 
+import implicits.implicits._
 import javax.inject.Inject
-import slick.jdbc.PostgresProfile.api._
 import models._
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
 import slick.jdbc.JdbcProfile
-import implicits.implicits._
-import scala.concurrent.duration._
-import scala.concurrent.{Await, ExecutionContext, Future}
+import slick.jdbc.PostgresProfile.api._
 
-class UserService @Inject()(
+import scala.concurrent.duration._
+import scala.concurrent.{Await, ExecutionContext}
+
+class UserServiceImpl @Inject()(
                              protected val dbConfigProvider: DatabaseConfigProvider,
                            )(implicit ec: ExecutionContext)
    extends HasDatabaseConfigProvider[JdbcProfile] {

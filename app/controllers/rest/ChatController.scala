@@ -1,67 +1,89 @@
 package controllers.rest
 
-import javax.inject.Inject
-
 import akka.actor.{Actor, ActorRef, ActorSystem, Props}
 import akka.stream.Materializer
-import db.services.{ChatMessageService, EventService}
+import com.google.gson.JsonSyntaxException
+import db.services.{ChatMessageServiceImpl, EventServiceImpl}
+import implicits.implicits._
+import javax.inject.Inject
 import models.ChatMessageNOSQL
 import play.api.libs.streams.ActorFlow
 import play.api.mvc.{AbstractController, ControllerComponents, WebSocket}
-
-import scala.collection.{mutable, _}
-import scala.concurrent.ExecutionContext
 import util._
-import implicits.implicits._
 
+import scala.collection.mutable
+import scala.concurrent.ExecutionContext
 
-class ChatController @Inject()(cc: ControllerComponents, val chatMessageService: ChatMessageService, val eventService: EventService)
+class ChatController @Inject()(cc: ControllerComponents, val chatMessageService: ChatMessageServiceImpl, val eventService: EventServiceImpl)
                               (implicit system: ActorSystem, mat: Materializer, ec: ExecutionContext) extends AbstractController(cc) {
-   
-   lazy val conversations = mutable.LinkedHashMap[Long,mutable.LinkedHashSet[ActorRef]]()
-   
-   def socket: WebSocket = WebSocket.accept[String, String] { req =>
-      logger.info(s"ChatContoroller.scoket with request : $req")
-      
-      ActorFlow.actorRef { out =>
-         val username = req.getQueryString("user_id").getOrElse(return null)
-         Props(new WebSocketActor(out,username.toLong))
+
+  lazy val conversations = mutable.LinkedHashMap[Long, mutable.LinkedHashSet[ActorRef]]()
+
+  lazy val testId = 0
+
+  def socket: WebSocket = WebSocket.accept[String, String] { req =>
+    logger.info(s"ChatContoroller.scoket with request : $req")
+
+    ActorFlow.actorRef { out =>
+      val username = req.getQueryString("user_id").orElse(Some("0"))
+      logger.debug("Username " + username)
+      Props(new WebSocketActor(out, username.get.toLong))
+    }
+  }
+
+  class WebSocketActor(val out: ActorRef, val userId: Long) extends Actor {
+
+    override def preStart(): Unit = {
+      var found = false
+
+      eventService.getEventIdsByMemberId(userId).map { ids =>
+        ids.foreach { eventId =>
+          logger.debug(s"Event with id $eventId found")
+          found = true
+          if (!conversations.contains(eventId)) {
+            logger.info(s"No conversation with id $eventId found; Creating new conversation")
+            conversations(eventId) = mutable.LinkedHashSet()
+          }
+          conversations(eventId) += out
+        }
       }
-   }
-   
-   class WebSocketActor(val out:ActorRef,val userId:Long) extends Actor {
-      
-      override def preStart(): Unit = {
-         eventService.getEventIdsByMemberId(userId).map{ ids =>
-            ids.foreach{ eventId=>
-               if(!conversations.contains(eventId)){
-                  logger.info(s"No conversation with id $eventId found; Creating new one...")
-                  conversations(eventId) = mutable.LinkedHashSet()
-               }
-               conversations(eventId)+= out
-            }
-         }
-         logger.info(s"Now users online: ${conversations.size}")
+
+      if (!found) {
+        if (!conversations.contains(testId))
+          conversations(testId) = mutable.LinkedHashSet()
+
+        logger.debug(s"No events for user with id: $userId found. Running in test mode")
+        conversations(testId) += out
       }
-      
-      override def receive = {
-         case msg: String =>
-            println(msg)
-            val chatMessage:ChatMessageNOSQL = msg
-            logger.info(chatMessage.toString)
-            conversations(chatMessage.eventID).foreach(_!msg)
-         
+
+      logger.info(s"Now users online: ${conversations.size}")
+    }
+
+    override def receive = {
+      case msg: String =>
+        println(msg)
+        var chatMessage: ChatMessageNOSQL = null
+        try {
+          chatMessage = msg
+        } catch {
+          case _: JsonSyntaxException =>
+            chatMessage = ChatMessageNOSQL(message = msg)
+        }
+        logger.info(chatMessage.toJson)
+        conversations(chatMessage.eventID).foreach(_ ! chatMessage.toJson)
+
+    }
+
+    override def postStop(): Unit = {
+      conversations(testId) -= out
+      eventService.getEventIdsByMemberId(userId).map { ids =>
+        ids.foreach { eventId =>
+          conversations(eventId) -= out
+        }
       }
-      
-      override def postStop(): Unit = {
-         eventService.getEventIdsByMemberId(userId).map{ ids =>
-            ids.foreach{ eventId=>
-               conversations(eventId)-= out
-            }
-         }
-         logger.info(s"Now users online: ${conversations.size}")
-      }
-      
-   }
-   
+      logger.info(s"Now users online: ${conversations.size}")
+    }
+
+  }
+
 }

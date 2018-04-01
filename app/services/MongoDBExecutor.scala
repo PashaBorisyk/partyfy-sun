@@ -1,10 +1,10 @@
 package services
 
-import javax.inject.{Inject, Provider, Singleton}
-
-import com.mongodb.casbah.MongoClient
+import com.mongodb.DBCollection
 import com.mongodb.casbah.Imports._
-import play.api.{Application, Configuration, Play}
+import com.mongodb.casbah.{MongoClient, TypeImports}
+import javax.inject.{Inject, Singleton}
+import play.api.Configuration
 import util._
 
 
@@ -13,14 +13,14 @@ class MongoDBExecutor @Inject()(
                                val configuration: Configuration
                                ) {
    
-   private val db: MongoDB = {
-      logger.info("mongo db counstructing...")
+   private lazy val db: MongoDB = {
+      logger.debug("mongo db counstructing...")
       MongoClient(
          configuration.get[String]("mongo.host"),
          configuration.get[Int]("mongo.port")
       ).getDB(configuration.get[String]("mongo.db"))
    }
-   def forName(collectionName:String) = db.getCollection(collectionName)
-   def clearCollection(collectionName:String) = db(collectionName).remove(MongoDBObject())
+   def forName(collectionName:String): DBCollection = db.getCollection(collectionName)
+   def clearCollection(collectionName:String): TypeImports.WriteResult = db(collectionName).remove(MongoDBObject())
    
 }

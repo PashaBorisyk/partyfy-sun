@@ -1,11 +1,11 @@
 package controllers.rest
 
+import db.services.UserServiceImpl
+import implicits.implicits._
 import javax.inject.{Inject, Singleton}
-import db.services.UserService
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
 import play.api.mvc._
 import slick.jdbc.JdbcProfile
-import implicits.implicits._
 import util._
 
 import scala.concurrent.ExecutionContext
@@ -13,9 +13,9 @@ import scala.concurrent.ExecutionContext
 
 @Singleton
 class UserControllerImpl @Inject()(
-                                     protected val dbConfigProvider: DatabaseConfigProvider,
-                                     protected val userService: UserService,
-                                     cc: ControllerComponents)(implicit ec: ExecutionContext)
+                                    protected val dbConfigProvider: DatabaseConfigProvider,
+                                    protected val userService: UserServiceImpl,
+                                    cc: ControllerComponents)(implicit ec: ExecutionContext)
    extends AbstractController(cc) with HasDatabaseConfigProvider[JdbcProfile] {
    
    def checkUserExistence(nickName: String) = Action.async {

@@ -1,24 +1,19 @@
 package controllers.rest
 
-import java.io.File
 import java.nio.file.Paths
+
+import db.services.HipeImageServiceImpl
 import javax.imageio.ImageIO
 import javax.inject.Inject
-
-import db.services.HipeImageService
-import models.HipeImage
-import org.imgscalr.Scalr
-import util._
-import util.Const._
 import play.api.mvc.{AbstractController, ControllerComponents}
-import implicits.implicits._
 import services.ImageWriterService
+import util._
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class HipeImageController @Inject()(
                                       cc: ControllerComponents,
-                                      private val hipeImageService: HipeImageService
+                                      private val hipeImageService: HipeImageServiceImpl
                                    )(implicit ec: ExecutionContext)
    extends AbstractController(cc) {
    
@@ -49,7 +44,7 @@ class HipeImageController @Inject()(
    def get(id: Long) = Action.async {
       req =>
          logger.info(req.toString())
-         hipeImageService.get(id).map {
+         hipeImageService.findById(id).map {
             s => Ok(s.toJson)
          }.recover {
             case e: Exception => InternalServerError({
@@ -75,7 +70,7 @@ class HipeImageController @Inject()(
    def getByEventId(eventId: Long) = Action.async {
       req =>
          logger.info(req.toString())
-         hipeImageService.getByEventId(eventId).map {
+         hipeImageService.findByEventId(eventId).map {
             s => if (s.nonEmpty) Ok(s.toArray.toJson) else NoContent
          }.recover {
             case e: Exception => InternalServerError({
@@ -88,7 +83,7 @@ class HipeImageController @Inject()(
    def getByUserId(userId: Long) = Action.async {
       req =>
          logger.info(req.toString())
-         hipeImageService.getByUserId(userId).map {
+         hipeImageService.findByUserId(userId).map {
             
             s => if (s.nonEmpty) Ok(s.toArray.toJson) else NoContent
          }.recover {

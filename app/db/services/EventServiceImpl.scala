@@ -1,26 +1,26 @@
 package db.services
 
 
+import db.services.interfaces.EventService
 import javax.inject.Inject
-
-import slick.jdbc.PostgresProfile.api._
 import models._
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
 import slick.jdbc.JdbcProfile
+import slick.jdbc.PostgresProfile.api._
 
 import scala.concurrent.duration._
 import scala.concurrent.{Await, ExecutionContext, Future}
 
-class EventService @Inject()(
+class EventServiceImpl @Inject()(
                                protected val dbConfigProvider: DatabaseConfigProvider,
                             )(implicit ec: ExecutionContext)
-   extends HasDatabaseConfigProvider[JdbcProfile] {
+   extends HasDatabaseConfigProvider[JdbcProfile] with EventService {
    
    val eventTable = TableQuery[EventDAO]
    val userEventTable = TableQuery[EventUserDAO]
    val imageTable = TableQuery[HipeImageDAO]
    
-   def getEventById(id: Long) = {
+   override def getEventById(id: Long) = {
       val query = (for {
          (event,image) <- eventTable joinLeft imageTable on (_.eventImageId === _.id)
       } yield (event,image)).filter(_._1.id === id)
@@ -36,11 +36,11 @@ class EventService @Inject()(
    
    }
    
-   def delete(id: Long) = {
+   override def delete(id: Long) = {
       db.run(eventTable.filter(_.id === id).delete)
    }
    
-   def create(event: (Event, Set[Long])) = Future{
+   override def create(event: (Event, Set[Long])) = Future{
       val query = eventTable returning eventTable.map(_.id)
       val eventId = Await.result(db.run(query += event._1),5.second)
       event._2.foreach{id =>
@@ -49,11 +49,11 @@ class EventService @Inject()(
       eventId
    }
    
-   def update(event: Event) = {
+   override def update(event: Event) = {
       db.run(eventTable.filter(_.id === event.id).update(event))
    }
    
-   def getEventsByOwner(userId: Long) = {
+   override def getEventsByOwner(userId: Long) = {
       
       val query = (for {
          (event,image) <- eventTable joinLeft imageTable on (_.eventImageId === _.id)
@@ -70,7 +70,7 @@ class EventService @Inject()(
    
    }
    
-   def getEventsByMemberId(userId: Long) = {
+   override def getEventsByMemberId(userId: Long) = {
       
       val query = (for {
          (event,image) <- eventTable joinLeft imageTable on (_.eventImageId === _.id)
@@ -87,11 +87,11 @@ class EventService @Inject()(
    
    }
    
-   def getEventIdsByMemberId(userId:Long) = {
+   override def getEventIdsByMemberId(userId:Long) = {
       db.run(eventTable.filter{e => e.id in userEventTable.filter { s => s.userId === userId }.map(_.eventId)}.map(_.id).result)
    }
    
-   def getEvents(userId: Long, latitude: Double, longtitude: Double, lastReadEventId: Long) = {
+   override def getEvents(userId: Long, latitude: Double, longtitude: Double, lastReadEventId: Long) = {
       
       val query = (for {
          (event,image) <- eventTable joinLeft imageTable on (_.eventImageId === _.id)
@@ -113,11 +113,11 @@ class EventService @Inject()(
       }
    }
    
-   def addMemberToEvent(eventId: Long, userId: Long, advancedUserId: Long) = {
+   override def addMemberToEvent(eventId: Long, userId: Long, advancedUserId: Long) = {
       db.run(userEventTable += EventUser(eventId, advancedUserId))
    }
    
-   def cancelEvent(userId: Long, eventId: Long) = {
+   override def cancelEvent(userId: Long, eventId: Long) = {
       
       db.run(eventTable.filter(_.id === eventId).map(_.creatorId).result.head).map {
          id =>
@@ -129,7 +129,7 @@ class EventService @Inject()(
       
    }
    
-   def removeMember(userId: Long, advancedUserId: Long, eventId: Long) = {
+   override def removeMember(userId: Long, advancedUserId: Long, eventId: Long) = {
       
       if (userId == advancedUserId)
          db.run(userEventTable.filter { e => e.eventId === eventId && e.userId === userId }.delete)

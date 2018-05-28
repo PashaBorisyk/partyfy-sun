@@ -1,4 +1,4 @@
-package controllers.rest
+package controllers.websocket
 
 import akka.actor.{Actor, ActorRef, ActorSystem, Props}
 import akka.stream.Materializer

@@ -8,7 +8,7 @@ import slick.jdbc.JdbcProfile
 import slick.jdbc.PostgresProfile.api._
 
 import scala.concurrent.duration._
-import scala.concurrent.{Await, ExecutionContext}
+import scala.concurrent.{Await, ExecutionContext, Future}
 
 class UserServiceImpl @Inject()(
                              protected val dbConfigProvider: DatabaseConfigProvider,
@@ -74,16 +74,16 @@ class UserServiceImpl @Inject()(
       db.run(friendsTable.filter{_.userId1 === userId}.map(_.userId2).result)
    }
    
-   def findUser(userId: Long, query: String) = {
+   def findUser(userId: Long, searchString: String): Future[Seq[(User, Serializable with Product)]] = {
       
-      val queries = query.split("\\s+").mkString("|")
+      val queries = searchString.split("\\s+").mkString("|")
       val id = userId.toString
       
-      val q = sql"""
+      val query = sql"""
                SELECT id FROM public.user WHERE nickname ~* '#$queries' OR surname ~* '#$queries' OR name ~* '#$queries' AND id != #$id ORDER BY id DESC
              """.as[Long]
       
-      val idSet = Await.result(db.run(q),10.seconds)
+      val idSet = Await.result(db.run(query),10.seconds)
       
       val dbquery = (
          for {

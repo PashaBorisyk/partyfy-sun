@@ -1,18 +1,21 @@
 package db.services
 
 
+import controllers.websocket.FrontendWebSocketConnector
 import db.services.interfaces.EventService
 import javax.inject.Inject
 import models._
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
 import slick.jdbc.JdbcProfile
 import slick.jdbc.PostgresProfile.api._
+import util.Const
 
 import scala.concurrent.duration._
 import scala.concurrent.{Await, ExecutionContext, Future}
 
 class EventServiceImpl @Inject()(
-                               protected val dbConfigProvider: DatabaseConfigProvider,
+                                   val frontendWebSocketConnector: FrontendWebSocketConnector,
+                                   protected val dbConfigProvider: DatabaseConfigProvider,
                             )(implicit ec: ExecutionContext)
    extends HasDatabaseConfigProvider[JdbcProfile] with EventService {
    
@@ -37,7 +40,15 @@ class EventServiceImpl @Inject()(
    }
    
    override def delete(id: Long) = {
-      db.run(eventTable.filter(_.id === id).delete)
+      val result = db.run(eventTable.filter(_.id === id).delete)
+      
+      frontendWebSocketConnector.webSocketActor! EventMessage[Long](
+         `type` = Const.MSG_TYPE_DELETED,
+         category = Const.MSG_CATEGORY_ENTITY,
+         instanceOf = Const.MSG_INSTANCE_OF_EVENT,
+         body = id
+      )
+      result
    }
    
    override def create(event: (Event, Set[Long])) = Future{
@@ -46,11 +57,14 @@ class EventServiceImpl @Inject()(
       event._2.foreach{id =>
          db.run(userEventTable+= EventUser(eventId,id))
       }
+      
+      
       eventId
    }
    
    override def update(event: Event) = {
-      db.run(eventTable.filter(_.id === event.id).update(event))
+      val result = db.run(eventTable.filter(_.id === event.id).update(event))
+      result
    }
    
    override def getEventsByOwner(userId: Long) = {

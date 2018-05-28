@@ -1,5 +1,6 @@
 package controllers.rest
 
+import controllers.websocket.FrontendWebSocketConnector
 import db.services.interfaces.ChatMessageService
 import db.services.{EventServiceImpl, UserServiceImpl}
 import implicits.implicits._
@@ -11,6 +12,7 @@ import scala.concurrent.ExecutionContext
 
 class EventControllerImpl @Inject()(
                                      cc: ControllerComponents,
+                                   
                                      val eventService: EventServiceImpl,
                                      val userService: UserServiceImpl,
                                      val chats:ChatMessageService

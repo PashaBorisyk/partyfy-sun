@@ -14,12 +14,15 @@ class MongoDBExecutor @Inject()(
                                ) {
    
    private lazy val db: MongoDB = {
-      logger.debug("mongo db counstructing...")
-      MongoClient(
+      logger.debug("mongo db client creating...")
+      val client = MongoClient(
          configuration.get[String]("mongo.host"),
          configuration.get[Int]("mongo.port")
       ).getDB(configuration.get[String]("mongo.db"))
+      logger.debug(s"Mongo db client created : $client")
+      client
    }
+
    def forName(collectionName:String): DBCollection = db.getCollection(collectionName)
    def clearCollection(collectionName:String): TypeImports.WriteResult = db(collectionName).remove(MongoDBObject())
    

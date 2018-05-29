@@ -1,6 +1,6 @@
 package db.services
 
-import controllers.websocket.FrontendWebSocketConnector
+import controllers.websocket.EventPublisherWebSocketConnector
 import db.services.interfaces.EventNewsService
 import javax.inject.Inject
 import models.{EventNewsDAO, EventUserDAO}

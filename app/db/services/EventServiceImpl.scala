@@ -1,7 +1,7 @@
 package db.services
 
 
-import controllers.websocket.FrontendWebSocketConnector
+import controllers.websocket.EventPublisherWebSocketConnector
 import db.services.interfaces.EventService
 import javax.inject.Inject
 import models._
@@ -14,7 +14,7 @@ import scala.concurrent.duration._
 import scala.concurrent.{Await, ExecutionContext, Future}
 
 class EventServiceImpl @Inject()(
-                                   val frontendWebSocketConnector: FrontendWebSocketConnector,
+                                   val frontendWebSocketConnector: EventPublisherWebSocketConnector,
                                    protected val dbConfigProvider: DatabaseConfigProvider,
                             )(implicit ec: ExecutionContext)
    extends HasDatabaseConfigProvider[JdbcProfile] with EventService {
@@ -42,7 +42,7 @@ class EventServiceImpl @Inject()(
    override def delete(id: Long) = {
       val result = db.run(eventTable.filter(_.id === id).delete)
       
-      frontendWebSocketConnector.webSocketActor! EventMessage[Long](
+      frontendWebSocketConnector.webSocketActor ! EventMessage[Long](
          `type` = Const.MSG_TYPE_DELETED,
          category = Const.MSG_CATEGORY_ENTITY,
          instanceOf = Const.MSG_INSTANCE_OF_EVENT,

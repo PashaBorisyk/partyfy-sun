@@ -102,6 +102,9 @@ object Const {
    final val MSG_INSTANCE_OF_EVENT = 0
    final val MSG_INSTANCE_OF_USER = 1
    final val MSG_INSTANCE_OF_MESSAGE = 2
-   
+
+   final val CONNECTION_FOR_CATEGORY = "for_category"
+   final val CONNECTION_FOR_TYPE = "for_type"
+   final val CONNECTION_FOR_INSTANCE_OF = "for_instance_of"
    
 }

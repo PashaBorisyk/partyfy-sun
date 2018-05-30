@@ -11,8 +11,8 @@ trait EventService {
 
   def getEventById(id:Long):Future[Seq[(Event,Serializable with Product)]]
   def delete(id:Long):Future[Int]
-  def create(event: (Event,Set[Long])) : Future[Long]
-  def update(event: Event):Future[Int]
+  def create(event: (Event,Set[Long])) : Future[(Event,Set[Long])]
+  def update(event: Event):Future[Event]
   def getEventsByOwner(userId:Long):Future[Seq[(Event,Serializable with Product)]]
   def getEventsByMemberId(userId:Long):Future[Seq[(Event,Serializable with Product)]]
   def getEventIdsByMemberId(userId:Long):Future[Seq[Long]]

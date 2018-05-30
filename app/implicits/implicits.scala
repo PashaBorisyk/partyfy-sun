@@ -28,6 +28,9 @@ package object implicits {
       r.<<
    ))
    
+   
+   implicit def any2Int(any: Any):Int = Integer.parseInt(any.toString)
+   
    implicit def req2Event(requestBody: AnyContent): Event = gson.fromJson(requestBody.asText.getOrElse("null"), classOf[Event])
    
    implicit def req2User(requestBody: AnyContent): User = gson.fromJson(requestBody.asText.getOrElse("null"), classOf[User])

@@ -1,6 +1,5 @@
 package controllers.rest
 
-import controllers.websocket.EventPublisherWebSocketConnector
 import db.services.interfaces.ChatMessageService
 import db.services.{EventServiceImpl, UserServiceImpl}
 import implicits.implicits._
@@ -20,7 +19,7 @@ class EventControllerImpl @Inject()(
                                       val chats: ChatMessageService
                                    )(implicit ec: ExecutionContext)
    extends AbstractController(cc) {
-
+   
    def createEvent() = Action.async {
       req =>
          logger.info(req.toString())
@@ -28,27 +27,35 @@ class EventControllerImpl @Inject()(
             result =>
                eventMessagePublisherService.publishCreated[(Event, Set[Long])](
                   Const.MSG_INSTANCE_OF_EVENT,
-                  req.body._1.copy(id = result) -> req.body._2
+                  result
                )
+               
                Created(result.toJson)
          }.recover {
             case e: Exception => InternalServerError({
-               e.printStackTrace(); e.getMessage
+               e.printStackTrace()
+               e.getMessage
             })
          }
    }
-
+   
    def updateEvent() = Action.async {
       req =>
          eventService.update(req.body).map {
-            result => Ok(result.toJson)
+            result =>
+               eventMessagePublisherService.publishUpdated[(Event,Event)](
+                  Const.MSG_INSTANCE_OF_EVENT,
+                  req.body->
+               )
+               Ok(result.toJson)
          }.recover {
             case e: Exception => InternalServerError({
-               e.printStackTrace(); e.getMessage
+               e.printStackTrace()
+               e.getMessage
             })
          }
    }
-
+   
    def getById(id: Long) = Action.async {
       req =>
          logger.info(req.toString)
@@ -56,12 +63,13 @@ class EventControllerImpl @Inject()(
             e => Ok(e.toJson)
          }.recover {
             case e: Exception => InternalServerError({
-               e.printStackTrace(); e.getMessage
+               e.printStackTrace();
+               e.getMessage
             })
          }
-
+      
    }
-
+   
    def getByOwner(userId: Long) = Action.async {
       req =>
          logger.info(req.toString())
@@ -69,26 +77,28 @@ class EventControllerImpl @Inject()(
             result => if (result.nonEmpty) Ok(result.toArray.toJson) else NoContent
          }.recover {
             case e: Exception => InternalServerError({
-               e.printStackTrace(); e.getMessage
+               e.printStackTrace();
+               e.getMessage
             })
          }
-
+      
    }
-
+   
    def getByMember(userId: Long) = Action.async {
       req =>
-
+         
          logger.info(req.toString())
          eventService.getEventsByMemberId(userId).map {
             result => Ok(result.toArray.toJson)
          }.recover {
             case e: Exception => InternalServerError({
-               e.printStackTrace(); e.getMessage
+               e.printStackTrace();
+               e.getMessage
             })
          }
-
+      
    }
-
+   
    def getEvents(userId: Long, latitude: Double, longtitude: Double, lastReadEventId: Long) = Action.async {
       req =>
          logger.info(req.toString())
@@ -96,12 +106,13 @@ class EventControllerImpl @Inject()(
             result => logger.info(result.toArray.toJson); Ok(result.toArray.toJson)
          }.recover {
             case e: Exception => InternalServerError({
-               e.printStackTrace(); e.getMessage
+               e.printStackTrace();
+               e.getMessage
             })
          }
-
+      
    }
-
+   
    def cancelEvent(userId: Long, eventId: Long) = Action.async {
       req =>
          logger.info(req.toString())
@@ -109,11 +120,12 @@ class EventControllerImpl @Inject()(
             result => Ok(result.toJson)
          }.recover {
             case e: Exception => InternalServerError({
-               e.printStackTrace(); e.getMessage
+               e.printStackTrace();
+               e.getMessage
             })
          }
    }
-
+   
    def removeMember(userId: Long, advancedUserId: Long, eventId: Long) = Action.async {
       req =>
          logger.info(req.toString())
@@ -121,12 +133,13 @@ class EventControllerImpl @Inject()(
             result => Ok(result.toJson)
          }.recover {
             case e: Exception => InternalServerError({
-               e.printStackTrace(); e.getMessage
+               e.printStackTrace();
+               e.getMessage
             })
          }
-
+      
    }
-
+   
    def addMemberToEvent(eventId: Long, userId: Long, advancedUserId: Long) = Action.async {
       req =>
          logger.info(req.toString())
@@ -134,10 +147,11 @@ class EventControllerImpl @Inject()(
             result => Ok(result.toJson)
          }.recover {
             case e: Exception => InternalServerError({
-               e.printStackTrace(); e.getMessage
+               e.printStackTrace();
+               e.getMessage
             })
          }
-
+      
    }
-
+   
 }

@@ -27,6 +27,7 @@ class EventNewsServiceImpl @Inject()(
       }.filter {
          _.id > lastReadId
       }.take(20).sortBy(_.id.asc).result)
+   
    }
    
 }

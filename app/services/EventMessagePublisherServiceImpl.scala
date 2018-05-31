@@ -11,28 +11,25 @@ class EventMessagePublisherServiceImpl @Inject()(
                                                 val frontendWebSocketConnector: EventPublisherWebSocketConnector
                                                 ) extends EventMessagePublisherService{
 
-   override def publishCreated[T <: Any](instanceOf: Int, body: T): Unit ={
+   override def publishCreated[T <: Any](body: T): Unit ={
       frontendWebSocketConnector.webSocketActor ! EventMessage(
          `type` = Const.MSG_TYPE_CREATED,
-         instanceOf = instanceOf,
          body = body,
          category = Const.MSG_CATEGORY_ENTITY
       )
    }
 
-   override def publishDeleted[T <: Any](instanceOf: Int, body: T): Unit = {
+   override def publishDeleted[T <: Any](body: T): Unit = {
       frontendWebSocketConnector.webSocketActor ! EventMessage(
          `type` = Const.MSG_TYPE_DELETED,
-         instanceOf = instanceOf,
          body = body,
          category = Const.MSG_CATEGORY_ENTITY
       )
    }
 
-   override def publishUpdated[T<:Any](instanceOf: Int, body: T): Unit = {
+   override def publishUpdated[T<:Any](body: T): Unit = {
       frontendWebSocketConnector.webSocketActor ! EventMessage(
          `type` = Const.MSG_TYPE_UPDATED,
-         instanceOf = instanceOf,
          body = body,
          category = Const.MSG_CATEGORY_ENTITY
       )

@@ -4,6 +4,5 @@ case class EventMessage[T <: Any](
                                     time:Long = System.currentTimeMillis(),
                                     `type`:Int,
                                     category:Int,
-                                    instanceOf:Int,
                                     body:T
-                                    )
+                                 )

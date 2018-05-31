@@ -47,7 +47,7 @@ class EventServiceImpl @Inject()(
    }
    
    override def create(event: (Event, Set[Long])) = {
-      val query = eventTable returning eventTable.map(_.*)
+      val query = eventTable returning eventTable.map(s => s)
       val eventFuture: Future[Event] = db.run(query += event._1)
       val result = eventFuture.map { createdEvent =>
          

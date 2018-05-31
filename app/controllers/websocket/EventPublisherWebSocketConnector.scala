@@ -2,7 +2,6 @@ package controllers.websocket
 
 import akka.actor.{Actor, ActorRef, ActorSystem, Props}
 import akka.stream.Materializer
-import db.services.{ChatMessageServiceImpl, EventServiceImpl}
 import javax.inject.Inject
 import play.api.libs.streams.ActorFlow
 import play.api.mvc.{AbstractController, ControllerComponents, WebSocket}
@@ -18,9 +17,10 @@ import scala.concurrent.ExecutionContext
 class EventPublisherWebSocketConnector @Inject()(cc: ControllerComponents)
                                                 (implicit system: ActorSystem, mat: Materializer, ec: ExecutionContext) extends AbstractController(cc) {
 
-   private type ConnectionType = (Int, Int, Int)
+   private type ConnectionType = (Int, Int)
 
-   private final lazy val connections = mutable.LinkedHashMap[ConnectionType, mutable.LinkedHashSet[ConnectionHandler]]()
+   private final lazy val connections = mutable.LinkedHashMap[
+      ConnectionType, mutable.LinkedHashMap[String,mutable.LinkedHashSet[ConnectionHandler]]]()
    private final var webSocketActor_ = system.actorOf(Props(new MessageListener))
 
    def webSocketActor:ActorRef = webSocketActor_
@@ -31,22 +31,21 @@ class EventPublisherWebSocketConnector @Inject()(cc: ControllerComponents)
 
          val `type` = req.getQueryString(Const.CONNECTION_FOR_TYPE).getOrElse(-1)
          val category = req.getQueryString(Const.CONNECTION_FOR_CATEGORY).getOrElse(-1)
-         val instanceOf = req.getQueryString(Const.CONNECTION_FOR_INSTANCE_OF).getOrElse(-1)
+         
+         val connectionType = new ConnectionType(`type`, category)
 
-         val connectionType = new ConnectionType(`type`, category, instanceOf)
-
-         if (connectionType._1 < 0 && connectionType._2 < 0 && connectionType._3 < 0)
+         if (connectionType._1 < 0 && connectionType._2 < 0)
             return null
 
-         Props(new ConnectionHandler(connectionType, out))
+         Props(new ConnectionHandler(connectionType, req.remoteAddress,out))
       }
    }
 
-   private class ConnectionHandler(connectionType: ConnectionType, out: ActorRef) extends Actor {
+   private class ConnectionHandler(connectionType: ConnectionType,remoteAddress:String, out: ActorRef) extends Actor {
 
       override def preStart(): Unit = {
          logger.debug(s"Catching connection $connections")
-         connections(connectionType) += this
+         connections(connectionType)(remoteAddress) += this
       }
 
       override def receive: PartialFunction[Any, Unit] = {
@@ -56,7 +55,7 @@ class EventPublisherWebSocketConnector @Inject()(cc: ControllerComponents)
    
       override def postStop() : Unit = {
          logger.debug(s"Releasing connection $connections")
-         connections(connectionType) -= this
+         connections(connectionType)(remoteAddress) -= this
       }
 
    }
@@ -69,9 +68,15 @@ class EventPublisherWebSocketConnector @Inject()(cc: ControllerComponents)
 
       override def receive: PartialFunction[Any, Unit] = {
          case msg: EventMessage[_] =>
-            val key = (msg.`type`, msg.category, msg.instanceOf)
+            val key = (msg.`type`, msg.category)
             /*Do some stuff in here */
-            connections.get(key).foreach(connectionList => connectionList.foreach(_.self ! msg))
+            connections.get(key).foreach(
+               connectionList =>
+                  connectionList.foreach(
+                     _._2.foreach(_.self!msg
+                     )
+                  )
+            )
 
       }
 

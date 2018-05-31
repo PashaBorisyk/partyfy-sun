@@ -25,11 +25,7 @@ class EventControllerImpl @Inject()(
          logger.info(req.toString())
          eventService.create(req.body).map {
             result =>
-               eventMessagePublisherService.publishCreated[(Event, Set[Long])](
-                  Const.MSG_INSTANCE_OF_EVENT,
-                  result
-               )
-               
+               eventMessagePublisherService.publishCreated(result)
                Created(result.toJson)
          }.recover {
             case e: Exception => InternalServerError({
@@ -89,7 +85,7 @@ class EventControllerImpl @Inject()(
          
          logger.info(req.toString())
          eventService.getEventsByMemberId(userId).map {
-            result => Ok(result.toArray.toJson)
+            result =>  if (result.nonEmpty) Ok(result.toArray.toJson) else NoContent
          }.recover {
             case e: Exception => InternalServerError({
                e.printStackTrace();
@@ -106,7 +102,7 @@ class EventControllerImpl @Inject()(
             result => logger.info(result.toArray.toJson); Ok(result.toArray.toJson)
          }.recover {
             case e: Exception => InternalServerError({
-               e.printStackTrace();
+               e.printStackTrace()
                e.getMessage
             })
          }
@@ -120,7 +116,7 @@ class EventControllerImpl @Inject()(
             result => Ok(result.toJson)
          }.recover {
             case e: Exception => InternalServerError({
-               e.printStackTrace();
+               e.printStackTrace()
                e.getMessage
             })
          }
@@ -133,7 +129,7 @@ class EventControllerImpl @Inject()(
             result => Ok(result.toJson)
          }.recover {
             case e: Exception => InternalServerError({
-               e.printStackTrace();
+               e.printStackTrace()
                e.getMessage
             })
          }
@@ -147,7 +143,7 @@ class EventControllerImpl @Inject()(
             result => Ok(result.toJson)
          }.recover {
             case e: Exception => InternalServerError({
-               e.printStackTrace();
+               e.printStackTrace()
                e.getMessage
             })
          }

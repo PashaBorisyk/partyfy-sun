@@ -5,7 +5,7 @@ import db.services.{EventServiceImpl, UserServiceImpl}
 import implicits.implicits._
 import javax.inject.Inject
 import models.Event
-import play.api.mvc.{AbstractController, ControllerComponents}
+import play.api.mvc.{AbstractController, Action, AnyContent, ControllerComponents}
 import services.traits.EventMessagePublisherService
 import util._
 
@@ -20,7 +20,7 @@ class EventControllerImpl @Inject()(
                                    )(implicit ec: ExecutionContext)
    extends AbstractController(cc) {
    
-   def createEvent() = Action.async {
+   def createEvent(): Action[AnyContent] = Action.async {
       req =>
          logger.info(req.toString())
          eventService.create(req.body).map {
@@ -35,7 +35,7 @@ class EventControllerImpl @Inject()(
          }
    }
    
-   def updateEvent() = Action.async {
+   def updateEvent(): Action[AnyContent] = Action.async {
       req =>
          eventService.update(req.body).map {
             result =>
@@ -52,35 +52,35 @@ class EventControllerImpl @Inject()(
          }
    }
    
-   def getById(id: Long) = Action.async {
+   def getById(id: Long): Action[AnyContent] = Action.async {
       req =>
          logger.info(req.toString)
          eventService.getEventById(id).map {
             e => Ok(e.toJson)
          }.recover {
             case e: Exception => InternalServerError({
-               e.printStackTrace();
+               e.printStackTrace()
                e.getMessage
             })
          }
       
    }
    
-   def getByOwner(userId: Long) = Action.async {
+   def getByOwner(userId: Long): Action[AnyContent] = Action.async {
       req =>
          logger.info(req.toString())
          eventService.getEventsByOwner(userId).map {
             result => if (result.nonEmpty) Ok(result.toArray.toJson) else NoContent
          }.recover {
             case e: Exception => InternalServerError({
-               e.printStackTrace();
+               e.printStackTrace()
                e.getMessage
             })
          }
       
    }
    
-   def getByMember(userId: Long) = Action.async {
+   def getByMember(userId: Long): Action[AnyContent] = Action.async {
       req =>
          
          logger.info(req.toString())
@@ -88,14 +88,14 @@ class EventControllerImpl @Inject()(
             result =>  if (result.nonEmpty) Ok(result.toArray.toJson) else NoContent
          }.recover {
             case e: Exception => InternalServerError({
-               e.printStackTrace();
+               e.printStackTrace()
                e.getMessage
             })
          }
       
    }
    
-   def getEvents(userId: Long, latitude: Double, longtitude: Double, lastReadEventId: Long) = Action.async {
+   def getEvents(userId: Long, latitude: Double, longtitude: Double, lastReadEventId: Long): Action[AnyContent] = Action.async {
       req =>
          logger.info(req.toString())
          eventService.getEvents(userId, latitude, longtitude, lastReadEventId).map {
@@ -109,7 +109,7 @@ class EventControllerImpl @Inject()(
       
    }
    
-   def cancelEvent(userId: Long, eventId: Long) = Action.async {
+   def cancelEvent(userId: Long, eventId: Long): Action[AnyContent] = Action.async {
       req =>
          logger.info(req.toString())
          eventService.cancelEvent(userId, eventId).map {
@@ -122,7 +122,7 @@ class EventControllerImpl @Inject()(
          }
    }
    
-   def removeMember(userId: Long, advancedUserId: Long, eventId: Long) = Action.async {
+   def removeMember(userId: Long, advancedUserId: Long, eventId: Long): Action[AnyContent] = Action.async {
       req =>
          logger.info(req.toString())
          eventService.removeMember(userId, advancedUserId, eventId).map {
@@ -136,7 +136,7 @@ class EventControllerImpl @Inject()(
       
    }
    
-   def addMemberToEvent(eventId: Long, userId: Long, advancedUserId: Long) = Action.async {
+   def addMemberToEvent(eventId: Long, userId: Long, advancedUserId: Long): Action[AnyContent] = Action.async {
       req =>
          logger.info(req.toString())
          eventService.addMemberToEvent(eventId, userId, advancedUserId).map {

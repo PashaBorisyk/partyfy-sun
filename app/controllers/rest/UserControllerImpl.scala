@@ -20,7 +20,7 @@ class UserControllerImpl @Inject()(
    
    def checkUserExistence(nickName: String) = Action.async {
       req =>
-         logger.info(req.toString)
+         logger.debug(req.toString)
          userService.checkUserExistence(nickName).map {
             s: Boolean => if (s) Found(s"User with nickname: $nickName already exists") else NoContent
          }.recover {
@@ -31,7 +31,7 @@ class UserControllerImpl @Inject()(
    
    def registerUser = Action.async {
       req =>
-         logger.info(req.toString)
+         logger.debug(req.toString)
          userService.registerUser(req.body).map {
             id: Long => Created(id.toJson)
          }.recover {
@@ -42,7 +42,7 @@ class UserControllerImpl @Inject()(
    
    def updateUser() = Action.async {
       req =>
-         logger.info(req.toString)
+         logger.debug(req.toString)
          userService.updateUser(req.body).map {
             id: Int => Created(id.toJson)
          }.recover {
@@ -53,7 +53,7 @@ class UserControllerImpl @Inject()(
    
    def findUser(requesterUserId: Long, query: String) = Action.async {
       req =>
-         logger.info(req.toString)
+         logger.debug(req.toString)
          userService.findUser(requesterUserId, query).map { s =>
             if(s.nonEmpty)
                Ok(s.toArray.toJson)
@@ -66,7 +66,7 @@ class UserControllerImpl @Inject()(
    
    def addUserToFriends(userId: Long, advancedUserId: Long) = Action.async {
       req =>
-         logger.info(req.toString)
+         logger.debug(req.toString)
          userService.addUserToFriends(userId, advancedUserId).map {
             _ => Ok(advancedUserId.toJson)
          }.recover {
@@ -77,7 +77,7 @@ class UserControllerImpl @Inject()(
    
    def removeUserFromFriends(userId: Long, advancedUserId: Long) = Action.async {
       req =>
-         logger.info(req.toString)
+         logger.debug(req.toString)
          userService.removeUserFromFriends(userId, advancedUserId).map {
             _ => Accepted(advancedUserId.toJson)
          }.recover {
@@ -88,7 +88,7 @@ class UserControllerImpl @Inject()(
    
    def getById(userId: Long) = Action.async {
       req =>
-         logger.info(req.toString)
+         logger.debug(req.toString)
          userService.getById(userId).map {
             s => Ok(s.toJson)
          }.recover {
@@ -99,7 +99,7 @@ class UserControllerImpl @Inject()(
    
    def getFriends(userId: Long) = Action.async {
       req =>
-         logger.info(req.toString)
+         logger.debug(req.toString)
          userService.getFriends(userId).map {
             s => Ok(s.toArray.toJson)
          }.recover {
@@ -109,7 +109,7 @@ class UserControllerImpl @Inject()(
    
    def getFriendsIds(userId: Long) = Action.async {
       req =>
-         logger.info(req.toString)
+         logger.debug(req.toString)
          userService.getFriendsIds(userId).map {
             s => Ok(s.toArray.toJson)
          }.recover {
@@ -119,7 +119,7 @@ class UserControllerImpl @Inject()(
    
    def getUsersByEvent(eventId: Long) = Action.async {
       req =>
-         logger.info(req.toString)
+         logger.debug(req.toString)
          userService.getUsersByEventId(eventId).map {
             result => Ok(result.toArray.toJson)
          }.recover {

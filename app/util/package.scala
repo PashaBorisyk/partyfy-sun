@@ -1,13 +1,14 @@
 import java.io.File
 import java.util.Random
 
-import com.google.gson.Gson
+import com.google.gson.{Gson, GsonBuilder}
 import play.api.mvc.Request
 
 
 package object util {
    
    private lazy val gson = new Gson()
+   private lazy val exposedGson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create()
    private lazy val random = new Random
    private lazy val patterns: Array[Char] = Array[Char](
       '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
@@ -45,6 +46,7 @@ package object util {
    
    implicit class Object2Json[T](val t:T){
       def toJson = gson.toJson(t)
+      def toExposedJson = exposedGson.toJson(t)
    }
    
    @inline def isPrimitiveOrString(any: Any) =

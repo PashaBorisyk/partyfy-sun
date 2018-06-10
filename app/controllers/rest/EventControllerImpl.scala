@@ -22,7 +22,7 @@ class EventControllerImpl @Inject()(
    
    def createEvent(): Action[AnyContent] = Action.async {
       req =>
-         logger.info(req.toString())
+         logger.debug(req.toString())
          eventService.create(req.body).map {
             result =>
                eventMessagePublisherService.publishCreated(result)
@@ -54,7 +54,8 @@ class EventControllerImpl @Inject()(
    
    def getById(id: Long): Action[AnyContent] = Action.async {
       req =>
-         logger.info(req.toString)
+         logger.debug(req.toString)
+         eventMessagePublisherService.publishCreated[Event](Event())
          eventService.getEventById(id).map {
             e => Ok(e.toJson)
          }.recover {
@@ -68,7 +69,7 @@ class EventControllerImpl @Inject()(
    
    def getByOwner(userId: Long): Action[AnyContent] = Action.async {
       req =>
-         logger.info(req.toString())
+         logger.debug(req.toString())
          eventService.getEventsByOwner(userId).map {
             result => if (result.nonEmpty) Ok(result.toArray.toJson) else NoContent
          }.recover {
@@ -83,7 +84,7 @@ class EventControllerImpl @Inject()(
    def getByMember(userId: Long): Action[AnyContent] = Action.async {
       req =>
          
-         logger.info(req.toString())
+         logger.debug(req.toString())
          eventService.getEventsByMemberId(userId).map {
             result =>  if (result.nonEmpty) Ok(result.toArray.toJson) else NoContent
          }.recover {
@@ -97,9 +98,9 @@ class EventControllerImpl @Inject()(
    
    def getEvents(userId: Long, latitude: Double, longtitude: Double, lastReadEventId: Long): Action[AnyContent] = Action.async {
       req =>
-         logger.info(req.toString())
+         logger.debug(req.toString())
          eventService.getEvents(userId, latitude, longtitude, lastReadEventId).map {
-            result => logger.info(result.toArray.toJson); Ok(result.toArray.toJson)
+            result => logger.debug(result.toArray.toJson); Ok(result.toArray.toJson)
          }.recover {
             case e: Exception => InternalServerError({
                e.printStackTrace()
@@ -111,7 +112,7 @@ class EventControllerImpl @Inject()(
    
    def cancelEvent(userId: Long, eventId: Long): Action[AnyContent] = Action.async {
       req =>
-         logger.info(req.toString())
+         logger.debug(req.toString())
          eventService.cancelEvent(userId, eventId).map {
             result => Ok(result.toJson)
          }.recover {
@@ -124,7 +125,7 @@ class EventControllerImpl @Inject()(
    
    def removeMember(userId: Long, advancedUserId: Long, eventId: Long): Action[AnyContent] = Action.async {
       req =>
-         logger.info(req.toString())
+         logger.debug(req.toString())
          eventService.removeMember(userId, advancedUserId, eventId).map {
             result => Ok(result.toJson)
          }.recover {
@@ -138,7 +139,7 @@ class EventControllerImpl @Inject()(
    
    def addMemberToEvent(eventId: Long, userId: Long, advancedUserId: Long): Action[AnyContent] = Action.async {
       req =>
-         logger.info(req.toString())
+         logger.debug(req.toString())
          eventService.addMemberToEvent(eventId, userId, advancedUserId).map {
             result => Ok(result.toJson)
          }.recover {

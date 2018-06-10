@@ -14,21 +14,21 @@ class ChatMessageServiceImpl @Inject()(
                                   )(implicit ec: ExecutionContext) extends ChatMessageService {
    
    lazy val chatCollection = {
-      logger.info("Connecting to chat_message_collection")
+      logger.debug("Connecting to chat_message_collection")
       val r = db.forName("chat_message_collection")
-      logger.info(s"collcetion : $r")
+      logger.debug(s"collcetion : $r")
       r
    }
    
    override def create(chatMessage:ChatMessageNOSQL) = {
-      logger.info(s"ChatMessagesService.create($chatMessage)")
+      logger.debug(s"ChatMessagesService.create($chatMessage)")
       Future{
          chatCollection.insert(chatMessage.toDBObject())
       }
    }
    
    override def getByEventId(eventId:Long) = {
-      logger.info(s"ChatMessagesService.getByEventId($eventId)")
+      logger.debug(s"ChatMessagesService.getByEventId($eventId)")
       Future{
          chatCollection.find(ChatMessageNOSQL().toDBObject()).map{ s =>
             println(s)

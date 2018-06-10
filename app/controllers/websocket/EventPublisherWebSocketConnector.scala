@@ -4,10 +4,10 @@ import akka.actor.{Actor, ActorRef, ActorSystem, Props}
 import akka.stream.Materializer
 import implicits.implicits._
 import javax.inject.{Inject, _}
-import models.EventMessage
+import models.{Event, EventMessage}
 import play.api.libs.streams.ActorFlow
 import play.api.mvc.{AbstractController, ControllerComponents, WebSocket}
-import util.{Const, logger}
+import util.{Const, logger, _}
 
 import scala.collection.mutable
 import scala.concurrent.ExecutionContext
@@ -21,9 +21,8 @@ class EventPublisherWebSocketConnector @Inject()(cc: ControllerComponents)
    private final lazy val connections = mutable.LinkedHashMap[
       ConnectionType, mutable.LinkedHashMap[String, mutable.LinkedHashSet[ConnectionHandler]]
       ]()
-   private final val webSocketActor_ = system.actorOf(Props(new MessageListener))
+   final val webSocketActor_ = system.actorOf(Props(new MessageListener))
    
-   def webSocketActor: ActorRef = webSocketActor_
    
    def socket: WebSocket = WebSocket.accept[String, String] { req =>
       ActorFlow.actorRef { out: ActorRef =>
@@ -34,9 +33,6 @@ class EventPublisherWebSocketConnector @Inject()(cc: ControllerComponents)
          
          val connectionType = new ConnectionType(`type`, category)
          
-         if (connectionType._1 < 0 && connectionType._2 < 0)
-            return null
-         
          Props(new ConnectionHandler(connectionType, req.remoteAddress, out))
       }
    }
@@ -44,13 +40,29 @@ class EventPublisherWebSocketConnector @Inject()(cc: ControllerComponents)
    private class ConnectionHandler(connectionType: ConnectionType, remoteAddress: String, out: ActorRef) extends Actor {
       
       override def preStart(): Unit = {
-         logger.debug(s"Catching connection $remoteAddress")
+         logger.debug(s"Creating connection $remoteAddress")
+         if (!connections.contains(connectionType))
+            connections.put(connectionType, mutable.LinkedHashMap())
+         
+         if (!connections(connectionType).contains(remoteAddress))
+            connections(connectionType).put(remoteAddress, mutable.LinkedHashSet())
          connections(connectionType)(remoteAddress) += this
       }
       
       override def receive: PartialFunction[Any, Unit] = {
          case msg: EventMessage[_] =>
-            out ! msg
+            logger.debug(s"Incomming actor message $msg")
+            if (connectionType._1 > 0 && connectionType._2 > 0)
+               out ! msg
+            else {
+               msg.body match {
+                  case e:Event =>
+                     out ! e.toJson
+                  case _ =>
+                     out ! "Next time bro"
+   
+               }
+            }
       }
       
       override def postStop(): Unit = {
@@ -71,6 +83,13 @@ class EventPublisherWebSocketConnector @Inject()(cc: ControllerComponents)
             val key = (msg.`type`, msg.category)
             /*Do some stuff in here */
             connections.get(key).foreach(
+               connectionList =>
+                  connectionList.foreach(
+                     _._2.foreach(_.self ! msg
+                     )
+                  )
+            )
+            connections.get((-1, -1)).foreach(
                connectionList =>
                   connectionList.foreach(
                      _._2.foreach(_.self ! msg

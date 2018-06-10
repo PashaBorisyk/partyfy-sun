@@ -22,7 +22,7 @@ class ChatController @Inject()(cc: ControllerComponents, val chatMessageService:
    lazy val testId = 0
    
    def socket: WebSocket = WebSocket.accept[String, String] { req =>
-      logger.info(s"ChatContoroller.scoket with request : $req")
+      logger.debug(s"ChatContoroller.scoket with request : $req")
       
       ActorFlow.actorRef { out =>
          val username = req.getQueryString("user_id").orElse(Some("0"))
@@ -41,7 +41,7 @@ class ChatController @Inject()(cc: ControllerComponents, val chatMessageService:
                logger.debug(s"Event with id $eventId found")
                found = true
                if (!conversations.contains(eventId)) {
-                  logger.info(s"No conversation with id $eventId found; Creating new conversation")
+                  logger.debug(s"No conversation with id $eventId found; Creating new conversation")
                   conversations(eventId) = mutable.LinkedHashSet()
                }
                conversations(eventId) += out
@@ -56,7 +56,7 @@ class ChatController @Inject()(cc: ControllerComponents, val chatMessageService:
             conversations(testId) += out
          }
          
-         logger.info(s"Now users online: ${conversations.size}")
+         logger.debug(s"Now users online: ${conversations.size}")
       }
       
       override def receive = {
@@ -69,7 +69,7 @@ class ChatController @Inject()(cc: ControllerComponents, val chatMessageService:
                case _: JsonSyntaxException =>
                   chatMessage = ChatMessageNOSQL(message = msg)
             }
-            logger.info(chatMessage.toJson)
+            logger.debug(chatMessage.toJson)
             conversations(chatMessage.eventID).foreach(_ ! chatMessage.toJson)
          
       }
@@ -81,7 +81,7 @@ class ChatController @Inject()(cc: ControllerComponents, val chatMessageService:
                conversations(eventId) -= out
             }
          }
-         logger.info(s"Now users online: ${conversations.size}")
+         logger.debug(s"Now users online: ${conversations.size}")
       }
       
    }

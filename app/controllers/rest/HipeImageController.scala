@@ -19,7 +19,7 @@ class HipeImageController @Inject()(
    
    def upload(userId: Long, eventId: Long) = Action.async(parse.multipartFormData) {
       implicit request =>
-         logger.info(request.toString())
+         logger.debug(request.toString())
          request.body.file(Const.PART_FILE).map { picture =>
             
             val filename = Paths.get(picture.filename).getFileName
@@ -43,7 +43,7 @@ class HipeImageController @Inject()(
    
    def get(id: Long) = Action.async {
       req =>
-         logger.info(req.toString())
+         logger.debug(req.toString())
          hipeImageService.findById(id).map {
             s => Ok(s.toJson)
          }.recover {
@@ -56,7 +56,7 @@ class HipeImageController @Inject()(
    
    def delete(id: Long) = Action.async {
       req =>
-         logger.info(req.toString())
+         logger.debug(req.toString())
          hipeImageService.delete(id).map {
             s => Accepted(s.toJson)
          }.recover {
@@ -69,7 +69,7 @@ class HipeImageController @Inject()(
    
    def getByEventId(eventId: Long) = Action.async {
       req =>
-         logger.info(req.toString())
+         logger.debug(req.toString())
          hipeImageService.findByEventId(eventId).map {
             s => if (s.nonEmpty) Ok(s.toArray.toJson) else NoContent
          }.recover {
@@ -82,7 +82,7 @@ class HipeImageController @Inject()(
    
    def getByUserId(userId: Long) = Action.async {
       req =>
-         logger.info(req.toString())
+         logger.debug(req.toString())
          hipeImageService.findByUserId(userId).map {
             
             s => if (s.nonEmpty) Ok(s.toArray.toJson) else NoContent

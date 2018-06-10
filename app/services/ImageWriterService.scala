@@ -13,7 +13,7 @@ import util.Const._
 object ImageWriterService {
    
    def write(eventId:Long,userId:Long,formatName: String,imageIO: BufferedImage)(implicit request: Request[_]): HipeImage = {
-      logger.info(s"Image write() format name : $formatName ; ratio : ; width : ${imageIO.getWidth}")
+      logger.debug(s"Image write() format name : $formatName ; ratio : ; width : ${imageIO.getWidth}")
    
       val ratio = imageIO.getHeight.toFloat / imageIO.getWidth.toFloat
       
@@ -38,14 +38,14 @@ object ImageWriterService {
       ).foreach {
          e =>
             if (imageIO.getWidth > e._2) {
-               logger.info("Resizing image")
+               logger.debug("Resizing image")
                ImageIO.write(
                   Scalr.resize(imageIO, Scalr.Method.ULTRA_QUALITY, e._2, (e._2 / ratio).toInt),
                   formatName, Paths.get(e._1).toFile
                )
             }
             else {
-               logger.info("Not resizing image")
+               logger.debug("Not resizing image")
                ImageIO.write(imageIO, formatName, Paths.get(e._1).toFile)
             }
          

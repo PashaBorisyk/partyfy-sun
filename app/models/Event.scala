@@ -1,7 +1,12 @@
 package models
 
 import java.io.Serializable
+
+import com.google.gson.annotations.Expose
 import slick.jdbc.PostgresProfile.api._
+
+import scala.annotation.meta.beanGetter
+import scala.beans.BeanProperty
 
 
 case class Event(
@@ -11,19 +16,24 @@ case class Event(
                    dateMills:Long = 0L,
                    creationDateMills:Long = 0L,
                    maxMembers:Long = 0L,
+                   @Expose
                    longtitude:Double = 0.0,
+                   @Expose
                    latitude:Double = 0.0,
+                   @Expose
                    creatorNickname:String = "",
                    country: String = "",
                    city: String = "",
                    street: String = "",
                    localName: String = "",
-                   description: String = "",
+                   @Expose
+                   val description: String = "",
                    isPublic:Boolean = false,
                    isForOneGender:Boolean = false,
                    isForMale:Boolean = false,
                    eventImageId: Long = 0L,
-                   creatorsImageUrl: String = "",
+                   @com.google.gson.annotations.SerializedName("adsdasdasasdasdasd")
+                   val creatorsImageUrl: String = "",
 
 ) extends Serializable
 

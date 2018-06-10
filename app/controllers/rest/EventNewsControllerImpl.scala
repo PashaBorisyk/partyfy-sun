@@ -19,7 +19,7 @@ class EventNewsControllerImpl @Inject()(
    
    def get(userId: Long, lastReadId: Long) = Action.async {
       req =>
-         logger.info(req.toString())
+         logger.debug(req.toString())
          eventNewsService.get(userId, lastReadId).map {
             result => Ok(result.toArray.toJson)
          }.recover {

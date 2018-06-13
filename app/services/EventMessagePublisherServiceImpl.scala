@@ -13,7 +13,7 @@ class EventMessagePublisherServiceImpl @Inject()(
                                                 val frontendWebSocketConnector: EventPublisherWebSocketConnector
                                                 ) extends EventMessagePublisherService{
    
-   override def publishCreated[T <: Any](body: T): Unit ={
+   override def !+[T <: Any](body: T): Unit ={
       
       val event = EventMessage(
          `type` = Const.MSG_TYPE_CREATED,
@@ -23,7 +23,7 @@ class EventMessagePublisherServiceImpl @Inject()(
       frontendWebSocketConnector.webSocketActor_ ! event
    }
 
-   override def publishDeleted[T <: Any](body: T): Unit = {
+   override def !-[T <: Any](body: T): Unit = {
       frontendWebSocketConnector.webSocketActor_ ! EventMessage(
          `type` = Const.MSG_TYPE_DELETED,
          body = body,
@@ -31,7 +31,7 @@ class EventMessagePublisherServiceImpl @Inject()(
       )
    }
 
-   override def publishUpdated[T<:Any](body: T): Unit = {
+   override def ![T<:Any](body: T): Unit = {
       frontendWebSocketConnector.webSocketActor_ ! EventMessage(
          `type` = Const.MSG_TYPE_UPDATED,
          body = body,

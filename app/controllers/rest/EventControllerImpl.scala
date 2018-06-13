@@ -25,7 +25,7 @@ class EventControllerImpl @Inject()(
          logger.debug(req.toString())
          eventService.create(req.body).map {
             result =>
-               eventMessagePublisherService.publishCreated(result)
+               eventMessagePublisherService ! result
                Created(result.toJson)
          }.recover {
             case e: Exception => InternalServerError({
@@ -55,7 +55,7 @@ class EventControllerImpl @Inject()(
    def getById(id: Long): Action[AnyContent] = Action.async {
       req =>
          logger.debug(req.toString)
-         eventMessagePublisherService.publishCreated[Event](Event())
+         eventMessagePublisherService ! Event()
          eventService.getEventById(id).map {
             e => Ok(e.toJson)
          }.recover {

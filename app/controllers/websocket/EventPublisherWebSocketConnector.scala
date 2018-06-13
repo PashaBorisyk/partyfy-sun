@@ -25,7 +25,7 @@ class EventPublisherWebSocketConnector @Inject()(cc: ControllerComponents)
    
    
    def socket: WebSocket = WebSocket.accept[String, String] { req =>
-      ActorFlow.actorRef { out: ActorRef =>
+      ActorFlow.actorRef ({ out: ActorRef =>
          logger.debug(s"Incoming websocket connection with request: $req")
          
          val `type` = req.getQueryString(Const.CONNECTION_FOR_TYPE).getOrElse(-1)
@@ -34,7 +34,7 @@ class EventPublisherWebSocketConnector @Inject()(cc: ControllerComponents)
          val connectionType = new ConnectionType(`type`, category)
          
          Props(new ConnectionHandler(connectionType, req.remoteAddress, out))
-      }
+      })
    }
    
    private class ConnectionHandler(connectionType: ConnectionType, remoteAddress: String, out: ActorRef) extends Actor {
@@ -51,13 +51,12 @@ class EventPublisherWebSocketConnector @Inject()(cc: ControllerComponents)
       
       override def receive: PartialFunction[Any, Unit] = {
          case msg: EventMessage[_] =>
-            logger.debug(s"Incomming actor message $msg")
             if (connectionType._1 > 0 && connectionType._2 > 0)
                out ! msg
             else {
                msg.body match {
                   case e:Event =>
-                     out ! e.toJson
+                     out ! e.toExposedJson
                   case _ =>
                      out ! "Next time bro"
    

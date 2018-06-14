@@ -24,12 +24,12 @@ class EventPublisherWebSocketConnector @Inject()(cc: ControllerComponents)
    final val webSocketActor_ = system.actorOf(Props(new MessageListener))
    
    
-   def socket: WebSocket = WebSocket.accept[String, String] { req =>
+   def socket(forType:Long,forCategory:Long): WebSocket = WebSocket.accept[String, String] { req =>
       ActorFlow.actorRef ({ out: ActorRef =>
-         logger.debug(s"Incoming websocket connection with request: $req")
+         logger.debug(s"Incoming websocket connection with request: $req}")
          
-         val `type` = req.getQueryString(Const.CONNECTION_FOR_TYPE).getOrElse(-1)
-         val category = req.getQueryString(Const.CONNECTION_FOR_CATEGORY).getOrElse(-1)
+         val `type` = forType
+         val category = forCategory
          
          val connectionType = new ConnectionType(`type`, category)
          
@@ -40,7 +40,7 @@ class EventPublisherWebSocketConnector @Inject()(cc: ControllerComponents)
    private class ConnectionHandler(connectionType: ConnectionType, remoteAddress: String, out: ActorRef) extends Actor {
       
       override def preStart(): Unit = {
-         logger.debug(s"Creating connection $remoteAddress")
+         logger.debug(s"Creating connection $remoteAddress with type : $connectionType")
          if (!connections.contains(connectionType))
             connections.put(connectionType, mutable.LinkedHashMap())
          
@@ -65,7 +65,7 @@ class EventPublisherWebSocketConnector @Inject()(cc: ControllerComponents)
       }
       
       override def postStop(): Unit = {
-         logger.debug(s"Releasing connection $remoteAddress")
+         logger.debug(s"Releasing connection $remoteAddress with type $connectionType")
          connections(connectionType)(remoteAddress) -= this
       }
       

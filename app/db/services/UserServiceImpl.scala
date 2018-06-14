@@ -117,4 +117,11 @@ class UserServiceImpl @Inject()(
       db.run(friendsTable.filter{s=> s.userId1 === userId && s.userId2 === advancedUserId}.delete)
    }
    
+   def login(nickname:String,password:String) = {
+      db.run(userTable.filter{user => user.nickName === nickname && user.password === password}.result.head).map{
+         u =>
+         
+      }
+   }
+   
 }

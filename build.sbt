@@ -22,6 +22,9 @@ libraryDependencies ++= Seq(
    "org.imgscalr" % "imgscalr-lib" % "4.2"
 )
 
+// https://mvnrepository.com/artifact/io.really/jwt-scala
+libraryDependencies += "io.really" %% "jwt-scala" % "1.2.1"
 libraryDependencies += "org.mongodb" %% "casbah" % "3.1.1"
+
 
 unmanagedResourceDirectories in Test <+=  baseDirectory ( _ /"target/web/public/test" )

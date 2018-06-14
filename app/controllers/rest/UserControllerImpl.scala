@@ -7,6 +7,10 @@ import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
 import play.api.mvc._
 import slick.jdbc.JdbcProfile
 import util._
+import play.api.libs.json.Json
+import io.jsonwebtoken.Jwt._
+
+
 
 import scala.concurrent.ExecutionContext
 
@@ -128,6 +132,11 @@ class UserControllerImpl @Inject()(
       
    }
    
-   def loginUser(nickName: String, password: String) = Action{NotImplemented("Fuck")}
+   def loginUser(nickName: String, password: String) = Action.async{
+      req =>
+         val payLoad = Json.obj("nickname"->nickName,"password"->password)
+         val  jwt = 
+   
+   }
    
 }

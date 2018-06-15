@@ -1,10 +1,14 @@
 package filters
 
 import akka.stream.Materializer
+import io.really.jwt.JWTResult.JWT
 import javax.inject._
-
+import play.api.Configuration
 import util._
 import play.api.mvc._
+import io.really.jwt.{JWT => JWTDecoder}
+import play.api.libs.json.Json
+import services.traits.JWTCoder
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -19,18 +23,22 @@ import scala.concurrent.{ExecutionContext, Future}
   *             It is used below by the `map` method.
   */
 @Singleton
-class ExampleFilter @Inject()(
-                                implicit override val mat: Materializer,
+class ExampleFilter @Inject()(  implicit override val mat: Materializer,
+                                 val jwtCoder:JWTCoder,
                                 exec: ExecutionContext) extends Filter {
-   
-   var s = 1
    
    override def apply(nextFilter: RequestHeader => Future[Result])(requestHeader: RequestHeader): Future[Result] = {
       // Run the next filter in the chain. This will call other filters
       // and eventually call the action. Take the result and modify it
       // by adding a new header.
       
-      nextFilter(requestHeader).map{p=>println(p.body.toJson);p}
+      val authentication = requestHeader.headers.get("Authorization").getOrElse("")
+      if(!authentication.isEmpty) {
+         val token = authentication.replaceAll("Basic", "").trim
+         logger.debug(s"Token : $token")
+         val result = jwtCoder.decode(token)
+      }
+      nextFilter(requestHeader).map{p=>p}
       
       
       

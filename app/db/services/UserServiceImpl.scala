@@ -6,6 +6,9 @@ import models._
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
 import slick.jdbc.JdbcProfile
 import slick.jdbc.PostgresProfile.api._
+import io.really.jwt._
+import play.api.Play
+import play.api.libs.json.Json
 
 import scala.concurrent.duration._
 import scala.concurrent.{Await, ExecutionContext, Future}
@@ -120,7 +123,7 @@ class UserServiceImpl @Inject()(
    def login(nickname:String,password:String) = {
       db.run(userTable.filter{user => user.nickName === nickname && user.password === password}.result.head).map{
          u =>
-         
+            val payload = Json.obj("nickname"->nickname,"password"->password)
       }
    }
    

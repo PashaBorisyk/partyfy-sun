@@ -9,16 +9,16 @@ import slick.jdbc.JdbcProfile
 import util._
 import play.api.libs.json.Json
 import io.jsonwebtoken.Jwt._
+import services.traits.JWTCoder
 
-
-
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 
 @Singleton
 class UserControllerImpl @Inject()(
                                     protected val dbConfigProvider: DatabaseConfigProvider,
                                     protected val userService: UserServiceImpl,
+                                    val jwtCoder:JWTCoder,
                                     cc: ControllerComponents)(implicit ec: ExecutionContext)
    extends AbstractController(cc) with HasDatabaseConfigProvider[JdbcProfile] {
    
@@ -135,7 +135,7 @@ class UserControllerImpl @Inject()(
    def loginUser(nickName: String, password: String) = Action.async{
       req =>
          val payLoad = Json.obj("nickname"->nickName,"password"->password)
-         val  jwt = 
+         Future{Ok(jwtCoder.encode(nickName,password))}
    
    }
    

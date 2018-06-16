@@ -36,7 +36,7 @@ class ChatController @Inject()(cc: ControllerComponents, val chatMessageService:
       override def preStart(): Unit = {
          var found = false
          
-         eventService.getEventIdsByMemberId(userId).map { ids =>
+         eventService.getEventIdsByMemberIdForSocket(userId).map { ids =>
             ids.foreach { eventId =>
                logger.debug(s"Event with id $eventId found")
                found = true
@@ -76,7 +76,7 @@ class ChatController @Inject()(cc: ControllerComponents, val chatMessageService:
       
       override def postStop(): Unit = {
          conversations(testId) -= out
-         eventService.getEventIdsByMemberId(userId).map { ids =>
+         eventService.getEventIdsByMemberIdForSocket(userId).map { ids =>
             ids.foreach { eventId =>
                conversations(eventId) -= out
             }

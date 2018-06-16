@@ -5,11 +5,9 @@ import implicits.implicits._
 import javax.inject.{Inject, Singleton}
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
 import play.api.mvc._
+import services.traits.JWTCoder
 import slick.jdbc.JdbcProfile
 import util._
-import play.api.libs.json.Json
-import io.jsonwebtoken.Jwt._
-import services.traits.JWTCoder
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -22,11 +20,11 @@ class UserControllerImpl @Inject()(
                                     cc: ControllerComponents)(implicit ec: ExecutionContext)
    extends AbstractController(cc) with HasDatabaseConfigProvider[JdbcProfile] {
    
-   def checkUserExistence(nickName: String) = Action.async {
-      req =>
+   def checkUserExistence(username: String) = Action.async {
+      implicit req =>
          logger.debug(req.toString)
-         userService.checkUserExistence(nickName).map {
-            s: Boolean => if (s) Found(s"User with nickname: $nickName already exists") else NoContent
+         userService.checkUserExistence(username).map {
+            s: Boolean => if (s) Found(s"User with nickname: $username already exists") else NoContent
          }.recover {
             case e: Exception => InternalServerError({e.printStackTrace();e.getMessage})
          }
@@ -34,7 +32,7 @@ class UserControllerImpl @Inject()(
    }
    
    def registerUser = Action.async {
-      req =>
+      implicit req =>
          logger.debug(req.toString)
          userService.registerUser(req.body).map {
             id: Long => Created(id.toJson)
@@ -45,7 +43,7 @@ class UserControllerImpl @Inject()(
    }
    
    def updateUser() = Action.async {
-      req =>
+      implicit req =>
          logger.debug(req.toString)
          userService.updateUser(req.body).map {
             id: Int => Created(id.toJson)
@@ -56,7 +54,7 @@ class UserControllerImpl @Inject()(
    }
    
    def findUser(requesterUserId: Long, query: String) = Action.async {
-      req =>
+      implicit req =>
          logger.debug(req.toString)
          userService.findUser(requesterUserId, query).map { s =>
             if(s.nonEmpty)
@@ -69,7 +67,7 @@ class UserControllerImpl @Inject()(
    }
    
    def addUserToFriends(userId: Long, advancedUserId: Long) = Action.async {
-      req =>
+      implicit req =>
          logger.debug(req.toString)
          userService.addUserToFriends(userId, advancedUserId).map {
             _ => Ok(advancedUserId.toJson)
@@ -80,7 +78,7 @@ class UserControllerImpl @Inject()(
    }
    
    def removeUserFromFriends(userId: Long, advancedUserId: Long) = Action.async {
-      req =>
+      implicit req =>
          logger.debug(req.toString)
          userService.removeUserFromFriends(userId, advancedUserId).map {
             _ => Accepted(advancedUserId.toJson)
@@ -91,7 +89,7 @@ class UserControllerImpl @Inject()(
    }
    
    def getById(userId: Long) = Action.async {
-      req =>
+      implicit req =>
          logger.debug(req.toString)
          userService.getById(userId).map {
             s => Ok(s.toJson)
@@ -102,7 +100,7 @@ class UserControllerImpl @Inject()(
    }
    
    def getFriends(userId: Long) = Action.async {
-      req =>
+      implicit req =>
          logger.debug(req.toString)
          userService.getFriends(userId).map {
             s => Ok(s.toArray.toJson)
@@ -112,7 +110,7 @@ class UserControllerImpl @Inject()(
    }
    
    def getFriendsIds(userId: Long) = Action.async {
-      req =>
+      implicit req =>
          logger.debug(req.toString)
          userService.getFriendsIds(userId).map {
             s => Ok(s.toArray.toJson)
@@ -122,7 +120,7 @@ class UserControllerImpl @Inject()(
    }
    
    def getUsersByEvent(eventId: Long) = Action.async {
-      req =>
+      implicit req =>
          logger.debug(req.toString)
          userService.getUsersByEventId(eventId).map {
             result => Ok(result.toArray.toJson)
@@ -132,11 +130,10 @@ class UserControllerImpl @Inject()(
       
    }
    
-   def loginUser(nickName: String, password: String) = Action.async{
-      req =>
-         val payLoad = Json.obj("nickname"->nickName,"password"->password)
-         Future{Ok(jwtCoder.encode(nickName,password))}
-   
+   def loginUser(username: String, password: String) = Action.async{
+      implicit req =>
+         logger.debug(req.toString)
+         Future{Ok(jwtCoder.encode((username,password,12)))}
    }
    
 }

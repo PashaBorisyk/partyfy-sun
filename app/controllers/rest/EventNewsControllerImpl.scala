@@ -1,6 +1,7 @@
 package controllers.rest
 
 import db.services.EventNewsServiceImpl
+import implicits.implicits._
 import javax.inject.Inject
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
 import play.api.mvc.{AbstractController, ControllerComponents}
@@ -18,7 +19,7 @@ class EventNewsControllerImpl @Inject()(
    extends AbstractController(cc) with HasDatabaseConfigProvider[JdbcProfile] {
    
    def get(userId: Long, lastReadId: Long) = Action.async {
-      req =>
+      implicit req=>
          logger.debug(req.toString())
          eventNewsService.get(userId, lastReadId).map {
             result => Ok(result.toArray.toJson)

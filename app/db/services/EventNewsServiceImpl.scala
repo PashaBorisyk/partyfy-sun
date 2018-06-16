@@ -1,10 +1,10 @@
 package db.services
 
-import controllers.websocket.EventPublisherWebSocketConnector
 import db.services.interfaces.EventNewsService
 import javax.inject.Inject
 import models.{EventNewsDAO, EventUserDAO}
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
+import play.api.mvc.Request
 import slick.jdbc.JdbcProfile
 import slick.jdbc.PostgresProfile.api._
 
@@ -18,8 +18,7 @@ class EventNewsServiceImpl @Inject()(
    val eventNewsTable = TableQuery[EventNewsDAO]
    val userEventTable = TableQuery[EventUserDAO]
    
-   override def get(userId: Long, lastReadId: Long) = {
-      
+   override def get(userId: Long, lastReadId: Long)(implicit request: Request[_]) = {
       db.run(eventNewsTable.filter {
          _.eventId in userEventTable.filter {
             _.userId === userId

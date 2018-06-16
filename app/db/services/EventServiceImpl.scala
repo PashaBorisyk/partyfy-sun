@@ -22,7 +22,8 @@ class EventServiceImpl @Inject()(
    val userEventTable = TableQuery[EventUserDAO]
    val imageTable = TableQuery[HipeImageDAO]
    
-   override def getEventById(id: Long) = {
+   override def getEventById(id: Long)(implicit request: Request[_]) = {
+      logger.debug(request.username)
       val query = (for {
          (event, image) <- eventTable joinLeft imageTable on (_.eventImageId === _.id)
       } yield (event, image)).filter(_._1.id === id)
@@ -41,12 +42,12 @@ class EventServiceImpl @Inject()(
       
    }
    
-   override def delete(id: Long) = {
+   override def delete(id: Long)(implicit request: Request[_]) = {
       val result = db.run(eventTable.filter(_.id === id).delete)
       result
    }
    
-   override def create(event: (Event, Set[Long])) = {
+   override def create(event: (Event, Set[Long]))(implicit request: Request[_]) = {
       val query = eventTable returning eventTable.map(s => s)
       val eventFuture: Future[Event] = db.run(query += event._1)
       val result = eventFuture.map { createdEvent =>
@@ -66,7 +67,7 @@ class EventServiceImpl @Inject()(
       result
    }
    
-   override def getEventsByOwner(userId: Long) = {
+   override def getEventsByOwner(userId: Long)(implicit request: Request[_]) = {
       
       val query = (for {
          (event, image) <- eventTable joinLeft imageTable on (_.eventImageId === _.id)
@@ -86,7 +87,7 @@ class EventServiceImpl @Inject()(
       
    }
    
-   override def getEventsByMemberId(userId: Long) = {
+   override def getEventsByMemberId(userId: Long)(implicit request: Request[_]) = {
       
       val query = (for {
          (event, image) <- eventTable joinLeft imageTable on (_.eventImageId === _.id)
@@ -106,11 +107,15 @@ class EventServiceImpl @Inject()(
       
    }
    
-   override def getEventIdsByMemberId(userId: Long) = {
+   override def getEventIdsByMemberId(userId: Long)(implicit request: Request[_]) = {
       db.run(eventTable.filter { e => e.id in userEventTable.filter { s => s.userId === userId }.map(_.eventId) }.map(_.id).result)
    }
    
-   override def getEvents(userId: Long, latitude: Double, longtitude: Double, lastReadEventId: Long) = {
+   override def getEventIdsByMemberIdForSocket(userId: Long) = {
+      db.run(eventTable.filter { e => e.id in userEventTable.filter { s => s.userId === userId }.map(_.eventId) }.map(_.id).result)
+   }
+   
+   override def getEvents(userId: Long, latitude: Double, longtitude: Double, lastReadEventId: Long)(implicit request: Request[_]) = {
       
       val query = (for {
          (event, image) <- eventTable joinLeft imageTable on (_.eventImageId === _.id)
@@ -139,7 +144,7 @@ class EventServiceImpl @Inject()(
       db.run(userEventTable += EventUser(eventId, advancedUserId))
    }
    
-   override def cancelEvent(userId: Long, eventId: Long) = {
+   override def cancelEvent(userId: Long, eventId: Long)(implicit request: Request[_]) = {
       
       db.run(eventTable.filter(_.id === eventId).map(_.creatorId).result.head).map {
          id =>
@@ -151,7 +156,7 @@ class EventServiceImpl @Inject()(
       
    }
    
-   override def removeMember(userId: Long, advancedUserId: Long, eventId: Long) = {
+   override def removeMember(userId: Long, advancedUserId: Long, eventId: Long)(implicit request: Request[_]) = {
       
       if (userId == advancedUserId)
          db.run(userEventTable.filter { e => e.eventId === eventId && e.userId === userId }.delete)

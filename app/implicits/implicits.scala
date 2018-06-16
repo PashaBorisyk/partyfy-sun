@@ -1,24 +1,22 @@
 package implicits
 
 
-import com.google.gson.Gson
+import com.google.gson.{Gson, GsonBuilder}
 import com.mongodb.{BasicDBObject, DBCursor, DBObject}
 import models.{ChatMessageNOSQL, Event, HipeImage, User}
 import org.bson.types.BasicBSONList
-import play.api.mvc.AnyContent
-import play.mvc.Http.RequestBody
+import play.api.mvc.{AnyContent, Request}
 import slick.jdbc.GetResult
 import util.isPrimitiveOrString
 
-import scala.reflect.ClassTag
-import scala.reflect._
 import scala.collection.mutable.ArrayBuffer
 import scala.language.implicitConversions
-import scala.reflect.ClassTag
 
 package object implicits {
    
+   private lazy val exposedGson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create()
    private lazy val gson: Gson = new Gson()
+   
    implicit val queryToUser: AnyRef with GetResult[User] = GetResult(r => User(
       r.<<, r.<<,
       r.<<, r.<<,
@@ -29,7 +27,7 @@ package object implicits {
    ))
    
    
-   implicit def any2Int(any: Any):Int = Integer.parseInt(any.toString)
+   implicit def any2Int(any: Any): Int = Integer.parseInt(any.toString)
    
    implicit def req2Event(requestBody: AnyContent): Event = gson.fromJson(requestBody.asText.getOrElse("null"), classOf[Event])
    
@@ -37,11 +35,11 @@ package object implicits {
    
    implicit def req2HipeImage(requestBody: AnyContent): HipeImage = gson.fromJson(requestBody.asText.getOrElse("null"), classOf[HipeImage])
    
-   implicit def req2EventMembersTuple(requestBody: AnyContent) : (Event, Set[Long]) = gson.fromJson(requestBody.asText.getOrElse("null"),classOf[(Event, Set[Long])])
+   implicit def req2EventMembersTuple(requestBody: AnyContent): (Event, Set[Long]) = gson.fromJson(requestBody.asText.getOrElse("null"), classOf[(Event, Set[Long])])
    
    implicit def string2ChatMessage(s: String): ChatMessageNOSQL = gson.fromJson(s, classOf[ChatMessageNOSQL])
    
-//   @inline implicit def dbObject2Object[T: ClassTag](dBObject: DBObject): T = gson.fromJson(dBObject.toString, classTag[T].runtimeClass)
+   //   @inline implicit def dbObject2Object[T: ClassTag](dBObject: DBObject): T = gson.fromJson(dBObject.toString, classTag[T].runtimeClass)
    
    implicit class ObjectImplicits[T <: Any](val t: T) {
       
@@ -145,7 +143,20 @@ package object implicits {
          }
          arr
       }
+      
+   }
    
+   implicit class Object2Json[T](val t: T) {
+      def toJson = gson.toJson(t)
+      
+      def toExposedJson = exposedGson.toJson(t)
+      
+      def run[R](lambda: (T) => R) = lambda(t)
+   }
+   
+   implicit class Request2Params(val request: Request[_]) {
+      def userId:Long = request.headers.get("userId").get.toLong
+      def username:String = request.headers.get("username").get
    }
    
 }

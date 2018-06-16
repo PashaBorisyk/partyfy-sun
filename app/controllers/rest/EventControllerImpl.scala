@@ -21,7 +21,7 @@ class EventControllerImpl @Inject()(
    extends AbstractController(cc) {
    
    def createEvent(): Action[AnyContent] = Action.async {
-      req =>
+      implicit req =>
          logger.debug(req.toString())
          eventService.create(req.body).map {
             result =>
@@ -36,7 +36,7 @@ class EventControllerImpl @Inject()(
    }
    
    def updateEvent(): Action[AnyContent] = Action.async {
-      req =>
+      implicit req=>
          eventService.update(req.body).map {
             result =>
                eventMessagePublisherService.publishUpdated[(Event,Event)](
@@ -53,7 +53,7 @@ class EventControllerImpl @Inject()(
    }
    
    def getById(id: Long): Action[AnyContent] = Action.async {
-      req =>
+      implicit req=>
          logger.debug(req.toString)
          eventMessagePublisherService ! Event()
          eventService.getEventById(id).map {
@@ -68,7 +68,7 @@ class EventControllerImpl @Inject()(
    }
    
    def getByOwner(userId: Long): Action[AnyContent] = Action.async {
-      req =>
+      implicit req =>
          logger.debug(req.toString())
          eventService.getEventsByOwner(userId).map {
             result => if (result.nonEmpty) Ok(result.toArray.toJson) else NoContent
@@ -82,7 +82,7 @@ class EventControllerImpl @Inject()(
    }
    
    def getByMember(userId: Long): Action[AnyContent] = Action.async {
-      req =>
+      implicit req =>
          
          logger.debug(req.toString())
          eventService.getEventsByMemberId(userId).map {
@@ -97,7 +97,7 @@ class EventControllerImpl @Inject()(
    }
    
    def getEvents(userId: Long, latitude: Double, longtitude: Double, lastReadEventId: Long): Action[AnyContent] = Action.async {
-      req =>
+      implicit req =>
          logger.debug(req.toString())
          eventService.getEvents(userId, latitude, longtitude, lastReadEventId).map {
             result => logger.debug(result.toArray.toJson); Ok(result.toArray.toJson)
@@ -111,7 +111,7 @@ class EventControllerImpl @Inject()(
    }
    
    def cancelEvent(userId: Long, eventId: Long): Action[AnyContent] = Action.async {
-      req =>
+      implicit req =>
          logger.debug(req.toString())
          eventService.cancelEvent(userId, eventId).map {
             result => Ok(result.toJson)
@@ -124,7 +124,7 @@ class EventControllerImpl @Inject()(
    }
    
    def removeMember(userId: Long, advancedUserId: Long, eventId: Long): Action[AnyContent] = Action.async {
-      req =>
+      implicit req =>
          logger.debug(req.toString())
          eventService.removeMember(userId, advancedUserId, eventId).map {
             result => Ok(result.toJson)
@@ -138,7 +138,7 @@ class EventControllerImpl @Inject()(
    }
    
    def addMemberToEvent(eventId: Long, userId: Long, advancedUserId: Long): Action[AnyContent] = Action.async {
-      req =>
+      implicit req =>
          logger.debug(req.toString())
          eventService.addMemberToEvent(eventId, userId, advancedUserId).map {
             result => Ok(result.toJson)

@@ -4,11 +4,10 @@ import implicits.implicits._
 import javax.inject.Inject
 import models._
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
+import play.api.libs.json.Json
+import play.api.mvc.Request
 import slick.jdbc.JdbcProfile
 import slick.jdbc.PostgresProfile.api._
-import io.really.jwt._
-import play.api.Play
-import play.api.libs.json.Json
 
 import scala.concurrent.duration._
 import scala.concurrent.{Await, ExecutionContext, Future}
@@ -24,7 +23,7 @@ class UserServiceImpl @Inject()(
    val friendsTable = TableQuery[UserUserDAO]
    val imageTable = TableQuery[HipeImageDAO]
    
-   def getUsersByEventId(eventId: Long) = {
+   def getUsersByEventId(eventId: Long)(implicit request: Request[_]) = {
       
       val query = (for{
          (user,image) <- userTable joinLeft imageTable on (_.imageId === _.id)
@@ -41,20 +40,20 @@ class UserServiceImpl @Inject()(
       
    }
    
-   def checkUserExistence(nickName: String) = {
+   def checkUserExistence(nickName: String)(implicit request: Request[_]) = {
       db.run(userTable.filter(_.nickName === nickName).exists.result)
    }
    
-   def registerUser(user: User) = {
+   def registerUser(user: User)(implicit request: Request[_]) = {
       val query = userTable returning userTable.map(_.id)
       db.run(query += user)
    }
    
-   def updateUser(user: User) = {
+   def updateUser(user: User)(implicit request: Request[_]) = {
       db.run(userTable.filter(_.id === user.id).update(user))
    }
    
-   def getFriends(userId: Long) = {
+   def getFriends(userId: Long)(implicit request: Request[_]) = {
       
       val query = (for{
          (user,image) <- userTable joinLeft imageTable on (_.imageId === _.id)
@@ -73,11 +72,11 @@ class UserServiceImpl @Inject()(
       
    }
    
-   def getFriendsIds(userId: Long) = {
+   def getFriendsIds(userId: Long)(implicit request: Request[_]) = {
       db.run(friendsTable.filter{_.userId1 === userId}.map(_.userId2).result)
    }
    
-   def findUser(userId: Long, searchString: String): Future[Seq[(User, Serializable with Product)]] = {
+   def findUser(userId: Long, searchString: String)(implicit request: Request[_]): Future[Seq[(User, Serializable with Product)]] = {
       
       val queries = searchString.split("\\s+").mkString("|")
       val id = userId.toString
@@ -105,22 +104,22 @@ class UserServiceImpl @Inject()(
       
    }
    
-   def getById(id:Long) = {
+   def getById(id:Long)(implicit request: Request[_]) = {
       val userQuery = userTable.filter{_.id === id}
       val user = db.run(userQuery.result.head)
       val image = db.run(imageTable.filter{_.id in userQuery.map(_.imageId)}.result.head)
       user.zip(image)
    }
    
-   def addUserToFriends(userId: Long, advancedUserId: Long) = {
+   def addUserToFriends(userId: Long, advancedUserId: Long)(implicit request: Request[_]) = {
       db.run(friendsTable += UserUser(userId,advancedUserId))
    }
    
-   def removeUserFromFriends(userId: Long, advancedUserId: Long) = {
+   def removeUserFromFriends(userId: Long, advancedUserId: Long)(implicit request: Request[_]) = {
       db.run(friendsTable.filter{s=> s.userId1 === userId && s.userId2 === advancedUserId}.delete)
    }
    
-   def login(nickname:String,password:String) = {
+   def login(nickname:String,password:String)(implicit request: Request[_]) = {
       db.run(userTable.filter{user => user.nickName === nickname && user.password === password}.result.head).map{
          u =>
             val payload = Json.obj("nickname"->nickname,"password"->password)

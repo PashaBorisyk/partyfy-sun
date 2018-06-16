@@ -3,6 +3,7 @@ package db.services.interfaces
 import com.google.inject.ImplementedBy
 import db.services.EventServiceImpl
 import models.Event
+import play.api.mvc.Request
 
 import scala.concurrent.Future
 

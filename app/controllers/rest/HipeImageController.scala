@@ -3,6 +3,7 @@ package controllers.rest
 import java.nio.file.Paths
 
 import db.services.HipeImageServiceImpl
+import implicits.implicits._
 import javax.imageio.ImageIO
 import javax.inject.Inject
 import play.api.mvc.{AbstractController, ControllerComponents}
@@ -42,7 +43,7 @@ class HipeImageController @Inject()(
    }
    
    def get(id: Long) = Action.async {
-      req =>
+      implicit req =>
          logger.debug(req.toString())
          hipeImageService.findById(id).map {
             s => Ok(s.toJson)
@@ -55,7 +56,7 @@ class HipeImageController @Inject()(
    }
    
    def delete(id: Long) = Action.async {
-      req =>
+      implicit req =>
          logger.debug(req.toString())
          hipeImageService.delete(id).map {
             s => Accepted(s.toJson)
@@ -68,7 +69,7 @@ class HipeImageController @Inject()(
    }
    
    def getByEventId(eventId: Long) = Action.async {
-      req =>
+      implicit req =>
          logger.debug(req.toString())
          hipeImageService.findByEventId(eventId).map {
             s => if (s.nonEmpty) Ok(s.toArray.toJson) else NoContent
@@ -81,7 +82,7 @@ class HipeImageController @Inject()(
    }
    
    def getByUserId(userId: Long) = Action.async {
-      req =>
+      implicit req =>
          logger.debug(req.toString())
          hipeImageService.findByUserId(userId).map {
             

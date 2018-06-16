@@ -19,7 +19,8 @@ libraryDependencies ++= Seq(
    "com.typesafe.play" %% "play-slick" % "3.0.0",
    "com.typesafe.play" %% "play-slick-evolutions" % "3.0.0",
    "com.google.code.gson" % "gson" % "2.8.2",
-   "org.imgscalr" % "imgscalr-lib" % "4.2"
+   "org.imgscalr" % "imgscalr-lib" % "4.2",
+   "com.pauldijou" %% "jwt-play" % "0.16.0"
 )
 
 libraryDependencies += "org.mongodb" %% "casbah" % "3.1.1"

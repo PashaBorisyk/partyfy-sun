@@ -3,13 +3,14 @@ package controllers.rest
 import db.services.UserServiceImpl
 import implicits.implicits._
 import javax.inject.{Inject, Singleton}
+import org.postgresql.util.PSQLException
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
 import play.api.mvc._
 import services.traits.JWTCoder
 import slick.jdbc.JdbcProfile
 import util._
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 
 @Singleton
@@ -31,15 +32,15 @@ class UserControllerImpl @Inject()(
       
    }
    
-   def registerUser = Action.async {
+   def registerUser(username:String,password:String) = Action.async {
       implicit req =>
          logger.debug(req.toString)
-         userService.registerUser(req.body).map {
-            id: Long => Created(id.toJson)
+         userService.registerUser(username,password).map {
+            token => logger.debug(token); Created(token)
          }.recover {
+            case _:PSQLException => Conflict
             case e: Exception => InternalServerError({e.printStackTrace();e.getMessage})
          }
-      
    }
    
    def updateUser() = Action.async {
@@ -133,7 +134,15 @@ class UserControllerImpl @Inject()(
    def loginUser(username: String, password: String) = Action.async{
       implicit req =>
          logger.debug(req.toString)
-         Future{Ok(jwtCoder.encode((username,password,12)))}
+         userService.login(username,password).map{
+            token=>
+               Ok(token.toJson)
+         }.recover{
+            case _:NoSuchElementException =>
+               NotFound
+            case error => logger.debug("Error while loging user : ",error)
+               InternalServerError(error.toJson)
+         }
    }
    
 }

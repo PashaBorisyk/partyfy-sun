@@ -18,7 +18,7 @@ GET           /public/*file                           controllers.Assets.version
 ###########################################################
 
 GET           /user/check_existence/:username         controllers.rest.UserControllerImpl.checkUserExistence(username:String)
-POST          /user/register/                         controllers.rest.UserControllerImpl.registerUser()
+POST          /user/register/                         controllers.rest.UserControllerImpl.registerUser(username:String,password:String)
 GET           /user/login/                            controllers.rest.UserControllerImpl.loginUser(username:String,password:String)
 PUT           /user/update/                           controllers.rest.UserControllerImpl.updateUser()
 GET           /user/find/:user_id/                    controllers.rest.UserControllerImpl.findUser(user_id:Long, query:String)

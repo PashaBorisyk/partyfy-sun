@@ -4,8 +4,8 @@ import implicits.implicits._
 import javax.inject.Inject
 import models._
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
-import play.api.libs.json.Json
 import play.api.mvc.Request
+import services.traits.JWTCoder
 import slick.jdbc.JdbcProfile
 import slick.jdbc.PostgresProfile.api._
 
@@ -14,14 +14,15 @@ import scala.concurrent.{Await, ExecutionContext, Future}
 
 class UserServiceImpl @Inject()(
                              protected val dbConfigProvider: DatabaseConfigProvider,
+                             private val jwtCoder: JWTCoder
                            )(implicit ec: ExecutionContext)
    extends HasDatabaseConfigProvider[JdbcProfile] {
    
-   val eventTable = TableQuery[EventDAO]
-   val userEventTable = TableQuery[EventUserDAO]
-   val userTable = TableQuery[UserDAO]
-   val friendsTable = TableQuery[UserUserDAO]
-   val imageTable = TableQuery[HipeImageDAO]
+   private val eventTable = TableQuery[EventDAO]
+   private val userEventTable = TableQuery[EventUserDAO]
+   private val userTable = TableQuery[UserDAO]
+   private val friendsTable = TableQuery[UserUserDAO]
+   private val imageTable = TableQuery[HipeImageDAO]
    
    def getUsersByEventId(eventId: Long)(implicit request: Request[_]) = {
       
@@ -41,12 +42,15 @@ class UserServiceImpl @Inject()(
    }
    
    def checkUserExistence(nickName: String)(implicit request: Request[_]) = {
-      db.run(userTable.filter(_.nickName === nickName).exists.result)
+      db.run(userTable.filter(_.username === nickName).exists.result)
    }
    
-   def registerUser(user: User)(implicit request: Request[_]) = {
+   def registerUser(username:String,password:String)(implicit request: Request[_]) = {
+      val user = User(username = username,password = password)
       val query = userTable returning userTable.map(_.id)
-      db.run(query += user)
+      db.run(query += user).map{ id =>
+         jwtCoder.encode((username,password,id))
+      }
    }
    
    def updateUser(user: User)(implicit request: Request[_]) = {
@@ -119,10 +123,11 @@ class UserServiceImpl @Inject()(
       db.run(friendsTable.filter{s=> s.userId1 === userId && s.userId2 === advancedUserId}.delete)
    }
    
-   def login(nickname:String,password:String)(implicit request: Request[_]) = {
-      db.run(userTable.filter{user => user.nickName === nickname && user.password === password}.result.head).map{
-         u =>
-            val payload = Json.obj("nickname"->nickname,"password"->password)
+   def login(username:String, password:String)(implicit request: Request[_]) = {
+      db.run(userTable.filter{user => user.username === username && user.password === password}.map(_.id).result.head)
+         .map{
+         userId =>
+            jwtCoder.encode((username,password,userId))
       }
    }
    

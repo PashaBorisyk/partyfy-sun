@@ -11,7 +11,7 @@ case class User(
                   @(Expose@field)
                   id: Long = 0L,
                   @(Expose@field)
-                  nickName: String = "",
+                  username: String = "",
                   password: String = "",
                   @(Expose@field)
                   name: String = "",
@@ -32,7 +32,7 @@ class UserDAO(tag: Tag) extends Table[User](tag, "user") {
    
    def id = column[Long]("id", O.PrimaryKey, O.AutoInc, O.Unique)
    
-   def nickName = column[String]("nickname", O.Unique)
+   def username = column[String]("username", O.Unique)
    
    def password = column[String]("password")
    
@@ -52,7 +52,7 @@ class UserDAO(tag: Tag) extends Table[User](tag, "user") {
    
    def imageId = column[Long]("image_id")
    
-   def * = (id, nickName,
+   def * = (id, username,
       password, name,
       surname, isMale,
       isOnline,

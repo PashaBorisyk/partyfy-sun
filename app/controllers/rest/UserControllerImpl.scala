@@ -36,9 +36,9 @@ class UserControllerImpl @Inject()(
       implicit req =>
          logger.debug(req.toString)
          userService.registerUser(username,password).map {
-            token => logger.debug(token); Created(token)
+            token => logger.debug(s"Created with token : $token"); Created(token.toJson)
          }.recover {
-            case _:PSQLException => Conflict
+            case e:PSQLException =>logger.debug("Insert error:",e) ;Conflict
             case e: Exception => InternalServerError({e.printStackTrace();e.getMessage})
          }
    }

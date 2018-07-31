@@ -38,7 +38,7 @@ class AuthFilter @Inject()(implicit override val mat: Materializer,
       
       requestHeader.headers.get("Authorization").getOrElse("").run { token =>
          if (!token.isEmpty) {
-            jwtCoder.decode(token)match {
+            jwtCoder.decodePrivate(token)match {
                case (Some(username),Some(_),_)=>
                   initialRequestHeader = requestHeader.withHeaders(
                      requestHeader.headers

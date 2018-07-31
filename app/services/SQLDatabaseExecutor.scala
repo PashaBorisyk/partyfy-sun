@@ -1,7 +1,6 @@
 package services
 
 import javax.inject.{Inject, Singleton}
-
 import models._
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
 import play.api.mvc.ControllerComponents
@@ -28,6 +27,7 @@ class SQLDatabaseExecutor @Inject()(
    lazy val schema9 = TableQuery[OfflineStoreDAO].schema
    lazy val schema10 = TableQuery[UserDAO].schema
    lazy val schema11 = TableQuery[UserUserDAO].schema
+   lazy val schema12 = TableQuery[UserRegistrationDAO].schema
    
    lazy val schemaArr = Array(
       schema, schema2,
@@ -35,7 +35,7 @@ class SQLDatabaseExecutor @Inject()(
       schema5, schema6,
       schema7, schema8,
       schema9, schema10,
-      schema11
+      schema11,schema12
    )
    
    for (n <- schemaArr)

@@ -10,7 +10,7 @@ class JWTCoderImpl @Inject()(val configuration: Configuration) extends JWTCoder 
    
    private lazy val key = configuration.get[String]("play.http.secret.key")
    
-   override def encode(creds: (String, String,Long)):String = {
+   override def encodePrivate(creds: (String, String,Long)):String = {
       (JwtSession() ++ (
          ("username", creds._1),
          ("password", creds._2),
@@ -23,7 +23,7 @@ class JWTCoderImpl @Inject()(val configuration: Configuration) extends JWTCoder 
       }
    }
    
-   override def decode(jwt: String) = JwtSession.deserialize(jwt)
+   override def decodePrivate(jwt: String) = JwtSession.deserialize(jwt)
       .run {
          result =>
             ((result.get("username") match {
@@ -37,6 +37,32 @@ class JWTCoderImpl @Inject()(val configuration: Configuration) extends JWTCoder 
             }),(result.get("id") match {
                case Some(username) =>
                   Some("id" -> username.toString().toLong)
+               case None => None
+            }))
+      }
+   
+   override def encodePublic(creds: (String, String)):String = {
+      (JwtSession() ++ (
+         ("username", creds._1),
+         ("password", creds._2)
+      )).run { session =>
+         if (!session.isEmpty()) {
+            return session.serialize
+         }
+         ""
+      }
+   }
+   
+   override def decodePublic(jwt: String) = JwtSession.deserialize(jwt)
+      .run {
+         result =>
+            ((result.get("username") match {
+               case Some(username) =>
+                  Some("username" -> username.toString())
+               case None => None
+            }),(result.get("password") match {
+               case Some(username) =>
+                  Some("username" -> username.toString())
                case None => None
             }))
       }

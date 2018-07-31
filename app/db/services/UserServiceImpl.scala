@@ -21,6 +21,7 @@ class UserServiceImpl @Inject()(
    private val eventTable = TableQuery[EventDAO]
    private val userEventTable = TableQuery[EventUserDAO]
    private val userTable = TableQuery[UserDAO]
+   private val userRegistrationTable = TableQuery[UserRegistrationDAO]
    private val friendsTable = TableQuery[UserUserDAO]
    private val imageTable = TableQuery[HipeImageDAO]
    
@@ -45,12 +46,37 @@ class UserServiceImpl @Inject()(
       db.run(userTable.filter(_.username === nickName).exists.result)
    }
    
-   def registerUser(username:String,password:String)(implicit request: Request[_]) = {
-      val user = User(username = username,password = password)
-      val query = userTable returning userTable.map(_.id)
+   def registerUserStepOne(username:String,emailAddress:String,password:String)(implicit request: Request[_]) = {
+      
+      val publicToken = jwtCoder.encodePublic(username,emailAddress)
+      val userRegistration = UserRegistration(
+         username = username,
+         password = password,
+         emailAddress = emailAddress,
+         publicToken = publicToken
+      )
+      db.run(userRegistrationTable+=userRegistration)
+   }
+   
+   def registerUserStepTwo(publicToken:String)(implicit request: Request[_]) = {
+      
+      db.run()
+      
       db.run(query += user).map{ id =>
-         jwtCoder.encode((username,password,id))
+         jwtCoder.encodePrivate((username,password,id))
       }
+      db.run(userRegistrationTable.filter(_.publicToken === publicToken).result.headOption)
+   }
+   
+   def confirmRegistration(registrationId:Long) ={
+      db.run(userRegistrationTable.filter(_.id === registrationId).map{
+         userRegistration =>
+            db.run(userRegistrationTable.update())
+      })
+   }
+   
+   def deleteUserRegistration(registrationId:Long) = {
+      db.run(userRegistrationTable.filter(_.id === registrationId).delete)
    }
    
    def updateUser(user: User)(implicit request: Request[_]) = {
@@ -127,7 +153,7 @@ class UserServiceImpl @Inject()(
       db.run(userTable.filter{user => user.username === username && user.password === password}.map(_.id).result.head)
          .map{
          userId =>
-            jwtCoder.encode((username,password,userId))
+            jwtCoder.encodePrivate((username,password,userId))
       }
    }
    

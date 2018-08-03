@@ -1,5 +1,6 @@
 package db.services
 
+import db.services.interfaces.UserService
 import implicits.implicits._
 import javax.inject.Inject
 import models._
@@ -10,13 +11,13 @@ import slick.jdbc.JdbcProfile
 import slick.jdbc.PostgresProfile.api._
 
 import scala.concurrent.duration._
-import scala.concurrent.{Await, ExecutionContext, Future}
+import scala.concurrent.{Await, ExecutionContext}
 
 class UserServiceImpl @Inject()(
                              protected val dbConfigProvider: DatabaseConfigProvider,
                              private val jwtCoder: JWTCoder
                            )(implicit ec: ExecutionContext)
-   extends HasDatabaseConfigProvider[JdbcProfile] {
+   extends HasDatabaseConfigProvider[JdbcProfile] with UserService {
    
    private val eventTable = TableQuery[EventDAO]
    private val userEventTable = TableQuery[EventUserDAO]
@@ -42,41 +43,8 @@ class UserServiceImpl @Inject()(
       
    }
    
-   def checkUserExistence(nickName: String)(implicit request: Request[_]) = {
-      db.run(userTable.filter(_.username === nickName).exists.result)
-   }
-   
-   def registerUserStepOne(username:String,emailAddress:String,password:String)(implicit request: Request[_]) = {
-      
-      val publicToken = jwtCoder.encodePublic(username,emailAddress)
-      val userRegistration = UserRegistration(
-         username = username,
-         password = password,
-         emailAddress = emailAddress,
-         publicToken = publicToken
-      )
-      db.run(userRegistrationTable+=userRegistration)
-   }
-   
-   def registerUserStepTwo(publicToken:String)(implicit request: Request[_]) = {
-      
-      db.run()
-      
-      db.run(query += user).map{ id =>
-         jwtCoder.encodePrivate((username,password,id))
-      }
-      db.run(userRegistrationTable.filter(_.publicToken === publicToken).result.headOption)
-   }
-   
-   def confirmRegistration(registrationId:Long) ={
-      db.run(userRegistrationTable.filter(_.id === registrationId).map{
-         userRegistration =>
-            db.run(userRegistrationTable.update())
-      })
-   }
-   
-   def deleteUserRegistration(registrationId:Long) = {
-      db.run(userRegistrationTable.filter(_.id === registrationId).delete)
+   def checkUserExistence(username: String)(implicit request: Request[_]) = {
+      db.run(userTable.filter(_.username === username).exists.result)
    }
    
    def updateUser(user: User)(implicit request: Request[_]) = {
@@ -106,7 +74,7 @@ class UserServiceImpl @Inject()(
       db.run(friendsTable.filter{_.userId1 === userId}.map(_.userId2).result)
    }
    
-   def findUser(userId: Long, searchString: String)(implicit request: Request[_]): Future[Seq[(User, Serializable with Product)]] = {
+   def findUser(userId: Long, searchString: String)(implicit request: Request[_]) = {
       
       val queries = searchString.split("\\s+").mkString("|")
       val id = userId.toString

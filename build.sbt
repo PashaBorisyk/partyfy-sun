@@ -24,7 +24,8 @@ libraryDependencies ++= Seq(
 )
 
 libraryDependencies += "org.mongodb" %% "casbah" % "3.1.1"
-
+libraryDependencies += "com.typesafe.play" %% "play-mailer" % "6.0.1"
+libraryDependencies += "com.typesafe.play" %% "play-mailer-guice" % "6.0.1"
 
 
 unmanagedResourceDirectories in Test <+=  baseDirectory ( _ /"target/web/public/test" )

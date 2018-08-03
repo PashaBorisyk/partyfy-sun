@@ -7,7 +7,7 @@ import javax.inject.{Inject, _}
 import models.{Event, EventMessage}
 import play.api.libs.streams.ActorFlow
 import play.api.mvc.{AbstractController, ControllerComponents, WebSocket}
-import util.{Const, logger, _}
+import util.logger
 
 import scala.collection.mutable
 import scala.concurrent.ExecutionContext
@@ -57,6 +57,8 @@ class EventPublisherWebSocketConnector @Inject()(cc: ControllerComponents)
                msg.body match {
                   case e:Event =>
                      out ! e.toExposedJson
+                  case userRegistration:String =>
+                     out ! userRegistration.toExposedJson
                   case _ =>
                      out ! "Next time bro"
    

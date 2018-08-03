@@ -3,7 +3,6 @@ package controllers.rest
 import db.services.UserServiceImpl
 import implicits.implicits._
 import javax.inject.{Inject, Singleton}
-import org.postgresql.util.PSQLException
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
 import play.api.mvc._
 import services.traits.JWTCoder
@@ -27,48 +26,11 @@ class UserControllerImpl @Inject()(
          userService.checkUserExistence(username).map {
             s: Boolean => if (s) Found(s"User with nickname: $username already exists") else NoContent
          }.recover {
-            case e: Exception => InternalServerError({
-               e.printStackTrace(); e.getMessage
-            })
+            case e: Exception =>
+               e.printStackTrace()
+               InternalServerError(e.getMessage)
          }
       
-   }
-   //todo usernameToken -> usernameEmailToken -> usernamePasswordId token. End of registration
-   def registerUserStepOne(username: String, password: String) = Action.async {
-      implicit req =>
-         logger.debug(req.toString)
-         userService.registerUserStepOne(username, password).map {
-            token => logger.debug(s"Created with token : $token"); Created(token.toJson)
-         }.recover {
-            case e: PSQLException => logger.debug("Insert error:", e); Conflict
-            case e: Exception => InternalServerError({
-               e.printStackTrace(); e.getMessage
-            })
-         }
-   }
-   
-   def registerUserStepTwo(publicToken: String) = Action.async {
-      implicit req =>
-         logger.debug(req.toString)
-         userService.registerUserStepTwo(publicToken).map {
-            case Some(entry) =>
-               if (entry.confirmed)
-                  NotModified
-               else if (entry.expirationDateMills > System.currentTimeMillis()) {
-                  userService.deleteUserRegistration(entry.id)
-                  Gone
-               } else {
-                  userService.
-                  Ok
-               }
-            case None =>
-               NotFound
-         }.recover {
-            case e: PSQLException => logger.debug("Insert error:", e); Conflict
-            case e: Exception => InternalServerError({
-               e.printStackTrace(); e.getMessage
-            })
-         }
    }
    
    def updateUser() = Action.async {
@@ -77,9 +39,9 @@ class UserControllerImpl @Inject()(
          userService.updateUser(req.body).map {
             id: Int => Created(id.toJson)
          }.recover {
-            case e: Exception => InternalServerError({
-               e.printStackTrace(); e.getMessage
-            })
+            case e: Exception =>
+               e.printStackTrace()
+               InternalServerError(e.getMessage)
          }
       
    }

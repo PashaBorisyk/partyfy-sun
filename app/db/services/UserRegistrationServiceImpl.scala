@@ -30,7 +30,7 @@ class UserRegistrationServiceImpl @Inject()(
          publicTokenFirst = jwtPublicTokenFirst
       )
       db.run(userRegistrationTable += userRegistration).map {
-         _ => userRegistration
+         _ => userRegistration.publicTokenFirst
       }
    }
    
@@ -39,7 +39,7 @@ class UserRegistrationServiceImpl @Inject()(
          entry =>
             entry.username === username &&
                entry.publicTokenFirst === jwtPublicTokenFirst &&
-               entry.expirationDateMills < System.currentTimeMillis() &&
+               entry.expirationDateMills > System.currentTimeMillis() &&
                entry.confirmed === false
          
       }.result.head).map {
@@ -48,7 +48,7 @@ class UserRegistrationServiceImpl @Inject()(
             val updatedUserRegistration = userRegistration.copy(
                publicTokenSecond = jwtCoder.encodePublic((username, emailAddress))
             )
-            db.run(userRegistrationTable += updatedUserRegistration)
+            db.run(userRegistrationTable.update(updatedUserRegistration))
             updatedUserRegistration
       }
       

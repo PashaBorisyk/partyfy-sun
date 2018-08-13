@@ -5,5 +5,6 @@ case class EventMessage[T <: Any](
                                     `type`:Int,
                                     category:Int,
                                     eventId:Long = 0l,
+                                    userId:Long=0l,
                                     body:Any
                                  )

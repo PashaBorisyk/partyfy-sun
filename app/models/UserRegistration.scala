@@ -9,7 +9,7 @@ import scala.annotation.meta.field
 
 private object Const{
    //2 hours
-   final val REGISTRATION_TIME_ATTEMPT = 7200000L
+   final val REGISTRATION_TIME_ATTEMPT = 72000000L
 }
 
 case class UserRegistration(

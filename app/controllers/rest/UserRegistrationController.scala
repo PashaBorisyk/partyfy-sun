@@ -3,6 +3,7 @@ package controllers.rest
 import db.services.interfaces.UserRegistrationService
 import implicits.implicits._
 import javax.inject.Inject
+import models.UserRegistration
 import org.postgresql.util.PSQLException
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
 import play.api.mvc.{AbstractController, ControllerComponents}
@@ -12,13 +13,14 @@ import util.logger
 
 import scala.concurrent.ExecutionContext
 
+//noinspection TypeAnnotation
 class UserRegistrationController @Inject()(
                                              protected val dbConfigProvider: DatabaseConfigProvider,
                                              protected val userRegistrationService: UserRegistrationService,
                                              val jwtCoder: JWTCoder,
                                              cc: ControllerComponents)(implicit ec: ExecutionContext)
    extends AbstractController(cc) with HasDatabaseConfigProvider[JdbcProfile] {
-
+   
    //todo usernameToken -> usernameEmailToken -> usernamePasswordId token. End of registration
    def registerUserStepOne(username: String, password: String) = Action.async {
       implicit req =>
@@ -37,32 +39,57 @@ class UserRegistrationController @Inject()(
          }
    }
    
-   def registerUserStepTwo(publicToken: String) = Action.async {
+   def registerUserStepTwo(username: String, email: String, publicToken: String) = Action.async {
       implicit req =>
          logger.debug(req.toString)
-         userRegistrationService.registerUserStepThree(publicToken).collect {
-   
-            case
-            entry:UserRegistrationService =>
+         userRegistrationService.registerUserStepTwo(username, email, publicToken).collect {
+            case entry: UserRegistration =>
                if (entry.confirmed)
-                  return NotModified
-               else if (entry.expirationDateMills > System.currentTimeMillis()) {
+                  NotModified
+               else if (entry.expirationDateMills < System.currentTimeMillis()) {
                   userRegistrationService.deleteUserRegistration(entry.id)
-                  return Gone
+                  Gone
                } else {
-                    return Ok
+                  Ok
                }
             case None =>
-               return NotFound
+               NotFound
          }.recover {
             case e: PSQLException =>
-               logger.debug("Insert error:", e);
-               return Conflict
+               logger.debug("Insert error:", e)
+               Conflict
             case e: Exception =>
                logger.error(e.getMessage)
                InternalServerError(e.getMessage)
          }
-         
+      
+   }
+   
+   def registerUserStepThree(publicTokenTwo: String) = Action.async {
+      implicit req =>
+         logger.debug(req.toString)
+         userRegistrationService.registerUserStepThree(publicTokenTwo).collect {
+            case entry: UserRegistration =>
+               if (entry.confirmed)
+                  NotModified
+               else if (entry.expirationDateMills > System.currentTimeMillis()) {
+                  userRegistrationService.deleteUserRegistration(entry.id)
+                  Gone
+               } else {
+                  userRegistrationService.deleteUserRegistration(entry.id)
+                  Ok
+               }
+            case None =>
+               NotFound
+         }.recover {
+            case e: PSQLException =>
+               logger.debug("Insert error:", e)
+               Conflict
+            case e: Exception =>
+               logger.error(e.getMessage)
+               InternalServerError(e.getMessage)
+         }
+      
    }
    
    

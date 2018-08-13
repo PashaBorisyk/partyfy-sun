@@ -12,7 +12,6 @@ trait UserService {
 
   def getUsersByEventId(eventId:Long)(implicit request: Request[_]) : Future[Seq[(User,Serializable with Product)]]
   def checkUserExistence(nickname:String)(implicit request: Request[_]):Future[Boolean]
-  def registerUser(user:User)(implicit request: Request[_]): Future[Any]
   def updateUser(user:User)(implicit request: Request[_]):Future[Int]
   def getFriends(usserId:Long)(implicit request: Request[_]):Future[Seq[(User,Serializable with Product)]]
   def getFriendsIds(userId:Long)(implicit request: Request[_]):Future[Seq[Long]]

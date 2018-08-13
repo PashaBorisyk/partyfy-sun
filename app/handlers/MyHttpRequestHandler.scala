@@ -24,17 +24,21 @@ class MyHttpRequestHandler @Inject()(router: Router, val jwtCoder: JWTCoder) ext
                         (requestHeader, Action(Results.Unauthorized("Unable to parse token")))
                   }
                   
-               } else requestHeader.path match {
-                  case "/user/login/" =>
-                     logger.debug(s"Incoming login request : ${requestHeader.path}")
-                     Handler.applyStages(requestHeader, handler)
-                  case "/user/register_step_one/" =>
-                     logger.debug(s"Incoming register request : ${requestHeader.path}")
-                     Handler.applyStages(requestHeader, handler)
-                  case "/user/register_step_two/" =>
-                     logger.debug(s"Incoming register request : ${requestHeader.path}")
-                     Handler.applyStages(requestHeader, handler)
-                  case _ => (requestHeader, Action(Results.Forbidden))
+               } else {
+                  val path = requestHeader.path.split("/")
+                  if (path.length > 0l) {
+                     path(1) match {
+                        case "user_register" =>
+                           logger.debug(s"Incoming login request : ${requestHeader.path} with params : ${requestHeader.rawQueryString}")
+                           Handler.applyStages(requestHeader, handler)
+                        case "publisher" =>
+                           logger.debug(s"Incomming socket request : ${requestHeader.path}")
+                           Handler.applyStages(requestHeader,handler)
+                        case _ => (requestHeader, Action(Results.Forbidden))
+                     }
+                  } else {
+                     (requestHeader, Action(Results.Forbidden))
+                  }
                }
             }
          

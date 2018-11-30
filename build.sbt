@@ -23,9 +23,25 @@ libraryDependencies ++= Seq(
    "com.pauldijou" %% "jwt-play" % "0.16.0"
 )
 
-libraryDependencies += "org.mongodb" %% "casbah" % "3.1.1"
+libraryDependencies += "org.mongodb.scala" %% "mongo-scala-driver" % "2.4.1"
 libraryDependencies += "com.typesafe.play" %% "play-mailer" % "6.0.1"
 libraryDependencies += "com.typesafe.play" %% "play-mailer-guice" % "6.0.1"
 
-
 unmanagedResourceDirectories in Test <+=  baseDirectory ( _ /"target/web/public/test" )
+
+mainClass in assembly := Some("play.core.server.ProdServerStart")
+fullClasspath in assembly += Attributed.blank(PlayKeys.playPackageAssets.value)
+
+assemblyMergeStrategy in assembly := {
+   case manifest if manifest.contains("MANIFEST.MF") =>
+      // We don't need manifest files since sbt-assembly will create
+      // one with the given settings
+      MergeStrategy.discard
+   case referenceOverrides if referenceOverrides.contains("reference-overrides.conf") =>
+      // Keep the content for all reference-overrides.conf files
+      MergeStrategy.concat
+   case x =>
+      // For all the other files, use the default sbt-assembly merge strategy
+      val oldStrategy = (assemblyMergeStrategy in assembly).value
+      oldStrategy(x)
+}

@@ -73,7 +73,6 @@ class UserRegistrationServiceImpl @Inject()(
                      privateToken = token
                   )
             }
-         
             userRegistration
       }
       

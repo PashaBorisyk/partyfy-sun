@@ -26,7 +26,7 @@ class MyHttpRequestHandler @Inject()(router: Router, val jwtCoder: JWTCoder) ext
                   
                } else {
                   val path = requestHeader.path.split("/")
-                  if (path.length > 0l) {
+                  if (path.length > 1l) {
                      path(1) match {
                         case "user_register" =>
                            logger.debug(s"Incoming login request : ${requestHeader.path} with params : ${requestHeader.rawQueryString}")
@@ -36,7 +36,11 @@ class MyHttpRequestHandler @Inject()(router: Router, val jwtCoder: JWTCoder) ext
                            Handler.applyStages(requestHeader,handler)
                         case _ => (requestHeader, Action(Results.Forbidden))
                      }
-                  } else {
+                  }
+                  else if (path.isEmpty){
+                     Handler.applyStages(requestHeader,handler)
+                  }
+                  else {
                      (requestHeader, Action(Results.Forbidden))
                   }
                }

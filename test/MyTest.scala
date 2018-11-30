@@ -1,16 +1,6 @@
-import java.util
 
-import akka.http.scaladsl.model.ws.{Message, TextMessage}
-import akka.stream.scaladsl.{Flow, Sink, Source}
-import models.ChatMessageNOSQL
-import org.junit.Test
-import implicits.implicits._
-import akka.actor.{Actor, ActorLogging, ActorRef, ActorSystem, Props, Terminated}
-import akka.http.scaladsl.Http
-import akka.stream.{ActorMaterializer, OverflowStrategy}
 import com.google.gson.Gson
-import collection.JavaConversions._
-import scala.io.StdIn
+import org.junit.Test
 
 case class MCA(s: String = "sdgdfbdfdg")
 

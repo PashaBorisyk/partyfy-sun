@@ -2,14 +2,13 @@ package implicits
 
 
 import com.google.gson.{Gson, GsonBuilder}
-import com.mongodb.{BasicDBObject, DBCursor, DBObject}
+import com.mongodb.BasicDBObject
 import models.{ChatMessageNOSQL, Event, HipeImage, User}
 import org.bson.types.BasicBSONList
 import play.api.mvc.{AnyContent, Request}
 import slick.jdbc.GetResult
 import util.isPrimitiveOrString
 
-import scala.collection.mutable.ArrayBuffer
 import scala.language.implicitConversions
 
 package object implicits {
@@ -134,17 +133,17 @@ package object implicits {
       
    }
    
-   implicit class DBCursorImplicits[+T <: DBCursor](val t: T) {
-      
-      def map[R](f: (DBObject) => R)(implicit ev$1: DBObject => R): ArrayBuffer[R] = {
-         val arr = ArrayBuffer[R]()
-         t.forEach { s =>
-            arr += f(s)
-         }
-         arr
-      }
-      
-   }
+//   implicit class DBCursorImplicits[+T <: DBCursor](val t: T) {
+//
+//      def map[R](f: (DBObject) => R)(implicit ev$1: DBObject => R): ArrayBuffer[R] = {
+//         val arr = ArrayBuffer[R]()
+//         t.forEach { s =>
+//            arr += f(s)
+//         }
+//         arr
+//      }
+//
+//   }
    
    implicit class Object2Json[T](val t: T) {
       def toJson = gson.toJson(t)

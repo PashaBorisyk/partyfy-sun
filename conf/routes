@@ -66,6 +66,5 @@ GET                                                            /hipe_image/get_b
 GET                                                            /hipe_image/get_by_user_id/:id                            controllers.rest.HipeImageController.getByUserId(id:Long)
 GET                                                            /hipe_image/get_by_event_id/:id                           controllers.rest.HipeImageController.getByEventId(id:Long)
 DELETE                                                         /hipe_image/delete/:id                                    controllers.rest.HipeImageController.delete(id:Long)
-GET                                                            /chat/                                                    controllers.websocket.ChatController.socket
 
 GET                                                            /publisher/                                               controllers.websocket.EventPublisherWebSocketConnector.socket(for_type:Long,for_category:Long)

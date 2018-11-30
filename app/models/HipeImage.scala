@@ -3,7 +3,6 @@ package models
 import java.io.Serializable
 
 import slick.jdbc.PostgresProfile.api._
-import scala.concurrent.ExecutionContext.Implicits.global
 
 case class HipeImage(
    

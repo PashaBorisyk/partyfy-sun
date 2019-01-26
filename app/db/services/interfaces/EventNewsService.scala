@@ -5,11 +5,9 @@ import db.services.EventNewsServiceImpl
 import models.EventNewsDAO
 import play.api.mvc.Request
 
-import scala.concurrent.Future
-
 @ImplementedBy(classOf[EventNewsServiceImpl])
-trait EventNewsService {
+trait EventNewsService[T[_]] {
 
-  def get(userId:Long,lastReadId:Long)(implicit request: Request[_]) : Future[Seq[EventNewsDAO#TableElementType]]
+   def get(userId: Long, lastReadId: Long)(implicit request: Request[_]): T[Seq[EventNewsDAO#TableElementType]]
 
 }

@@ -2,6 +2,7 @@ package controllers.websocket
 
 import akka.actor.{Actor, ActorRef, ActorSystem, Props}
 import akka.stream.Materializer
+import controllers.publishers.traits.EventPublisher
 import implicits.implicits._
 import javax.inject.{Inject, _}
 import models.{Event, EventMessage}
@@ -13,21 +14,23 @@ import scala.collection.mutable
 import scala.concurrent.ExecutionContext
 
 @Singleton
-class EventPublisherWebSocketConnector @Inject()(cc: ControllerComponents)
-                                                (implicit system: ActorSystem, mat: Materializer, ec: ExecutionContext) extends AbstractController(cc) {
+class EventPublisherWebSocket @Inject()(cc: ControllerComponents)
+                                       (implicit system: ActorSystem, mat: Materializer, ec: ExecutionContext)
+   extends AbstractController(cc) with EventPublisher {
    
    private type ConnectionType = (Int, Int)
    
    private final lazy val connections = mutable.LinkedHashMap[
       ConnectionType, mutable.LinkedHashMap[String, mutable.LinkedHashSet[ConnectionHandler]]
       ]()
-   final val webSocketActor_ = system.actorOf(Props(new MessageListener))
-   
+   private final val webSocketActor_ = system.actorOf(Props(new MessageListener))
+
+   override def !(toPublish: Any): Unit = webSocketActor_ ! toPublish
    
    def socket(forType:Long,forCategory:Long): WebSocket = WebSocket.accept[String, String] { req =>
       ActorFlow.actorRef ({ out: ActorRef =>
          logger.debug(s"Incoming websocket connection with request: $req}")
-         
+
          val `type` = forType
          val category = forCategory
          

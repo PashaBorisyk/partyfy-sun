@@ -8,7 +8,7 @@ import util._
 
 @Singleton
 class MongoDBExecutor @Inject()(
-                               val configuration: Configuration
+                                  configuration: Configuration
                                ) {
    
    private lazy val db: MongoDatabase = {

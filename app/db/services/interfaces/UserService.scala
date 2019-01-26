@@ -8,7 +8,7 @@ import play.api.mvc.Request
 import scala.concurrent.Future
 
 @ImplementedBy(classOf[UserServiceImpl])
-trait UserService {
+trait UserService[T[_]] {
 
   def getUsersByEventId(eventId:Long)(implicit request: Request[_]) : Future[Seq[(User,Serializable with Product)]]
   def checkUserExistence(nickname:String)(implicit request: Request[_]):Future[Boolean]

@@ -1,5 +1,8 @@
 package models
 
+import annotations.Topic
+
+@Topic()
 case class EventMessage[T <: Any](
                                     time:Long = System.currentTimeMillis(),
                                     `type`:Int,

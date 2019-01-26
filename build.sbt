@@ -26,6 +26,7 @@ libraryDependencies ++= Seq(
 libraryDependencies += "org.mongodb.scala" %% "mongo-scala-driver" % "2.4.1"
 libraryDependencies += "com.typesafe.play" %% "play-mailer" % "6.0.1"
 libraryDependencies += "com.typesafe.play" %% "play-mailer-guice" % "6.0.1"
+libraryDependencies += "org.apache.kafka" % "kafka-clients" % "2.1.0"
 
 unmanagedResourceDirectories in Test <+=  baseDirectory ( _ /"target/web/public/test" )
 

@@ -1,10 +1,15 @@
 package implicits
 
 
+import java.util.AbstractMap.SimpleImmutableEntry
+import java.util.Properties
+
 import com.google.gson.{Gson, GsonBuilder}
 import com.mongodb.BasicDBObject
+import com.typesafe.config.{Config, ConfigValue}
 import models.{ChatMessageNOSQL, Event, HipeImage, User}
 import org.bson.types.BasicBSONList
+import play.api.ConfigLoader
 import play.api.mvc.{AnyContent, Request}
 import slick.jdbc.GetResult
 import util.isPrimitiveOrString
@@ -146,16 +151,35 @@ package object implicits {
 //   }
    
    implicit class Object2Json[T](val t: T) {
-      def toJson = gson.toJson(t)
-      
-      def toExposedJson = exposedGson.toJson(t)
-      
-      def run[R](lambda: (T) => R) = lambda(t)
+      def toJson: String = gson.toJson(t)
+
+      def toExposedJson: String = exposedGson.toJson(t)
+
+      def run[R](lambda: T => R) = lambda(t)
    }
    
    implicit class Request2Params(val request: Request[_]) {
       def userId:Long = request.headers.get("userId").get.toLong
       def username:String = request.headers.get("username").get
+   }
+
+   implicit class StringImplicits(string: String) {
+
+      @inline def notNullOrEmpty = !(string == null || string.trim.length == 0)
+
+   }
+
+   implicit val config2Properties = new ConfigLoader[Properties] {
+      override def load(config: Config, path: String): Properties = {
+
+         val properties = new Properties()
+
+         config.getConfig(path).entrySet().toArray(Array[SimpleImmutableEntry[String, ConfigValue]]()).foreach { item =>
+            properties.put(item.getKey, item.getValue.unwrapped())
+         }
+
+         properties
+      }
    }
    
 }

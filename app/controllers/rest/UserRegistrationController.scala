@@ -11,12 +11,12 @@ import services.traits.JWTCoder
 import slick.jdbc.JdbcProfile
 import util.logger
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 //noinspection TypeAnnotation
 class UserRegistrationController @Inject()(
                                              protected val dbConfigProvider: DatabaseConfigProvider,
-                                             protected val userRegistrationService: UserRegistrationService,
+                                             protected val userRegistrationService: UserRegistrationService[Future],
                                              val jwtCoder: JWTCoder,
                                              cc: ControllerComponents)(implicit ec: ExecutionContext)
    extends AbstractController(cc) with HasDatabaseConfigProvider[JdbcProfile] {
@@ -52,7 +52,7 @@ class UserRegistrationController @Inject()(
                } else {
                   Ok
                }
-            case None =>
+            case _ =>
                NotFound
          }.recover {
             case e: PSQLException =>
@@ -79,7 +79,7 @@ class UserRegistrationController @Inject()(
                   userRegistrationService.deleteUserRegistration(entry.id)
                   Ok
                }
-            case None =>
+            case _ =>
                NotFound
          }.recover {
             case e: PSQLException =>

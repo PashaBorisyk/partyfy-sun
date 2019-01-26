@@ -50,5 +50,6 @@ package object util {
          any.isInstanceOf[Float] ||
          any.isInstanceOf[Double] ||
          any.isInstanceOf[Boolean]
-   
+
+
 }

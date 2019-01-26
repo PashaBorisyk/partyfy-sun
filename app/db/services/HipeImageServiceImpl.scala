@@ -8,31 +8,36 @@ import play.api.mvc.Request
 import slick.jdbc.JdbcProfile
 import slick.jdbc.PostgresProfile.api._
 
-import scala.concurrent.duration._
-import scala.concurrent.{Await, ExecutionContext, Future}
+import scala.concurrent.{ExecutionContext, Future}
 
 class HipeImageServiceImpl @Inject()(
                                protected val dbConfigProvider: DatabaseConfigProvider,
                             )(implicit ec: ExecutionContext)
-   extends HasDatabaseConfigProvider[JdbcProfile] with HipeImageService {
-   
+   extends HasDatabaseConfigProvider[JdbcProfile] with HipeImageService[Future] {
+
    lazy val hipeImageTable = TableQuery[HipeImageDAO]
    lazy val eventHipeImageTable = TableQuery[EventHipeImageDAO]
    lazy val userHipeImageTable = TableQuery[UserHipeImageDAO]
    lazy val eventTable = TableQuery[EventDAO]
-   
-   override def create(eventId:Long,hipeImage: HipeImage)(implicit request: Request[_]):Future[Long] = Future{
+
+   override def create(eventId: Long, hipeImage: HipeImage)(implicit request: Request[_]) = {
+
       val query = hipeImageTable returning hipeImageTable.map(_.id)
-      val id = Await.result(db.run(query+=hipeImage),5.second)
-      val event = Await.result(db.run(eventTable.filter(_.id === eventId).result.head), 5.second)
-      db.run(eventTable.filter(_.id===eventId).update(event.copy(eventImageId = id)))
-      id
+
+      db.run(eventTable.filter(_.id === eventId).result.head).flatMap { result =>
+         db.run(query += hipeImage).zip(db.run(eventTable.filter(_.id === eventId).result.head))
+      }.map { result =>
+
+         db.run(eventTable.update(result._2.copy(eventImageId = result._1)))
+         result._1.toLong
+      }
+
    }
-   
+
    override def delete(id:Long)(implicit request: Request[_]) = {
       db.run(hipeImageTable.filter(_.id===id).delete)
    }
-   
+
    override def findById(id:Long)(implicit request: Request[_]) = {
       db.run(hipeImageTable.filter(_.id===id).result.head)
    }
@@ -41,12 +46,12 @@ class HipeImageServiceImpl @Inject()(
       db.run(hipeImageTable.filter{i=> i.id in eventHipeImageTable.filter(_.eventId === eventId).map(_.hipeImageId)}
          .sortBy(_.creationMills.desc).result)
    }
-   
+
    override def findByUserId(userId:Long)(implicit request: Request[_]) = {
       db.run(hipeImageTable.filter{
          i=>
             i.id in userHipeImageTable.filter(_.userId===userId).map(_.hipeImageId)
       }.sortBy(_.creationMills.desc).result)
    }
-   
+
 }

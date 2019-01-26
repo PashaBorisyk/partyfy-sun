@@ -34,6 +34,9 @@ class MyHttpRequestHandler @Inject()(router: Router, val jwtCoder: JWTCoder) ext
                         case "publisher" =>
                            logger.debug(s"Incomming socket request : ${requestHeader.path}")
                            Handler.applyStages(requestHeader,handler)
+                        case "event" =>
+                           logger.debug(s"Incomming test request : ${requestHeader.path}")
+                           Handler.applyStages(requestHeader, handler)
                         case _ => (requestHeader, Action(Results.Forbidden))
                      }
                   }

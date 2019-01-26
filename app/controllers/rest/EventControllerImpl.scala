@@ -1,6 +1,5 @@
 package controllers.rest
 
-import db.services.interfaces.ChatMessageService
 import db.services.{EventServiceImpl, UserServiceImpl}
 import implicits.implicits._
 import javax.inject.Inject
@@ -9,14 +8,13 @@ import play.api.mvc.{AbstractController, Action, AnyContent, ControllerComponent
 import services.traits.EventMessagePublisherService
 import util._
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 class EventControllerImpl @Inject()(
                                       cc: ControllerComponents,
                                       val eventMessagePublisherService: EventMessagePublisherService,
                                       val eventService: EventServiceImpl,
-                                      val userService: UserServiceImpl,
-                                      val chats: ChatMessageService
+                                      val userService: UserServiceImpl
                                    )(implicit ec: ExecutionContext)
    extends AbstractController(cc) {
    
@@ -39,9 +37,8 @@ class EventControllerImpl @Inject()(
       implicit req=>
          eventService.update(req.body).map {
             result =>
-               eventMessagePublisherService.publishUpdated[(Event,Event)](
-                  Const.MSG_INSTANCE_OF_EVENT,
-                  req.body->
+               eventMessagePublisherService ! (
+                  Const.MSG_INSTANCE_OF_EVENT, req.body._1
                )
                Ok(result.toJson)
          }.recover {
@@ -149,6 +146,15 @@ class EventControllerImpl @Inject()(
             })
          }
       
+   }
+
+   def test(): Action[AnyContent] = Action.async {
+      implicit req =>
+         logger.debug("Test method")
+         eventService.test()
+         Future {
+            Ok("Something")
+         }
    }
    
 }

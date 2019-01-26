@@ -8,14 +8,14 @@ import services.traits.{EventMessagePublisherService, JWTCoder}
 import slick.jdbc.JdbcProfile
 import slick.jdbc.PostgresProfile.api._
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 class UserRegistrationServiceImpl @Inject()(
                                               protected val dbConfigProvider: DatabaseConfigProvider,
                                               private val jwtCoder: JWTCoder,
                                               private val eventMessagePublisherService: EventMessagePublisherService
                                            )(implicit ec: ExecutionContext)
-   extends HasDatabaseConfigProvider[JdbcProfile] with UserRegistrationService {
+   extends HasDatabaseConfigProvider[JdbcProfile] with UserRegistrationService[Future] {
    
    val userRegistrationTable = TableQuery[UserRegistrationDAO]
    val userTable = TableQuery[UserDAO]

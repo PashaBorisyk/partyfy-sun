@@ -51,6 +51,7 @@ class AuthFilter @Inject()(implicit override val mat: Materializer,
          } else requestHeader.path match {
             case "/user/login/" => logger.debug(s"Incoming login request : ${requestHeader.path}")
             case "/user/register/" => logger.debug(s"Incoming register request : ${requestHeader.path}")
+            case "/event/test/" => logger.debug(s"Incoming test request : ${requestHeader.path}")
             case _ => map = unauthorizedMap
          }
       }

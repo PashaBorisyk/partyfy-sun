@@ -2,13 +2,13 @@ package models
 
 import java.io.Serializable
 
+import annotations.Topic
 import com.google.gson.annotations.Expose
 import slick.jdbc.PostgresProfile.api._
 
-import scala.annotation.meta.{beanGetter, field}
-import scala.beans.BeanProperty
+import scala.annotation.meta.field
 
-
+@Topic
 case class Event(
                    id:Long = 0L,
                    creatorId:Long = 0L,

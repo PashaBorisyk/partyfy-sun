@@ -8,12 +8,12 @@ import play.api.mvc.Request
 import slick.jdbc.JdbcProfile
 import slick.jdbc.PostgresProfile.api._
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 class EventNewsServiceImpl @Inject()(
                                    protected val dbConfigProvider: DatabaseConfigProvider,
                                 )(implicit ec: ExecutionContext)
-   extends HasDatabaseConfigProvider[JdbcProfile] with EventNewsService {
+   extends HasDatabaseConfigProvider[JdbcProfile] with EventNewsService[Future] {
    
    val eventNewsTable = TableQuery[EventNewsDAO]
    val userEventTable = TableQuery[EventUserDAO]

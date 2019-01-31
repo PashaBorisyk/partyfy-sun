@@ -84,7 +84,8 @@ class EventPublisherWebSocket @Inject()(cc: ControllerComponents)
       
       override def receive: PartialFunction[Any, Unit] = {
          case msg: EventMessage[_] =>
-            val key = (msg.`type`, msg.category)
+            //(msg.`type`, msg.category)
+            val key = (123, 123)
             /*Do some stuff in here */
             connections.get(key).foreach(
                connectionList =>

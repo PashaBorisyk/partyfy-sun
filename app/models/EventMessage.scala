@@ -1,13 +1,11 @@
 package models
 
-import annotations.Topic
-
-@Topic()
 case class EventMessage[T <: Any](
-                                    time:Long = System.currentTimeMillis(),
-                                    `type`:Int,
-                                    category:Int,
-                                    eventId:Long = 0l,
-                                    userId:Long=0l,
-                                    body:Any
+                                    time: Long = System.currentTimeMillis(),
+                                    eventMessageActionType: String,
+                                    eventId: Long = 0l,
+                                    userId: Long = 0l,
+                                    body: T,
+                                    //Only needed for mobile clients
+                                    entityType: String = ""
                                  )

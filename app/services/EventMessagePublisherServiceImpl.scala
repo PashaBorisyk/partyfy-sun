@@ -1,10 +1,10 @@
 package services
 
 import controllers.publishers.traits.EventPublisher
+import enums.EventMessageActionType
 import javax.inject.{Inject, Singleton}
 import models.EventMessage
 import services.traits.EventMessagePublisherService
-import util.Const
 
 @Singleton
 class EventMessagePublisherServiceImpl @Inject()(
@@ -14,26 +14,23 @@ class EventMessagePublisherServiceImpl @Inject()(
    override def !+[T <: Any](body: T): Unit = {
 
       subscriber ! EventMessage(
-         `type` = Const.MSG_TYPE_CREATED,
+         eventMessageActionType = EventMessageActionType.CREATED.toString,
          body = body,
-         category = Const.MSG_CATEGORY_ENTITY
       )
 
    }
 
    override def !-[T <: Any](body: T): Unit = {
       subscriber ! EventMessage(
-         `type` = Const.MSG_TYPE_DELETED,
+         eventMessageActionType = EventMessageActionType.DELETED.toString,
          body = body,
-         category = Const.MSG_CATEGORY_ENTITY
       )
    }
 
    override def ![T <: Any](body: T): Unit = {
       subscriber ! EventMessage(
-         `type` = Const.MSG_TYPE_UPDATED,
+         eventMessageActionType = EventMessageActionType.UPDATED.toString,
          body = body,
-         category = Const.MSG_CATEGORY_ENTITY
       )
    }
 }

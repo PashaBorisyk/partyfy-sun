@@ -95,10 +95,6 @@ object Const {
    final val MSG_CATEGORY_ENTITY = 1
    final val MSG_CATEGORY_MESSAGE = 2
    
-   final val MSG_TYPE_CREATED = 0
-   final val MSG_TYPE_UPDATED = 1
-   final val MSG_TYPE_DELETED = 2
-   
    final val MSG_INSTANCE_OF_EVENT = 0
    final val MSG_INSTANCE_OF_USER = 1
    final val MSG_INSTANCE_OF_MESSAGE = 2

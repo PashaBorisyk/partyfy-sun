@@ -8,7 +8,7 @@ import slick.jdbc.PostgresProfile.api._
 
 import scala.annotation.meta.field
 
-@Topic
+@Topic(name = "models.Event")
 case class Event(
                    id:Long = 0L,
                    creatorId:Long = 0L,

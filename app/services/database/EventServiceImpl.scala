@@ -1,12 +1,11 @@
-package db.services
+package services.database
 
-
-import db.services.interfaces.EventService
 import implicits.implicits._
 import javax.inject.Inject
 import models._
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
 import play.api.mvc.Request
+import services.database.traits.EventService
 import services.traits.EventMessagePublisherService
 import slick.jdbc.JdbcProfile
 import slick.jdbc.PostgresProfile.api._
@@ -39,28 +38,31 @@ class EventServiceImpl @Inject()(
                      case None => None
                   }
                })
-            }
+            }.toArray
       }
 
    }
 
    override def delete(id: Long)(implicit request: Request[_]) = {
-      val result = db.run(eventTable.filter(_.id === id).delete)
-      result
+      db.run(eventTable.filter(_.id === id).delete)
    }
 
    override def create(event: (Event, Set[Long]))(implicit request: Request[_]) = {
-      val query = eventTable returning eventTable.map(s => s)
-      val eventFuture: Future[Event] = db.run(query += event._1)
-      val result = eventFuture.map { createdEvent =>
 
-         event._2.foreach { id =>
-            db.run(userEventTable += EventUser(createdEvent.id, id))
+      val query = eventTable returning eventTable.map(s => s.id)
+      val execute = (query += event._1).flatMap { eventId =>
+
+         val eventUserConnections = event._2.map { userId =>
+            val execute: DBIOAction[_, slick.dbio.NoStream, Effect.All] = userEventTable += EventUser(eventId, userId)
+            execute
          }
-         createdEvent -> event._2
 
+         DBIO.seq(eventUserConnections.toArray: _*).map { _ =>
+            eventId
+         }
       }
-      result
+
+      db.run(execute)
    }
 
    override def update(event: Event)(implicit request: Request[_]) = {
@@ -82,18 +84,16 @@ class EventServiceImpl @Inject()(
                      case None => None
                   }
                })
-            }
+            }.toArray
       }
 
    }
 
    override def getEventsByMemberId(userId: Long)(implicit request: Request[_]) = {
 
-      val query = (for {
+      val execute: DBIOAction[Array[(models.Event, Product with Serializable)], slick.dbio.NoStream, Nothing] = (for {
          (event, image) <- eventTable joinLeft imageTable on (_.eventImageId === _.id)
-      } yield (event, image)).filter { e => e._1.id in userEventTable.filter { s => s.userId === userId }.map(_.eventId) }
-
-      db.run(query.result).map {
+      } yield (event, image)).filter { e => e._1.id in userEventTable.filter { s => s.userId === userId }.map(_.eventId) }.result.map {
          entry =>
             entry.map { eventImageEntry =>
                (eventImageEntry._1, {
@@ -102,22 +102,27 @@ class EventServiceImpl @Inject()(
                      case None => None
                   }
                })
-            }
+            }.toArray
       }
+
+      db.run(execute)
 
    }
 
    override def getEventIdsByMemberId(userId: Long)(implicit request: Request[_]) = {
-      db.run(eventTable.filter { e => e.id in userEventTable.filter { s => s.userId === userId }.map(_.eventId) }.map(_.id).result)
+      db.run(eventTable.filter { e =>
+         e.id in userEventTable.filter { s => s.userId === userId }.map(_.eventId)
+      }.map(_.id).result.map(_.toArray))
    }
 
    override def getEventIdsByMemberIdForSocket(userId: Long)(implicit request: Request[_]) = {
-      db.run(eventTable.filter { e => e.id in userEventTable.filter { s => s.userId === userId }.map(_.eventId) }.map(_.id).result)
+      db.run(eventTable.filter { e => e.id in userEventTable.filter { s => s.userId === userId }.map(_.eventId) }.map
+      (_.id).result.map(_.toArray))
    }
 
    override def getEvents(userId: Long, latitude: Double, longtitude: Double, lastReadEventId: Long)(implicit request: Request[_]) = {
 
-      val query = (for {
+      val execute: DBIOAction[Array[(models.Event, Product with Serializable)], slick.dbio.NoStream, Nothing] = (for {
          (event, image) <- eventTable joinLeft imageTable on (_.eventImageId === _.id)
       } yield (event, image)).filter {
          entry =>
@@ -125,9 +130,7 @@ class EventServiceImpl @Inject()(
       }.filter {
          entry =>
             entry._1.longtitude > (longtitude - 0.3) && entry._1.longtitude < (longtitude + 0.3)
-      }.filter(_._1.id > lastReadEventId).take(30).sortBy(_._1.id.desc)
-
-      db.run(query.result).map {
+      }.filter(_._1.id > lastReadEventId).take(30).sortBy(_._1.id.desc).result.map {
          entry =>
             entry.map { eventImageEntry =>
                (eventImageEntry._1, {
@@ -136,8 +139,11 @@ class EventServiceImpl @Inject()(
                      case None => None
                   }
                })
-            }
+            }.toArray
       }
+
+      db.run(execute)
+
    }
 
    override def addMemberToEvent(eventId: Long, userId: Long, advancedUserId: Long)(implicit request: Request[_]) = {
@@ -146,28 +152,33 @@ class EventServiceImpl @Inject()(
 
    override def cancelEvent(userId: Long, eventId: Long)(implicit request: Request[_]) = {
 
-      db.run(eventTable.filter(_.id === eventId).map(_.creatorId).result.head).map {
+      val execute = eventTable.filter(_.id === eventId).map(_.creatorId).result.head.map {
          id =>
             if (id == userId) {
-               db.run(userEventTable.filter { e => e.eventId === eventId }.delete)
-               db.run(eventTable.filter(_.id === eventId).delete)
+               userEventTable.filter { e => e.eventId === eventId }.delete.andThen(
+                  eventTable.filter(_.id === eventId).delete
+               )
             }
+            id
       }
+      db.run(execute)
 
    }
 
    override def removeMember(userId: Long, advancedUserId: Long, eventId: Long)(implicit request: Request[_]) = {
 
-      if (userId == advancedUserId)
-         db.run(userEventTable.filter { e => e.eventId === eventId && e.userId === userId }.delete)
+      val execute = if (userId == advancedUserId)
+         userEventTable.filter { e => e.eventId === eventId && e.userId === userId }
+            .delete
       else
-         db.run(eventTable.filter(_.id === eventId).map(_.creatorId).result.head).map {
+         eventTable.filter(_.id === eventId).map(_.creatorId).result.head.map {
             id =>
                if (id == userId) {
-                  db.run(userEventTable.filter { e => e.eventId === eventId && e.userId === advancedUserId }.delete)
+                  userEventTable.filter { e => e.eventId === eventId && e.userId === advancedUserId }.delete
                }
          }
 
+      db.run(execute)
    }
 
    override def test(): Unit = {

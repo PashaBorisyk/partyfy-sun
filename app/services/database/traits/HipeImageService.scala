@@ -1,9 +1,11 @@
-package db.services.interfaces
+package services.database.traits
 
 import com.google.inject.ImplementedBy
-import db.services.HipeImageServiceImpl
 import models.HipeImage
 import play.api.mvc.Request
+import services.database.HipeImageServiceImpl
+
+import scala.language.higherKinds
 
 @ImplementedBy(classOf[HipeImageServiceImpl])
 trait HipeImageService[T[_]] {

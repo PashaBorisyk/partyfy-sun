@@ -2,12 +2,12 @@ package controllers.rest
 
 import java.nio.file.Paths
 
-import db.services.HipeImageServiceImpl
 import implicits.implicits._
 import javax.imageio.ImageIO
 import javax.inject.Inject
 import play.api.mvc.{AbstractController, ControllerComponents}
 import services.ImageWriterService
+import services.database.HipeImageServiceImpl
 import util._
 
 import scala.concurrent.{ExecutionContext, Future}

@@ -1,13 +1,14 @@
-package controllers.websocket
+package controllers.publishers
 
 import akka.actor.{Actor, ActorRef, ActorSystem, Props}
 import akka.stream.Materializer
-import controllers.publishers.traits.EventPublisher
+import controllers.publishers.traits.Publisher
 import implicits.implicits._
 import javax.inject.{Inject, _}
 import models.{Event, EventMessage}
 import play.api.libs.streams.ActorFlow
 import play.api.mvc.{AbstractController, ControllerComponents, WebSocket}
+import services.traits.EventMessagePublisherService
 import util.logger
 
 import scala.collection.mutable
@@ -16,7 +17,7 @@ import scala.concurrent.ExecutionContext
 @Singleton
 class EventPublisherWebSocket @Inject()(cc: ControllerComponents)
                                        (implicit system: ActorSystem, mat: Materializer, ec: ExecutionContext)
-   extends AbstractController(cc) with EventPublisher {
+   extends AbstractController(cc) with Publisher {
    
    private type ConnectionType = (Int, Int)
    
@@ -25,7 +26,7 @@ class EventPublisherWebSocket @Inject()(cc: ControllerComponents)
       ]()
    private final val webSocketActor_ = system.actorOf(Props(new MessageListener))
 
-   override def !(toPublish: Any): Unit = webSocketActor_ ! toPublish
+   override def publish(publisher: EventMessagePublisherService, toPublish: Any): Unit = webSocketActor_ ! toPublish
    
    def socket(forType:Long,forCategory:Long): WebSocket = WebSocket.accept[String, String] { req =>
       ActorFlow.actorRef ({ out: ActorRef =>

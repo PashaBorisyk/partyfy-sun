@@ -1,12 +1,12 @@
 package controllers.rest
 
-import db.services.interfaces.UserRegistrationService
 import implicits.implicits._
 import javax.inject.Inject
 import models.UserRegistration
 import org.postgresql.util.PSQLException
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
 import play.api.mvc.{AbstractController, ControllerComponents}
+import services.database.traits.UserRegistrationService
 import services.traits.JWTCoder
 import slick.jdbc.JdbcProfile
 import util.logger

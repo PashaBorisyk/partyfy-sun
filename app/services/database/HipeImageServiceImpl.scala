@@ -1,10 +1,10 @@
-package db.services
+package services.database
 
 import com.google.inject.Inject
-import db.services.interfaces.HipeImageService
 import models._
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
 import play.api.mvc.Request
+import services.database.traits.HipeImageService
 import slick.jdbc.JdbcProfile
 import slick.jdbc.PostgresProfile.api._
 

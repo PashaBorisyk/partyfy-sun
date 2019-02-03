@@ -1,10 +1,10 @@
-package db.services
+package services.database
 
-import db.services.interfaces.UserService
 import javax.inject.Inject
 import models._
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
 import play.api.mvc.Request
+import services.database.traits.UserService
 import services.traits.JWTCoder
 import slick.jdbc.JdbcProfile
 import slick.jdbc.PostgresProfile.api._
@@ -17,8 +17,8 @@ class UserServiceImpl @Inject()(
                                )(implicit ec: ExecutionContext)
    extends HasDatabaseConfigProvider[JdbcProfile] with UserService[Future] {
 
-   private lazy val eventTable = TableQuery[EventDAO]
-   private lazy val userRegistrationTable = TableQuery[UserRegistrationDAO]
+   private val eventTable = TableQuery[EventDAO]
+   private val userRegistrationTable = TableQuery[UserRegistrationDAO]
    private val userEventTable = TableQuery[EventUserDAO]
    private val userTable = TableQuery[UserDAO]
    private val friendsTable = TableQuery[UserUserDAO]
@@ -88,16 +88,16 @@ class UserServiceImpl @Inject()(
       val id = userId.toString
 
       val query = sql"""
-               SELECT id FROM public.user WHERE nickname ~* '#$queries' OR surname ~* '#$queries' OR name ~* '#$queries' AND id != #$id ORDER BY id DESC
+               SELECT id FROM public.user WHERE username ~* '#$queries' OR surname ~* '#$queries' OR name ~* '#$queries' AND
+                id != #$id ORDER BY id DESC
              """.as[Long]
 
-      db.run(query).flatMap { result =>
+      val execute = query.flatMap { result =>
 
-         db.run((
-            for {
-               (user, image) <- userTable joinLeft imageTable on (_.imageId === _.id)
-            } yield (user, image)
-            ).filter(_._1.id inSet result).result)
+         (for {
+            (user, image) <- userTable joinLeft imageTable on (_.imageId === _.id)
+         } yield (user, image)
+            ).filter(_._1.id inSet result).result
 
       }.map {
          entry =>
@@ -111,16 +111,26 @@ class UserServiceImpl @Inject()(
             }
       }
 
+      db.run(execute)
+
    }
 
    def getById(id: Long)(implicit request: Request[_]) = {
-      val userQuery = userTable.filter {
-         _.id === id
+
+      val execute = (for {
+         (user, image) <- userTable joinLeft imageTable on (_.imageId === _.id)
+      } yield (user, image)
+         ).filter(_._1.id === id).result.head.map {
+         eventImageEntry =>
+            (eventImageEntry._1, {
+               eventImageEntry._2 match {
+                  case Some(image) => image
+                  case None => None
+               }
+            })
       }
-      db.run(userQuery.result.head).zip(
-         db.run(imageTable.filter {
-            _.id in userQuery.map(_.imageId)
-         }.result.head))
+
+      db.run(execute)
    }
 
    def addUserToFriends(userId: Long, advancedUserId: Long)(implicit request: Request[_]) = {

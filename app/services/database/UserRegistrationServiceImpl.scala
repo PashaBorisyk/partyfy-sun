@@ -1,9 +1,9 @@
-package db.services
+package services.database
 
-import db.services.interfaces.UserRegistrationService
 import javax.inject.Inject
 import models.{User, UserDAO, UserRegistration, UserRegistrationDAO}
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
+import services.database.traits.UserRegistrationService
 import services.traits.{EventMessagePublisherService, JWTCoder}
 import slick.jdbc.JdbcProfile
 import slick.jdbc.PostgresProfile.api._

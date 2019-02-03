@@ -1,10 +1,10 @@
 package controllers.rest
 
-import db.services.EventNewsServiceImpl
 import implicits.implicits._
 import javax.inject.Inject
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
 import play.api.mvc.{AbstractController, ControllerComponents}
+import services.database.EventNewsServiceImpl
 import slick.jdbc.JdbcProfile
 import util._
 

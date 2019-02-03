@@ -1,10 +1,10 @@
 package controllers.rest
 
-import db.services.UserServiceImpl
 import implicits.implicits._
 import javax.inject.{Inject, Singleton}
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
 import play.api.mvc._
+import services.database.UserServiceImpl
 import services.traits.JWTCoder
 import slick.jdbc.JdbcProfile
 import util._

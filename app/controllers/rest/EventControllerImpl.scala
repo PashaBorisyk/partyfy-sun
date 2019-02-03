@@ -1,10 +1,9 @@
 package controllers.rest
 
-import db.services.{EventServiceImpl, UserServiceImpl}
 import implicits.implicits._
 import javax.inject.Inject
-import models.Event
 import play.api.mvc.{AbstractController, Action, AnyContent, ControllerComponents}
+import services.database.{EventServiceImpl, UserServiceImpl}
 import services.traits.EventMessagePublisherService
 import util._
 
@@ -14,7 +13,7 @@ class EventControllerImpl @Inject()(
                                       cc: ControllerComponents,
                                       val eventMessagePublisherService: EventMessagePublisherService,
                                       val eventService: EventServiceImpl,
-                                      val userService: UserServiceImpl
+                                      val userService: UserServiceImpl,
                                    )(implicit ec: ExecutionContext)
    extends AbstractController(cc) {
    
@@ -22,9 +21,9 @@ class EventControllerImpl @Inject()(
       implicit req =>
          logger.debug(req.toString())
          eventService.create(req.body).map {
-            result =>
-               eventMessagePublisherService ! result
-               Created(result.toJson)
+            eventId =>
+               eventMessagePublisherService ! eventId -> req.body._2
+               Created(eventId.toJson)
          }.recover {
             case e: Exception => InternalServerError({
                e.printStackTrace()
@@ -52,7 +51,6 @@ class EventControllerImpl @Inject()(
    def getById(id: Long): Action[AnyContent] = Action.async {
       implicit req=>
          logger.debug(req.toString)
-         eventMessagePublisherService ! Event()
          eventService.getEventById(id).map {
             e => Ok(e.toJson)
          }.recover {
@@ -68,7 +66,7 @@ class EventControllerImpl @Inject()(
       implicit req =>
          logger.debug(req.toString())
          eventService.getEventsByOwner(userId).map {
-            result => if (result.nonEmpty) Ok(result.toArray.toJson) else NoContent
+            result => if (result.nonEmpty) Ok(result.toJson) else NoContent
          }.recover {
             case e: Exception => InternalServerError({
                e.printStackTrace()
@@ -83,7 +81,7 @@ class EventControllerImpl @Inject()(
          
          logger.debug(req.toString())
          eventService.getEventsByMemberId(userId).map {
-            result =>  if (result.nonEmpty) Ok(result.toArray.toJson) else NoContent
+            result => if (result.nonEmpty) Ok(result.toJson) else NoContent
          }.recover {
             case e: Exception => InternalServerError({
                e.printStackTrace()
@@ -97,7 +95,9 @@ class EventControllerImpl @Inject()(
       implicit req =>
          logger.debug(req.toString())
          eventService.getEvents(userId, latitude, longtitude, lastReadEventId).map {
-            result => logger.debug(result.toArray.toJson); Ok(result.toArray.toJson)
+            result =>
+               logger.debug(result.toJson)
+               Ok(result.toJson)
          }.recover {
             case e: Exception => InternalServerError({
                e.printStackTrace()
@@ -111,7 +111,9 @@ class EventControllerImpl @Inject()(
       implicit req =>
          logger.debug(req.toString())
          eventService.cancelEvent(userId, eventId).map {
-            result => Ok(result.toJson)
+            result =>
+               eventMessagePublisherService !- (userId, eventId)
+               Ok(result.toJson)
          }.recover {
             case e: Exception => InternalServerError({
                e.printStackTrace()

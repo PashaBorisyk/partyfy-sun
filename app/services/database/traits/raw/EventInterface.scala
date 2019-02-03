@@ -1,6 +1,8 @@
-package db.services.interfaces.raw
+package services.database.traits.raw
 
 import models.Event
+
+import scala.language.higherKinds
 
 trait EventInterface[T[_]] {
 

@@ -6,18 +6,19 @@ import akka.stream.Materializer
 import annotations.Topic
 import com.google.inject.Inject
 import configs.KafkaConfigs
-import controllers.publishers.traits.EventPublisher
+import controllers.publishers.traits.Publisher
 import implicits.implicits._
 import javax.inject.Singleton
 import models.EventMessage
 import org.apache.kafka.clients.producer.{KafkaProducer, ProducerRecord}
+import services.traits.EventMessagePublisherService
 import util.logger
 
 import scala.concurrent.ExecutionContext
 
 @Singleton()
 class EventPublisherKafka @Inject()(kafkaConfigs: KafkaConfigs)(implicit system: ActorSystem, mat: Materializer,
-                                                                ec: ExecutionContext) extends EventPublisher {
+                                                                ec: ExecutionContext) extends Publisher {
 
    private final lazy val connections = scala.collection.mutable.TreeMap[String, ConnectionHandler]()
 
@@ -25,7 +26,7 @@ class EventPublisherKafka @Inject()(kafkaConfigs: KafkaConfigs)(implicit system:
 
    private final val producer = new KafkaProducer[String, String](kafkaConfigs.props)
 
-   override def !(toPublish: Any): Unit = messageProxyActor ! toPublish
+   override def publish(publisher: EventMessagePublisherService, toPublish: Any): Unit = messageProxyActor ! toPublish
 
    @inline def getTopicName(any: Any) = {
 
@@ -60,15 +61,15 @@ class EventPublisherKafka @Inject()(kafkaConfigs: KafkaConfigs)(implicit system:
       }
 
       override def receive: PartialFunction[Any, Unit] = {
-         case msg: EventMessage[_] =>
-            val topic = getTopicName(msg.body)
+         case msg: (EventMessagePublisherService, EventMessage[_]) =>
+            val topic = getTopicName(msg._1)
             val handler = connections.getOrElse(topic, {
                val connectionHandler: ConnectionHandler = new ConnectionHandler(topic)
                connections(topic) = connectionHandler
                connectionHandler
             })
 
-            handler.send(msg)
+            handler.send(msg._2)
 
       }
 

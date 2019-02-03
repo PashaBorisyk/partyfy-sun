@@ -2,10 +2,11 @@ package controllers.publishers.traits
 
 import com.google.inject.ImplementedBy
 import controllers.publishers.EventPublisherKafka
+import services.traits.EventMessagePublisherService
 
 @ImplementedBy(classOf[EventPublisherKafka])
-trait EventPublisher {
+trait Publisher {
 
-   def !(toPublish: Any)
+   def publish(publisher: EventMessagePublisherService, toPublish: Any)
 
 }

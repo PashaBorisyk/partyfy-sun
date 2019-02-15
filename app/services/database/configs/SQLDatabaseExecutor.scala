@@ -1,4 +1,4 @@
-package services
+package services.database.configs
 
 import javax.inject.{Inject, Singleton}
 import models._
@@ -6,6 +6,7 @@ import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
 import play.api.mvc.ControllerComponents
 import slick.jdbc.JdbcProfile
 import slick.jdbc.PostgresProfile.api._
+import util.logger
 
 import scala.concurrent.ExecutionContext
 
@@ -21,13 +22,12 @@ class SQLDatabaseExecutor @Inject()(
    lazy val schema3 = TableQuery[EventDAO].schema
    lazy val schema4 = TableQuery[EventHipeImageDAO].schema
    lazy val schema5 = TableQuery[EventUserDAO].schema
-   lazy val schema6 = TableQuery[ChatMessageUserDAO].schema
-   lazy val schema7 = TableQuery[EventNewsDAO].schema
-   lazy val schema8 = TableQuery[OfflineStoreChatMessagesDAO].schema
-   lazy val schema9 = TableQuery[OfflineStoreDAO].schema
-   lazy val schema10 = TableQuery[UserDAO].schema
-   lazy val schema11 = TableQuery[UserUserDAO].schema
-   lazy val schema12 = TableQuery[UserRegistrationDAO].schema
+   lazy val schema6 = TableQuery[EventNewsDAO].schema
+   lazy val schema7 = TableQuery[OfflineStoreChatMessagesDAO].schema
+   lazy val schema8 = TableQuery[OfflineStoreDAO].schema
+   lazy val schema9 = TableQuery[UserDAO].schema
+   lazy val schema10 = TableQuery[UserUserDAO].schema
+   lazy val schema11 = TableQuery[UserRegistrationDAO].schema
    
    lazy val schemaArr = Array(
       schema, schema2,
@@ -35,12 +35,12 @@ class SQLDatabaseExecutor @Inject()(
       schema5, schema6,
       schema7, schema8,
       schema9, schema10,
-      schema11,schema12
+      schema11
    )
-   
-   for (n <- schemaArr)
-      db.run(DBIO.seq(
-         n.create
-      )).map(s=>println(s)).recover{case e:Exception => e}
-   
+
+   db.run(
+      DBIO.seq(schemaArr.map(_.create).toArray:_*)
+   ).recover{
+      case e:Exception => logger.debug("Error while creating tables : ", e)
+   }
 }

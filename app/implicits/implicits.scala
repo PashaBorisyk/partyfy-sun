@@ -10,6 +10,7 @@ import com.typesafe.config.{Config, ConfigValue}
 import models.{ChatMessageNOSQL, Event, HipeImage, User}
 import org.bson.types.BasicBSONList
 import play.api.ConfigLoader
+import play.api.libs.json.Json
 import play.api.mvc.{AnyContent, Request}
 import slick.jdbc.GetResult
 import util.isPrimitiveOrString
@@ -39,8 +40,15 @@ package object implicits {
    
    implicit def req2HipeImage(requestBody: AnyContent): HipeImage = gson.fromJson(requestBody.asText.getOrElse("null"), classOf[HipeImage])
    
-   implicit def req2EventMembersTuple(requestBody: AnyContent): (Event, Set[Long]) = gson.fromJson(requestBody.asText.getOrElse("null"), classOf[(Event, Set[Long])])
-   
+   implicit def req2EventMembersTuple(requestBody: AnyContent): (Event, Set[Long]) = {
+
+      implicit val eventFormat = Json.format[Event]
+      implicit val modelFormat = Json.format[(Event, Set[Long])]
+      val result = Json.fromJson[(Event, Set[Long])](Json.parse(requestBody.asText.getOrElse("null")))
+      result.get
+
+   }
+
    implicit def string2ChatMessage(s: String): ChatMessageNOSQL = gson.fromJson(s, classOf[ChatMessageNOSQL])
    
    //   @inline implicit def dbObject2Object[T: ClassTag](dBObject: DBObject): T = gson.fromJson(dBObject.toString, classTag[T].runtimeClass)

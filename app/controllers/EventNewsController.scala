@@ -1,4 +1,4 @@
-package controllers.rest
+package controllers
 
 import implicits.implicits._
 import javax.inject.Inject
@@ -10,7 +10,7 @@ import util._
 
 import scala.concurrent.ExecutionContext
 
-class EventNewsControllerImpl @Inject()(
+class EventNewsController @Inject()(
                                          protected val eventNewsService: EventNewsServiceImpl,
                                          protected val dbConfigProvider: DatabaseConfigProvider,
                                          cc: ControllerComponents

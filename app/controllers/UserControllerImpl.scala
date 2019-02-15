@@ -1,4 +1,4 @@
-package controllers.rest
+package controllers
 
 import implicits.implicits._
 import javax.inject.{Inject, Singleton}
@@ -36,7 +36,7 @@ class UserControllerImpl @Inject()(
    def updateUser() = Action.async {
       implicit req =>
          logger.debug(req.toString)
-         userService.updateUser(req.body).map {
+         userService.updateUser(req.body,getToken).map {
             id: Int => Created(id.toJson)
          }.recover {
             case e: Exception =>
@@ -49,7 +49,7 @@ class UserControllerImpl @Inject()(
    def findUser(requesterUserId: Long, query: String) = Action.async {
       implicit req =>
          logger.debug(req.toString)
-         userService.findUser(requesterUserId, query).map { s =>
+         userService.findUser(requesterUserId, query,getToken).map { s =>
             if (s.nonEmpty)
                Ok(s.toArray.toJson)
             else
@@ -64,7 +64,7 @@ class UserControllerImpl @Inject()(
    def addUserToFriends(userId: Long, advancedUserId: Long) = Action.async {
       implicit req =>
          logger.debug(req.toString)
-         userService.addUserToFriends(userId, advancedUserId).map {
+         userService.addUserToFriends(userId,getToken).map {
             _ => Ok(advancedUserId.toJson)
          }.recover {
             case e: Exception => InternalServerError({
@@ -77,7 +77,7 @@ class UserControllerImpl @Inject()(
    def removeUserFromFriends(userId: Long, advancedUserId: Long) = Action.async {
       implicit req =>
          logger.debug(req.toString)
-         userService.removeUserFromFriends(userId, advancedUserId).map {
+         userService.removeUserFromFriends(userId,getToken).map {
             _ => Accepted(advancedUserId.toJson)
          }.recover {
             case e: Exception => InternalServerError({
@@ -90,7 +90,7 @@ class UserControllerImpl @Inject()(
    def getById(userId: Long) = Action.async {
       implicit req =>
          logger.debug(req.toString)
-         userService.getById(userId).map {
+         userService.getById(userId,getToken).map {
             s => Ok(s.toJson)
          }.recover {
             case e: Exception => InternalServerError({
@@ -103,7 +103,7 @@ class UserControllerImpl @Inject()(
    def getFriends(userId: Long) = Action.async {
       implicit req =>
          logger.debug(req.toString)
-         userService.getFriends(userId).map {
+         userService.getFriends(userId,getToken).map {
             s => Ok(s.toArray.toJson)
          }.recover {
             case e: Exception => InternalServerError({
@@ -115,7 +115,7 @@ class UserControllerImpl @Inject()(
    def getFriendsIds(userId: Long) = Action.async {
       implicit req =>
          logger.debug(req.toString)
-         userService.getFriendsIds(userId).map {
+         userService.getFriendsIds(userId,getToken).map {
             s => Ok(s.toArray.toJson)
          }.recover {
             case e: Exception => InternalServerError({
@@ -127,7 +127,7 @@ class UserControllerImpl @Inject()(
    def getUsersByEvent(eventId: Long) = Action.async {
       implicit req =>
          logger.debug(req.toString)
-         userService.getUsersByEventId(eventId).map {
+         userService.getUsersByEventId(eventId,getToken).map {
             result => Ok(result.toArray.toJson)
          }.recover {
             case e: Exception => InternalServerError({
@@ -141,8 +141,8 @@ class UserControllerImpl @Inject()(
       implicit req =>
          logger.debug(req.toString)
          userService.login(username, password).map {
-            token =>
-               Ok(token.toJson)
+            case Some(token) => Ok(token)
+            case None => NotFound
          }.recover {
             case _: NoSuchElementException =>
                NotFound
@@ -150,5 +150,10 @@ class UserControllerImpl @Inject()(
                InternalServerError(error.toJson)
          }
    }
+
+   private def getToken(implicit request: Request[_]) = request.headers.get(AUTHORIZATION)
+      .getOrElse{
+         throw new RuntimeException("Request does not have an Authorization header")
+      }
    
 }

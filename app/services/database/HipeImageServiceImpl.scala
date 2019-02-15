@@ -43,14 +43,14 @@ class HipeImageServiceImpl @Inject()(
    }
 
    override def findByEventId(eventId:Long)(implicit request: Request[_]) = {
-      db.run(hipeImageTable.filter{i=> i.id in eventHipeImageTable.filter(_.eventId === eventId).map(_.hipeImageId)}
+      db.run(hipeImageTable.filter{i=> i.id in eventHipeImageTable.filter(_.eventId === eventId).map(_.imageId)}
          .sortBy(_.creationMills.desc).result)
    }
 
    override def findByUserId(userId:Long)(implicit request: Request[_]) = {
       db.run(hipeImageTable.filter{
          i=>
-            i.id in userHipeImageTable.filter(_.userId===userId).map(_.hipeImageId)
+            i.id in userHipeImageTable.filter(_.userId===userId).map(_.imageId)
       }.sortBy(_.creationMills.desc).result)
    }
 

@@ -12,7 +12,7 @@ case class User(
                   id: Long = 0L,
                   @(Expose@field)
                   username: String = "",
-                  password: String = "",
+                  secret: String = "",
                   @(Expose@field)
                   name: String = "",
                   @(Expose@field)
@@ -24,6 +24,7 @@ case class User(
                   longitude: Double = 0.0,
                   @(Expose@field)
                   imageId: Long = 0L,
+                  email:String = ""
 
                ) extends Serializable
 
@@ -34,63 +35,65 @@ class UserDAO(tag: Tag) extends Table[User](tag, "user") {
    
    def username = column[String]("username", O.Unique)
    
-   def password = column[String]("password")
-   
+   def secret = column[String]("secret")
+
    def name = column[String]("name")
-   
+
    def surname = column[String]("surname")
-   
+
    def isMale = column[Boolean]("is_male")
-   
+
    def isOnline = column[Boolean]("is_online")
-   
+
    def status = column[String]("status")
-   
+
    def latitude = column[Double]("latitude")
-   
+
    def longtitude = column[Double]("longtitude")
-   
-   def imageId = column[Long]("image_id")
-   
+
+   def imageId = column[Long]("image_id",O.Unique)
+
+   def email = column[String]("email",O.Unique)
+
    def * = (id, username,
-      password, name,
+      secret, name,
       surname, isMale,
       isOnline,
       status,
       latitude, longtitude,
-      imageId) <> (User.tupled, User.unapply)
+      imageId,email) <> (User.tupled, User.unapply)
    
 }
 
 case class UserUser(
-   
-                      userId1: Long = 0L,
-                      userId2: Long = 0L
+
+                      userFrom: Long = 0L,
+                      userTo: Long = 0L
 
                    )
 
 class UserUserDAO(tag: Tag) extends Table[UserUser](tag, "user_user") {
    
-   def userId1 = column[Long]("user_id_1")
-   
-   def userId2 = column[Long]("user_id_2")
-   
-   def * = (userId1, userId2) <> (UserUser.tupled, UserUser.unapply)
+   def user_from = column[Long]("user_from")
+
+   def user_to = column[Long]("user_to")
+
+   def * = (user_from, user_to) <> (UserUser.tupled, UserUser.unapply)
    
 }
 
 
 case class UserHipeImage(
                            userId: Long,
-                           hipeImageId: Long
+                           imageId: Long
                         )
 
-class UserHipeImageDAO(tag: Tag) extends Table[UserHipeImage](tag, "user_hipe_image") {
+class UserHipeImageDAO(tag: Tag) extends Table[UserHipeImage](tag, "user_image") {
    
    def userId = column[Long]("user_id")
    
-   def hipeImageId = column[Long]("hipe_image_id")
-   
-   def * = (userId, hipeImageId) <> (UserHipeImage.tupled, UserHipeImage.unapply)
+   def imageId = column[Long]("image_id")
+
+   def * = (userId, imageId) <> (UserHipeImage.tupled, UserHipeImage.unapply)
    
 }

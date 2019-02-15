@@ -1,4 +1,4 @@
-package services
+package services.database.configs
 
 import javax.inject.{Inject, Singleton}
 import org.mongodb.scala.{MongoClient, MongoDatabase}

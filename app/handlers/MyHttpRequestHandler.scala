@@ -23,19 +23,19 @@ class MyHttpRequestHandler @Inject()(router: Router, val jwtCoder: JWTCoder) ext
                      case (None, None, None) =>
                         (requestHeader, Action(Results.Unauthorized("Unable to parse token")))
                   }
-                  
+
                } else {
-                  val path = requestHeader.path.split("/")
+                  val path = requestHeader.path
                   if (path.length > 1l) {
-                     path(1) match {
-                        case "user_register" =>
+                     path match {
+                        case "/user_register/step_one/" | "/user_register/step_two/" | "/user_register/step_three/" =>
                            logger.debug(s"Incoming login request : ${requestHeader.path} with params : ${requestHeader.rawQueryString}")
                            Handler.applyStages(requestHeader, handler)
-                        case "publisher" =>
-                           logger.debug(s"Incomming socket request : ${requestHeader.path}")
-                           Handler.applyStages(requestHeader,handler)
                         case "event" =>
                            logger.debug(s"Incomming test request : ${requestHeader.path}")
+                           Handler.applyStages(requestHeader, handler)
+                        case "/user/login/" =>
+                           logger.debug(s"Incoming login request : ${requestHeader.path} with params : ${requestHeader.rawQueryString}")
                            Handler.applyStages(requestHeader, handler)
                         case _ => (requestHeader, Action(Results.Forbidden))
                      }
@@ -48,11 +48,11 @@ class MyHttpRequestHandler @Inject()(router: Router, val jwtCoder: JWTCoder) ext
                   }
                }
             }
-         
+
          case None =>
             logger.debug("Returning 404, cause required page not found")
             (requestHeader, Action(Results.NotFound))
-         
+
       }
    }
 }

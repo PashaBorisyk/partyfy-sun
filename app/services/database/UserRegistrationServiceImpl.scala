@@ -16,70 +16,127 @@ class UserRegistrationServiceImpl @Inject()(
                                               private val eventMessagePublisherService: EventMessagePublisherService
                                            )(implicit ec: ExecutionContext)
    extends HasDatabaseConfigProvider[JdbcProfile] with UserRegistrationService[Future] {
-   
-   val userRegistrationTable = TableQuery[UserRegistrationDAO]
-   val userTable = TableQuery[UserDAO]
-   
+
+   private val userRegistrationTable = TableQuery[UserRegistrationDAO]
+   private val userTable = TableQuery[UserDAO]
+
    def registerUserStepOne(username: String, password: String) = {
-      
+
       val jwtPublicTokenFirst = jwtCoder.encodePublic((username, password))
-      
+
       val userRegistration = UserRegistration(
          username = username,
-         password = password,
+         secret = password,
          publicTokenFirst = jwtPublicTokenFirst
       )
-      db.run(userRegistrationTable += userRegistration).map {
+
+      val insertUser = (userRegistrationTable += userRegistration).map {
          _ => userRegistration.publicTokenFirst
       }
+
+      val execute = userRegistrationTable.filter {
+         user =>
+            user.username === username && user.secret === password
+      }.result.headOption.flatMap { result =>
+         if (result.isEmpty)
+            insertUser
+         else
+            SimpleDBIO.apply(_ => userRegistration.publicTokenFirst)
+      }
+      db.run(execute)
    }
-   
+
    def registerUserStepTwo(username: String, emailAddress: String, jwtPublicTokenFirst: String) = {
-      db.run(userRegistrationTable.filter {
-         entry =>
-            entry.username === username &&
-               entry.publicTokenFirst === jwtPublicTokenFirst &&
-               entry.expirationDateMills > System.currentTimeMillis() &&
-               entry.confirmed === false
-         
-      }.result.head).map {
-         userRegistration =>
-            
-            val updatedUserRegistration = userRegistration.copy(
-               publicTokenSecond = jwtCoder.encodePublic((username, emailAddress))
-            )
-            db.run(userRegistrationTable.update(updatedUserRegistration))
-            updatedUserRegistration
-      }
-      
-   }
-   
-   def registerUserStepThree(publicTokenTwo: String) = {
-      
-      db.run(userRegistrationTable.filter {
-         entry =>
-            entry.publicTokenTwo === publicTokenTwo
-      }.result.head).map {
-         userRegistration =>
-            val newUser = User(
-               username = userRegistration.username,
-               isOnline = true
-            )
-            db.run((userTable returning userTable.map(_.id)) += newUser).map {
-               id =>
-                  val token = jwtCoder.encodePrivate((userRegistration.username, userRegistration.password, id))
-                  eventMessagePublisherService ! userRegistration.copy(
-                     id = id,
-                     privateToken = token
+      val execute = userTable.filter(_.username === username).exists.result.flatMap { exists =>
+         if (!exists) {
+            userRegistrationTable.filter {
+               entry =>
+                  entry.username === username &&
+                     entry.publicTokenFirst === jwtPublicTokenFirst &&
+                     entry.isDuplicated === false &&
+                     entry.isConfirmed === false
+
+            }.result.headOption.flatMap {
+               case Some(userRegistration) =>
+
+                  val updatedUserRegistration = userRegistration.copy(
+                     publicTokenSecond = jwtCoder.encodePublic((username, emailAddress)),
+                     emailAddress = emailAddress
                   )
+                  userRegistrationTable.update(updatedUserRegistration).map { _ =>
+                     Some(updatedUserRegistration)
+                  }
+               case None => SimpleDBIO(_ => None)
+
             }
-            userRegistration
+
+         } else {
+            val duplicatedUserRegistration = UserRegistration(
+               duplicated = true
+            )
+            userRegistrationTable.filter(_.username === username).delete.map { _ =>
+               Some(duplicatedUserRegistration)
+            }
+         }
+
       }
-      
+      db.run(execute)
    }
-   
+
+   def registerUserStepThree(publicTokenTwo: String) = {
+
+      val execute = userRegistrationTable.filter {
+         _.publicTokenTwo === publicTokenTwo
+      }.result.headOption.flatMap {
+
+         case Some(userRegistration) =>
+            userTable.filter {
+               _.username === userRegistration.username
+            }.map(_.id).exists.result.flatMap { exists =>
+
+               if (exists) {
+                  val duplicatedUserRegistration = userRegistration.copy(
+                     duplicated = true,
+                     secret = ""
+                  )
+                  userRegistrationTable.filter(_.username === userRegistration.username).delete.map { _ =>
+                     Some(duplicatedUserRegistration)
+                  }
+
+               } else if (userRegistration.expirationDateMills >= System.currentTimeMillis()) {
+
+                  val newUser = User(
+                     username = userRegistration.username,
+                     isOnline = true,
+                     secret = userRegistration.publicTokenFirst
+                  )
+                  (userTable returning userTable.map(_.id) += newUser).flatMap {
+                     userId =>
+                        val token = jwtCoder.encodePrivate((userRegistration.username, userRegistration.secret, userId))
+                        val lastUserRegistrationStep = userRegistration.copy(
+                           userId = userId,
+                           privateToken = token,
+                           confirmed = true,
+                           secret = ""
+                        )
+                        eventMessagePublisherService ! lastUserRegistrationStep
+                        userRegistrationTable.update(lastUserRegistrationStep).map { _ =>
+                           Some(lastUserRegistrationStep)
+                        }
+                  }
+               } else {
+                  SimpleDBIO(_ => Some(userRegistration))
+               }
+            }
+         case None => SimpleDBIO(_ => None)
+      }
+
+      db.run(execute)
+
+   }
+
    def deleteUserRegistration(registrationId: Long) = {
       db.run(userRegistrationTable.filter(_.id === registrationId).delete)
    }
-   
+
 }

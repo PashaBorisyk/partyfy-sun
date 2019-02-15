@@ -1,4 +1,4 @@
-package controllers.rest
+package controllers
 
 import java.nio.file.Paths
 

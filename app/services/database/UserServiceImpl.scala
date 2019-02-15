@@ -3,7 +3,6 @@ package services.database
 import javax.inject.Inject
 import models._
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
-import play.api.mvc.Request
 import services.database.traits.UserService
 import services.traits.JWTCoder
 import slick.jdbc.JdbcProfile
@@ -24,7 +23,7 @@ class UserServiceImpl @Inject()(
    private val friendsTable = TableQuery[UserUserDAO]
    private val imageTable = TableQuery[HipeImageDAO]
 
-   def getUsersByEventId(eventId: Long)(implicit request: Request[_]) = {
+   def getUsersByEventId(eventId: Long, token: String) = {
 
       val query = (for {
          (user, image) <- userTable joinLeft imageTable on (_.imageId === _.id)
@@ -44,21 +43,27 @@ class UserServiceImpl @Inject()(
 
    }
 
-   def checkUserExistence(username: String)(implicit request: Request[_]) = {
+   def checkUserExistence(username: String) = {
       db.run(userTable.filter(_.username === username).exists.result)
    }
 
-   def updateUser(user: User)(implicit request: Request[_]) = {
-      db.run(userTable.filter(_.id === user.id).update(user))
+   def updateUser(user: User, token: String) = {
+      val tokenRep = jwtCoder.decodePrivate(token)
+      val newToken = jwtCoder.encodePrivate(tokenRep.userId, user.username, user.secret)
+      db.run(userTable.filter { user => user.id === tokenRep.userId && user.username === tokenRep.username }.update
+      (user.copy(secret = newToken))).map { _ =>
+         newToken
+      }
+
    }
 
-   def getFriends(userId: Long)(implicit request: Request[_]) = {
+   def getFriends(userId: Long, token: String) = {
 
       val query = (for {
          (user, image) <- userTable joinLeft imageTable on (_.imageId === _.id)
       } yield (user, image)).filter { entry =>
          entry._1.id in {
-            friendsTable.filter(_.userId1 === userId).map(_.userId2)
+            friendsTable.filter(_.user_from === userId).map(_.user_to)
          }
       }.sortBy(_._1.id.desc)
 
@@ -76,13 +81,13 @@ class UserServiceImpl @Inject()(
 
    }
 
-   def getFriendsIds(userId: Long)(implicit request: Request[_]) = {
+   def getFriendsIds(userId: Long, token: String) = {
       db.run(friendsTable.filter {
-         _.userId1 === userId
-      }.map(_.userId2).result)
+         _.user_from === userId
+      }.map(_.user_to).result)
    }
 
-   def findUser(userId: Long, searchString: String)(implicit request: Request[_]) = {
+   def findUser(userId: Long, searchString: String, token: String) = {
 
       val queries = searchString.split("\\s+").mkString("|")
       val id = userId.toString
@@ -115,7 +120,7 @@ class UserServiceImpl @Inject()(
 
    }
 
-   def getById(id: Long)(implicit request: Request[_]) = {
+   def getById(id: Long, token: String) = {
 
       val execute = (for {
          (user, image) <- userTable joinLeft imageTable on (_.imageId === _.id)
@@ -133,19 +138,26 @@ class UserServiceImpl @Inject()(
       db.run(execute)
    }
 
-   def addUserToFriends(userId: Long, advancedUserId: Long)(implicit request: Request[_]) = {
+   def addUserToFriends(userId: Long, token: String) = {
+      jwtCoder.decodePrivate(token)._1
       db.run(friendsTable += UserUser(userId, advancedUserId))
    }
 
-   def removeUserFromFriends(userId: Long, advancedUserId: Long)(implicit request: Request[_]) = {
-      db.run(friendsTable.filter { s => s.userId1 === userId && s.userId2 === advancedUserId }.delete)
+   def removeUserFromFriends(userId: Long, token: String) = {
+      db.run(friendsTable.filter { s => s.user_from === userId && s.user_to === advancedUserId }.delete)
    }
 
-   def login(username: String, password: String)(implicit request: Request[_]) = {
-      db.run(userTable.filter { user => user.username === username && user.password === password }.map(_.id).result.head)
+   def login(username: String, password: String) = {
+      db.run(userTable.filter { user => user.username === username }.result.headOption)
          .map {
-            userId =>
-               jwtCoder.encodePrivate((username, password, userId))
+            case Some(user) =>
+               val token = jwtCoder.encodePrivate((username, password, user.id))
+               if (token == user.secret) {
+                  Some(token)
+               }
+               else None
+
+            case None => None
          }
    }
 

@@ -1,4 +1,4 @@
-package controllers.rest
+package controllers
 
 import implicits.implicits._
 import javax.inject.Inject
@@ -9,7 +9,7 @@ import util._
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class EventControllerImpl @Inject()(
+class EventController @Inject()(
                                       cc: ControllerComponents,
                                       val eventMessagePublisherService: EventMessagePublisherService,
                                       val eventService: EventServiceImpl,

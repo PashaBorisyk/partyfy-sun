@@ -1,4 +1,4 @@
-package controllers.rest
+package controllers
 
 import implicits.implicits._
 import javax.inject.Inject
@@ -28,7 +28,7 @@ class UserRegistrationController @Inject()(
          userRegistrationService.registerUserStepOne(username, password).map {
             token =>
                logger.debug(s"Created with token : $token")
-               Created(token.toJson)
+               Created(token)
          }.recover {
             case e: PSQLException =>
                logger.debug("Insert error:", e)
@@ -43,16 +43,16 @@ class UserRegistrationController @Inject()(
       implicit req =>
          logger.debug(req.toString)
          userRegistrationService.registerUserStepTwo(username, email, publicToken).collect {
-            case entry: UserRegistration =>
-               if (entry.confirmed)
-                  NotModified
-               else if (entry.expirationDateMills < System.currentTimeMillis()) {
+            case Some(entry) =>
+               if (entry.duplicated)
+                  Conflict
+               else if (entry.expirationDateMills <= System.currentTimeMillis()) {
                   userRegistrationService.deleteUserRegistration(entry.id)
                   Gone
                } else {
-                  Ok
+                  Ok(entry.publicTokenSecond)
                }
-            case _ =>
+            case None =>
                NotFound
          }.recover {
             case e: PSQLException =>
@@ -69,17 +69,20 @@ class UserRegistrationController @Inject()(
       implicit req =>
          logger.debug(req.toString)
          userRegistrationService.registerUserStepThree(publicTokenTwo).collect {
-            case entry: UserRegistration =>
-               if (entry.confirmed)
-                  NotModified
-               else if (entry.expirationDateMills > System.currentTimeMillis()) {
+            case Some(entry) =>
+               if (entry.duplicated){
+                  userRegistrationService.deleteUserRegistration(entry.id)
+                  Conflict
+               }
+               else if (entry.expirationDateMills <= System.currentTimeMillis() && !entry.privateToken.notNullOrEmpty) {
+                  logger.debug("UserRegistrationFound but is not active anymore")
                   userRegistrationService.deleteUserRegistration(entry.id)
                   Gone
                } else {
                   userRegistrationService.deleteUserRegistration(entry.id)
-                  Ok
+                  Ok(entry.privateToken)
                }
-            case _ =>
+            case None =>
                NotFound
          }.recover {
             case e: PSQLException =>

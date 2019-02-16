@@ -15,12 +15,14 @@ class MyHttpRequestHandler @Inject()(router: Router, val jwtCoder: JWTCoder) ext
          case Some(handler) =>
             requestHeader.headers.get("Authorization").getOrElse("").run { token =>
                if (!token.isEmpty) {
-                  jwtCoder.decodePrivate(token) match {
-                     case (Some(username), Some(_), _) =>
-                        Handler.applyStages(requestHeader.withHeaders(
-                           requestHeader.headers.add("username" -> username._2)
-                        ), handler)
-                     case (None, None, None) =>
+                  try {
+                     val tokenRep = jwtCoder.decodePrivate(token)
+                     Handler.applyStages(
+                        requestHeader.withHeaders(requestHeader.headers), handler
+                     )
+                  } catch {
+                     case e: Exception =>
+                        logger.debug("Error while parsing token : ", e)
                         (requestHeader, Action(Results.Unauthorized("Unable to parse token")))
                   }
 
@@ -40,8 +42,8 @@ class MyHttpRequestHandler @Inject()(router: Router, val jwtCoder: JWTCoder) ext
                         case _ => (requestHeader, Action(Results.Forbidden))
                      }
                   }
-                  else if (path.isEmpty){
-                     Handler.applyStages(requestHeader,handler)
+                  else if (path.isEmpty) {
+                     Handler.applyStages(requestHeader, handler)
                   }
                   else {
                      (requestHeader, Action(Results.Forbidden))

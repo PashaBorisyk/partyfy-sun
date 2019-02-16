@@ -29,26 +29,29 @@ class UserRegistrationServiceImpl @Inject()(
          secret = password,
          publicTokenFirst = jwtPublicTokenFirst
       )
-
-      val insertUser = (userRegistrationTable += userRegistration).map {
-         _ => userRegistration.publicTokenFirst
-      }
-
-      val execute = userRegistrationTable.filter {
-         user =>
-            user.username === username && user.secret === password
-      }.result.headOption.flatMap { result =>
-         if (result.isEmpty)
-            insertUser
-         else
-            SimpleDBIO.apply(_ => userRegistration.publicTokenFirst)
+      val execute = userTable.filter(_.username === username).exists.result.flatMap { userExists =>
+         if (userExists) {
+            SimpleDBIO(_ => userRegistration.copy(duplicated = true))
+         } else {
+            userRegistrationTable.filter {
+               user =>
+                  user.username === username && user.secret === password
+            }.result.headOption.flatMap {
+               case Some(result) =>
+                  SimpleDBIO(_ => result)
+               case None =>
+                  (userRegistrationTable += userRegistration).map {
+                     _ => userRegistration
+                  }
+            }
+         }
       }
       db.run(execute)
    }
 
    def registerUserStepTwo(username: String, emailAddress: String, jwtPublicTokenFirst: String) = {
-      val execute = userTable.filter(_.username === username).exists.result.flatMap { exists =>
-         if (!exists) {
+      val execute = userTable.filter(_.username === username).exists.result.flatMap { userExists =>
+         if (!userExists) {
             userRegistrationTable.filter {
                entry =>
                   entry.username === username &&
@@ -83,10 +86,10 @@ class UserRegistrationServiceImpl @Inject()(
       db.run(execute)
    }
 
-   def registerUserStepThree(publicTokenTwo: String) = {
+   def registerUserStepThree(jwtPublicTokenTwo: String) = {
 
       val execute = userRegistrationTable.filter {
-         _.publicTokenTwo === publicTokenTwo
+         _.publicTokenTwo === jwtPublicTokenTwo
       }.result.headOption.flatMap {
 
          case Some(userRegistration) =>
@@ -108,20 +111,26 @@ class UserRegistrationServiceImpl @Inject()(
                   val newUser = User(
                      username = userRegistration.username,
                      isOnline = true,
-                     secret = userRegistration.publicTokenFirst
+                     secret = userRegistration.publicTokenSecond,
+                     email = userRegistration.emailAddress
                   )
                   (userTable returning userTable.map(_.id) += newUser).flatMap {
                      userId =>
-                        val token = jwtCoder.encodePrivate((userRegistration.username, userRegistration.secret, userId))
+                        val privateToken = jwtCoder.encodePrivate(userId, userRegistration.username, userRegistration.secret)
                         val lastUserRegistrationStep = userRegistration.copy(
                            userId = userId,
-                           privateToken = token,
+                           privateToken = privateToken,
                            confirmed = true,
                            secret = ""
                         )
                         eventMessagePublisherService ! lastUserRegistrationStep
-                        userRegistrationTable.update(lastUserRegistrationStep).map { _ =>
-                           Some(lastUserRegistrationStep)
+                        userRegistrationTable.update(lastUserRegistrationStep).flatMap { _ =>
+                           userTable.update(newUser.copy(
+                              id = userId,
+                              secret = privateToken
+                           )).map { _ =>
+                              Some(lastUserRegistrationStep)
+                           }
                         }
                   }
                } else {

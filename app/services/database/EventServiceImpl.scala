@@ -24,7 +24,6 @@ class EventServiceImpl @Inject()(
    val imageTable = TableQuery[HipeImageDAO]
 
    override def getEventById(id: Long)(implicit request: Request[_]) = {
-      logger.debug(request.username)
       val query = (for {
          (event, image) <- eventTable joinLeft imageTable on (_.eventImageId === _.id)
       } yield (event, image)).filter(_._1.id === id)

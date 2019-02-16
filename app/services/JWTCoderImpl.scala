@@ -12,7 +12,7 @@ class JWTCoderImpl @Inject()(val configuration: Configuration) extends JWTCoder 
 
    override def encodePrivate(userId:Long, username:String, password:String): String = {
       (JwtSession() ++ (
-         ("id", userId)
+         ("id", userId),
          ("username", username),
          ("password", password),
       )).run { session =>

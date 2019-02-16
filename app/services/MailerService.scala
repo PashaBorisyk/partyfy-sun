@@ -1,4 +1,5 @@
-package util
+package services
+
 import javax.inject.Inject
 import org.apache.commons.mail.EmailAttachment
 import play.api.libs.mailer._

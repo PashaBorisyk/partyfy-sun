@@ -26,9 +26,13 @@ class UserRegistrationController @Inject()(
       implicit req =>
          logger.debug(req.toString)
          userRegistrationService.registerUserStepOne(username, password).map {
-            token =>
-               logger.debug(s"Created with token : $token")
-               Created(token)
+            userRegistration =>
+               if(userRegistration.duplicated){
+                  Conflict
+               } else {
+                  logger.debug(s"Created with userRegistration : ${userRegistration.username}")
+                  Created(userRegistration.publicTokenFirst)
+               }
          }.recover {
             case e: PSQLException =>
                logger.debug("Insert error:", e)
@@ -39,10 +43,10 @@ class UserRegistrationController @Inject()(
          }
    }
    
-   def registerUserStepTwo(username: String, email: String, publicToken: String) = Action.async {
+   def registerUserStepTwo(username: String, email: String, publicTokenFirst: String) = Action.async {
       implicit req =>
          logger.debug(req.toString)
-         userRegistrationService.registerUserStepTwo(username, email, publicToken).collect {
+         userRegistrationService.registerUserStepTwo(username, email, publicTokenFirst).collect {
             case Some(entry) =>
                if (entry.duplicated)
                   Conflict
@@ -69,18 +73,18 @@ class UserRegistrationController @Inject()(
       implicit req =>
          logger.debug(req.toString)
          userRegistrationService.registerUserStepThree(publicTokenTwo).collect {
-            case Some(entry) =>
-               if (entry.duplicated){
-                  userRegistrationService.deleteUserRegistration(entry.id)
+            case Some(userRegistration) =>
+               if (userRegistration.duplicated){
+                  userRegistrationService.deleteUserRegistration(userRegistration.id)
                   Conflict
                }
-               else if (entry.expirationDateMills <= System.currentTimeMillis() && !entry.privateToken.notNullOrEmpty) {
+               else if (userRegistration.expirationDateMills <= System.currentTimeMillis() && !userRegistration.privateToken.notNullOrEmpty) {
                   logger.debug("UserRegistrationFound but is not active anymore")
-                  userRegistrationService.deleteUserRegistration(entry.id)
+                  userRegistrationService.deleteUserRegistration(userRegistration.id)
                   Gone
                } else {
-                  userRegistrationService.deleteUserRegistration(entry.id)
-                  Ok(entry.privateToken)
+                  userRegistrationService.deleteUserRegistration(userRegistration.id)
+                  Ok(userRegistration.privateToken)
                }
             case None =>
                NotFound

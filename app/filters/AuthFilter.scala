@@ -3,6 +3,7 @@ package filters
 import akka.stream.Materializer
 import implicits.implicits._
 import javax.inject.{Inject, _}
+import play.api.http.HeaderNames
 import play.api.mvc.{Result, _}
 import services.traits.JWTCoder
 import util._
@@ -23,31 +24,42 @@ import scala.concurrent.{ExecutionContext, Future}
 class AuthFilter @Inject()(implicit override val mat: Materializer,
                            val jwtCoder: JWTCoder,
                            exec: ExecutionContext) extends Filter {
-   
-   lazy val unauthorizedMap: (Result) => Result = {
+
+   lazy val unauthorizedMap: Result => Result = {
       _ => Results.Unauthorized
    }
-   
+
    override def apply(nextFilter: RequestHeader => Future[Result])(requestHeader: RequestHeader): Future[Result] = {
       // Run the next filter in the chain. This will call other filters
       // and eventually call the action. Take the result and modify it
       // by adding a new header.
-      
-      var map: (Result) => Result = { result => result }
+
+      var map: Result => Result = { result => result }
       var initialRequestHeader = requestHeader
-      
-      requestHeader.headers.get("Authorization").getOrElse("").run { token =>
+
+      requestHeader.headers.get(HeaderNames.AUTHORIZATION).getOrElse("").run { token =>
          if (!token.isEmpty) {
-            jwtCoder.decodePrivate(token)match {
-               case (Some(username),Some(_),_)=>
-                  initialRequestHeader = requestHeader.withHeaders(
-                     requestHeader.headers
-                        .add("username"->username._2)
-                  )
-                  logger.debug(s"${initialRequestHeader.headers}")
-               case (None,None,None)=> map = unauthorizedMap
+            try {
+
+               val tokenRep = jwtCoder.decodePrivate(token)
+               //todo Rules check
+
+            }catch {
+               case e:Exception =>
+                  logger.debug("Error decoding token : ",e)
+                  map = unauthorizedMap
             }
-            
+
+//            match {
+//               case (Some(username), Some(_), _) =>
+//                  initialRequestHeader = requestHeader.withHeaders(
+//                     requestHeader.headers
+//                        .add("username" -> username._2)
+//                  )
+//                  logger.debug(s"${initialRequestHeader.headers}")
+//
+//            }
+
          } else requestHeader.path match {
             case "/user/login/" => logger.debug(s"Incoming login request : ${requestHeader.path}")
             case "/user/register/" => logger.debug(s"Incoming register request : ${requestHeader.path}")
@@ -56,6 +68,6 @@ class AuthFilter @Inject()(implicit override val mat: Materializer,
          }
       }
       nextFilter(initialRequestHeader).map(map)
-      
+
    }
 }

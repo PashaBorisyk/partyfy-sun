@@ -1,7 +1,7 @@
 package models
 
 import java.io.Serializable
-import slick.jdbc.H2Profile.api._
+import slick.jdbc.PostgresProfile.api._
 
 case class EventNews(
    

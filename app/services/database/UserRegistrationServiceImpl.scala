@@ -1,7 +1,8 @@
 package services.database
 
 import javax.inject.Inject
-import models.{User, UserDAO, UserRegistration, UserRegistrationDAO}
+import models.persistient.UserRegistration
+import models.persistient.{User, UserDAO, UserRegistration, UserRegistrationDAO}
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
 import services.database.traits.UserRegistrationService
 import services.traits.{EventMessagePublisherService, JWTCoder}

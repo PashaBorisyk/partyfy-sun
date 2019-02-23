@@ -2,14 +2,12 @@ package services.database
 
 import implicits.implicits._
 import javax.inject.Inject
-import models._
+import models.persistient._
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
-import play.api.mvc.Request
 import services.database.traits.EventService
-import services.traits.EventMessagePublisherService
+import services.traits.{EventMessagePublisherService, TokenRepresentation}
 import slick.jdbc.JdbcProfile
 import slick.jdbc.PostgresProfile.api._
-import util._
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -19,11 +17,11 @@ class EventServiceImpl @Inject()(
                                 )(implicit ec: ExecutionContext)
    extends HasDatabaseConfigProvider[JdbcProfile] with EventService[Future] {
 
-   val eventTable = TableQuery[EventDAO]
-   val userEventTable = TableQuery[EventUserDAO]
-   val imageTable = TableQuery[HipeImageDAO]
+   private val eventTable = TableQuery[EventDAO]
+   private val userEventTable = TableQuery[EventUserDAO]
+   private val imageTable = TableQuery[HipeImageDAO]
 
-   override def getEventById(id: Long)(implicit request: Request[_]) = {
+   override def getEventById(id: Long,token:TokenRepresentation)  = {
       val query = (for {
          (event, image) <- eventTable joinLeft imageTable on (_.eventImageId === _.id)
       } yield (event, image)).filter(_._1.id === id)
@@ -42,11 +40,11 @@ class EventServiceImpl @Inject()(
 
    }
 
-   override def delete(id: Long)(implicit request: Request[_]) = {
+   override def delete(id: Long,token:TokenRepresentation)  = {
       db.run(eventTable.filter(_.id === id).delete)
    }
 
-   override def create(event: (Event, Set[Long]))(implicit request: Request[_]) = {
+   override def create(event: (Event, Set[Long]),token:TokenRepresentation)  = {
 
       val query = eventTable returning eventTable.map(s => s.id)
       val execute = (query += event._1).flatMap { eventId =>
@@ -64,11 +62,11 @@ class EventServiceImpl @Inject()(
       db.run(execute)
    }
 
-   override def update(event: Event)(implicit request: Request[_]) = {
+   override def update(event: Event,token:TokenRepresentation)  = {
       db.run(eventTable.insertOrUpdate(event))
    }
 
-   override def getEventsByOwner(userId: Long)(implicit request: Request[_]) = {
+   override def getEventsByOwner(userId: Long,token:TokenRepresentation)  = {
 
       val query = (for {
          (event, image) <- eventTable joinLeft imageTable on (_.eventImageId === _.id)
@@ -88,9 +86,9 @@ class EventServiceImpl @Inject()(
 
    }
 
-   override def getEventsByMemberId(userId: Long)(implicit request: Request[_]) = {
+   override def getEventsByMemberId(userId: Long,token:TokenRepresentation)  = {
 
-      val execute: DBIOAction[Array[(models.Event, Product with Serializable)], slick.dbio.NoStream, Nothing] = (for {
+      val execute: DBIOAction[Array[(Event, Product with Serializable)], slick.dbio.NoStream, Nothing] = (for {
          (event, image) <- eventTable joinLeft imageTable on (_.eventImageId === _.id)
       } yield (event, image)).filter { e => e._1.id in userEventTable.filter { s => s.userId === userId }.map(_.eventId) }.result.map {
          entry =>
@@ -108,20 +106,20 @@ class EventServiceImpl @Inject()(
 
    }
 
-   override def getEventIdsByMemberId(userId: Long)(implicit request: Request[_]) = {
+   override def getEventIdsByMemberId(userId: Long,token:TokenRepresentation)  = {
       db.run(eventTable.filter { e =>
          e.id in userEventTable.filter { s => s.userId === userId }.map(_.eventId)
       }.map(_.id).result.map(_.toArray))
    }
 
-   override def getEventIdsByMemberIdForSocket(userId: Long)(implicit request: Request[_]) = {
+   override def getEventIdsByMemberIdForSocket(userId: Long,token:TokenRepresentation)  = {
       db.run(eventTable.filter { e => e.id in userEventTable.filter { s => s.userId === userId }.map(_.eventId) }.map
       (_.id).result.map(_.toArray))
    }
 
-   override def getEvents(userId: Long, latitude: Double, longtitude: Double, lastReadEventId: Long)(implicit request: Request[_]) = {
+   override def getEvents(userId: Long, latitude: Double, longtitude: Double, lastReadEventId: Long,token:TokenRepresentation)  = {
 
-      val execute: DBIOAction[Array[(models.Event, Product with Serializable)], slick.dbio.NoStream, Nothing] = (for {
+      val execute: DBIOAction[Array[(Event, Product with Serializable)], slick.dbio.NoStream, Nothing] = (for {
          (event, image) <- eventTable joinLeft imageTable on (_.eventImageId === _.id)
       } yield (event, image)).filter {
          entry =>
@@ -145,11 +143,11 @@ class EventServiceImpl @Inject()(
 
    }
 
-   override def addMemberToEvent(eventId: Long, userId: Long, advancedUserId: Long)(implicit request: Request[_]) = {
+   override def addMemberToEvent(eventId: Long, userId: Long, advancedUserId: Long,token:TokenRepresentation)  = {
       db.run(userEventTable += EventUser(eventId, advancedUserId))
    }
 
-   override def cancelEvent(userId: Long, eventId: Long)(implicit request: Request[_]) = {
+   override def cancelEvent(userId: Long, eventId: Long,token:TokenRepresentation)  = {
 
       val execute = eventTable.filter(_.id === eventId).map(_.creatorId).result.head.map {
          id =>
@@ -164,7 +162,7 @@ class EventServiceImpl @Inject()(
 
    }
 
-   override def removeMember(userId: Long, advancedUserId: Long, eventId: Long)(implicit request: Request[_]) = {
+   override def removeMember(userId: Long, advancedUserId: Long, eventId: Long,token:TokenRepresentation)  = {
 
       val execute = if (userId == advancedUserId)
          userEventTable.filter { e => e.eventId === eventId && e.userId === userId }

@@ -85,12 +85,6 @@ object Const {
    final val IMAGE_WIDTH = "image_width"
    final val IMAGE_HEIGHT = "image_height"
    
-   final val IMG_SIZE_HUGE_WIDTH = 1440
-   final val IMG_SIZE_LARGE_WIDTH = 1080
-   final val IMG_SIZE_MEDIUM_WIDTH = 720
-   final val IMG_SIZE_SMALL_WIDTH = 360
-   final val IMG_SIZE_MINI_WIDTH = 90
-   
    final val MSG_CATEGORY_COMMAND = 0
    final val MSG_CATEGORY_ENTITY = 1
    final val MSG_CATEGORY_MESSAGE = 2

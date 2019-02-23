@@ -39,10 +39,10 @@ GET           /event/get_user_events/                       controllers.EventCon
 DELETE        /event/cancel/                                controllers.EventController.cancelEvent(user_id:Long, event_id: Long)
 DELETE        /event/remove_member/                         controllers.EventController.removeMember(user_id:Long,advanced_user_id:Long,event_id:Long)
 PUT           /event/add_member/                            controllers.EventController.addMemberToEvent(event_id:Long, user_id: Long, advanced_user_id: Long)
-GET           /event/get_by_id/:event_id/                    controllers.EventController.getById(event_id:Long)
-GET           /event/get_by_owner_id/:user_id/               controllers.EventController.getByOwner(user_id:Long)
+GET           /event/get_by_id/:event_id/                   controllers.EventController.getById(event_id:Long)
+GET           /event/get_by_owner_id/:user_id/              controllers.EventController.getByOwner(user_id:Long)
 GET           /event/get/                                   controllers.EventController.getEvents(user_id: Long, latitude: Double, longitude: Double, last_read_event_id: Long)
-GET           /event/get_by_member_id/:user_id/              controllers.EventController.getByMember(user_id:Long)
+GET           /event/get_by_member_id/:user_id/             controllers.EventController.getByMember(user_id:Long)
 GET           /event/test/                                  controllers.EventController.test
 
 ###########################################################
@@ -55,11 +55,11 @@ GET           /event_news/get                               controllers.EventNew
 ###################HIPE_IMAGE##############################
 ###########################################################
 
-POST          /hipe_image/upload                            controllers.HipeImageController.upload(user_id:Long,event_id:Long)
-GET           /hipe_image/get_by_id/:id                     controllers.HipeImageController.get(id:Long)
-GET           /hipe_image/get_by_user_id/:id                controllers.HipeImageController.getByUserId(id:Long)
-GET           /hipe_image/get_by_event_id/:id               controllers.HipeImageController.getByEventId(id:Long)
-DELETE        /hipe_image/delete/:id                        controllers.HipeImageController.delete(id:Long)
+POST          /image/upload/                                controllers.ImageController.upload(event_id:Long)
+GET           /image/get_by_id/:id/                         controllers.ImageController.get(id:Long)
+GET           /image/get_by_user_id/:id/                    controllers.ImageController.getByUserId(id:Long)
+GET           /image/get_by_event_id/:id/                   controllers.ImageController.getByEventId(id:Long)
+DELETE        /image/delete/:id/                            controllers.ImageController.delete(id:Long)
 
 #GET           /publisher/                                      controllers.publishers.EventPublisherWebSocket.socket
 #(for_type:Long,for_category:Long)

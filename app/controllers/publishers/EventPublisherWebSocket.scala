@@ -5,11 +5,12 @@ import akka.stream.Materializer
 import controllers.publishers.traits.Publisher
 import implicits.implicits._
 import javax.inject.{Inject, _}
-import models.{Event, EventMessage}
+import models.EventMessage
+import models.persistient.Event
+import play.api.Logger
 import play.api.libs.streams.ActorFlow
 import play.api.mvc.{AbstractController, ControllerComponents, WebSocket}
 import services.traits.EventMessagePublisherService
-import util.logger
 
 import scala.collection.mutable
 import scala.concurrent.ExecutionContext
@@ -18,7 +19,10 @@ import scala.concurrent.ExecutionContext
 class EventPublisherWebSocket @Inject()(cc: ControllerComponents)
                                        (implicit system: ActorSystem, mat: Materializer, ec: ExecutionContext)
    extends AbstractController(cc) with Publisher {
-   
+
+   private val logger = Logger(this.getClass)
+
+
    private type ConnectionType = (Int, Int)
    
    private final lazy val connections = mutable.LinkedHashMap[
@@ -54,7 +58,7 @@ class EventPublisherWebSocket @Inject()(cc: ControllerComponents)
       }
       
       override def receive: PartialFunction[Any, Unit] = {
-         case msg: EventMessage[_] =>
+         case msg: EventMessage[Any] =>
             if (connectionType._1 > 0 && connectionType._2 > 0)
                out ! msg
             else {

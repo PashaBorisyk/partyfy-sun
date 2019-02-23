@@ -1,40 +1,39 @@
 package services.database.traits
 
 import com.google.inject.ImplementedBy
-import models.Event
+import models.persistient.Event
 import play.api.mvc.Request
 import services.database.EventServiceImpl
+import services.traits.TokenRepresentation
 
 import scala.language.higherKinds
 
 @ImplementedBy(classOf[EventServiceImpl])
 trait EventService[T[_]] {
 
-   def getEventById(id: Long)(implicit request: Request[_]): T[Array[(Event, Product with Serializable)]]
+   def getEventById(id: Long,token:TokenRepresentation): T[Array[(Event, Product with Serializable)]]
 
-   def delete(id: Long)(implicit request: Request[_]): T[Int]
+   def delete(id: Long,token:TokenRepresentation): T[Int]
 
-   def create(event: (Event, Set[Long]))(implicit request: Request[_]): T[Long]
+   def create(event: (Event, Set[Long]),token:TokenRepresentation): T[Long]
 
-   def update(event: Event)(implicit request: Request[_]): T[Int]
+   def update(event: Event,token:TokenRepresentation): T[Int]
 
-   def getEventsByOwner(userId: Long)(implicit request: Request[_]): T[Array[(Event, Product with Serializable)]]
+   def getEventsByOwner(userId: Long,token:TokenRepresentation): T[Array[(Event, Product with Serializable)]]
 
-   def getEventsByMemberId(userId: Long)(implicit request: Request[_]): T[Array[(Event, Product with Serializable)]]
+   def getEventsByMemberId(userId: Long,token:TokenRepresentation): T[Array[(Event, Product with Serializable)]]
 
-   def getEventIdsByMemberIdForSocket(userId: Long)(implicit request: Request[_]): T[Array[Long]]
+   def getEventIdsByMemberIdForSocket(userId: Long,token:TokenRepresentation): T[Array[Long]]
 
-   def getEventIdsByMemberId(userId: Long)(implicit request: Request[_]): T[Array[Long]]
+   def getEventIdsByMemberId(userId: Long,token:TokenRepresentation): T[Array[Long]]
 
-   def getEvents(userId: Long, latitude: Double, longtitude: Double, lastReadEventId: Long)(implicit
-                                                                                            request: Request[_])
-   : T[Array[(Event, Product with Serializable)]]
+   def getEvents(userId: Long, latitude: Double, longtitude: Double, lastReadEventId: Long,token:TokenRepresentation): T[Array[(Event, Product with Serializable)]]
 
-   def addMemberToEvent(userId: Long, eventId: Long, advancedUserId: Long)(implicit request: Request[_]): T[Int]
+   def addMemberToEvent(userId: Long, eventId: Long, advancedUserId: Long,token:TokenRepresentation): T[Int]
 
-   def cancelEvent(userId: Long, eventId: Long)(implicit request: Request[_]): T[Any]
+   def cancelEvent(userId: Long, eventId: Long,token:TokenRepresentation): T[Any]
 
-   def removeMember(userId: Long, advancedUserId: Long, eventId: Long)(implicit request: Request[_]): T[Any]
+   def removeMember(userId: Long, advancedUserId: Long, eventId: Long,token:TokenRepresentation): T[Any]
 
    def test()
 }

@@ -20,19 +20,6 @@ package object util {
    )
 
    val NAME_LENGTH = 60
-   lazy val logger = play.api.Logger("ADMIN")
-
-   private lazy val folder = new File("./public/images")
-   private lazy val path: String = folder.getPath
-   lazy val PICTURE_PATH = {
-      if (!folder.exists())
-         folder.mkdirs()
-      path
-   }
-
-   def getPublicPath(name: String)(implicit request: Request[_]) = {
-      s"${request.host}/public/images/$name"
-   }
 
    def generateName(postfix: String): String = {
 

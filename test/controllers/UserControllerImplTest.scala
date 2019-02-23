@@ -1,6 +1,6 @@
 package controllers
 
-import models.User
+import models.persistient.User
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.libs.ws.WSClient
@@ -109,7 +109,7 @@ class UserControllerImplTest extends PlaySpec with GuiceOneServerPerSuite {
 
    "getById" in {
 
-      val getByIdUrl = s"$baseUrl/user/get_by_id/$userId/"
+      val getByIdUrl = s"$baseUrl/user/get_by_id/0/"
 
       val request = wsClient.url(getByIdUrl).withHttpHeaders(
          AUTHORIZATION->token
@@ -162,7 +162,7 @@ class UserControllerImplTest extends PlaySpec with GuiceOneServerPerSuite {
 
    lazy val getUser = User(
       username = "pashaborisyk",
-      secret = "Puschinarij1_",
+      secret = "Puschinarij1",
       name = "pasha",
       surname = "borisyk",
       isMale = true,

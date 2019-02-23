@@ -2,6 +2,7 @@ package controllers
 
 import implicits.implicits._
 import javax.inject.Inject
+import play.api.Logger
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
 import play.api.mvc.{AbstractController, ControllerComponents}
 import services.database.EventNewsServiceImpl
@@ -17,7 +18,9 @@ class EventNewsController @Inject()(
 
                                        )(implicit ec: ExecutionContext)
    extends AbstractController(cc) with HasDatabaseConfigProvider[JdbcProfile] {
-   
+
+   private val logger = Logger(this.getClass)
+
    def get(userId: Long, lastReadId: Long) = Action.async {
       implicit req=>
          logger.debug(req.toString())

@@ -8,30 +8,29 @@ resolvers += "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases"
 
 resolvers += "Akka Snapshot Repository" at "http://repo.akka.io/snapshots/"
 
-scalaVersion := "2.12.2"
+scalaVersion := "2.12.8"
 
 libraryDependencies ++= Seq(
    ehcache,
    ws, specs2 % Test, guice,
    "org.postgresql" % "postgresql" % "42.1.4.jre7",
-   "com.typesafe.slick" %% "slick" % "3.2.3",
-   "com.typesafe.slick" %% "slick-hikaricp" % "3.2.3",
-   "com.typesafe.play" %% "play-slick" % "3.0.0",
-   "com.typesafe.play" %% "play-slick-evolutions" % "3.0.0",
-   "com.typesafe.play" %% "play-mailer" % "6.0.1",
-   "com.typesafe.play" %% "play-mailer-guice" % "6.0.1",
-   "com.google.code.gson" % "gson" % "2.8.2",
+   "com.typesafe.slick" %% "slick" % "3.3.0",
+   "com.typesafe.slick" %% "slick-hikaricp" % "3.3.0",
+   "com.typesafe.play" %% "play-slick" % "4.0.0",
+   "com.typesafe.play" %% "play-slick-evolutions" % "4.0.0",
+   "com.typesafe.play" %% "play-mailer" % "7.0.0",
+   "com.typesafe.play" %% "play-mailer-guice" % "7.0.0",
+   "com.google.code.gson" % "gson" % "2.8.5",
    "org.imgscalr" % "imgscalr-lib" % "4.2",
-   "com.pauldijou" %% "jwt-play" % "0.16.0",
-   "org.mongodb.scala" %% "mongo-scala-driver" % "2.4.1",
-   "org.apache.kafka" % "kafka-clients" % "2.1.0",
+   "com.pauldijou" %% "jwt-play" % "2.0.0",
+   "org.mongodb.scala" %% "mongo-scala-driver" % "2.6.0",
+   "org.apache.kafka" % "kafka-clients" % "2.1.1",
    "org.scalactic" %% "scalactic" % "3.0.5",
    "org.scalatest" %% "scalatest" % "3.0.5" % "test",
-   "org.scalatestplus.play" %% "scalatestplus-play" % "4.0.0" % "test",
-   "com.h2database" % "h2" % "1.4.192"
+   "org.scalatestplus.play" %% "scalatestplus-play" % "4.0.1" % "test",
+   "com.h2database" % "h2" % "1.4.192",
+   "com.ning" % "async-http-client" % "1.9.40"
 )
-
-unmanagedResourceDirectories in Test <+= baseDirectory(_ / "target/web/public/test")
 
 mainClass in assembly := Some("play.core.server.ProdServerStart")
 fullClasspath in assembly += Attributed.blank(PlayKeys.playPackageAssets.value)

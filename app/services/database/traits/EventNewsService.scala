@@ -1,7 +1,7 @@
 package services.database.traits
 
 import com.google.inject.ImplementedBy
-import models.EventNewsDAO
+import models.persistient.EventNewsDAO
 import play.api.mvc.Request
 import services.database.EventNewsServiceImpl
 

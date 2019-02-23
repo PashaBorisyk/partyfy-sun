@@ -1,10 +1,10 @@
 package services.database
 
 import javax.inject.Inject
-import models._
+import models.persistient._
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
 import services.database.traits.UserService
-import services.traits.{JWTCoder, TokenRep}
+import services.traits.{JWTCoder, TokenRepresentation}
 import slick.jdbc.JdbcProfile
 import slick.jdbc.PostgresProfile.api._
 
@@ -23,7 +23,7 @@ class UserServiceImpl @Inject()(
    private val friendsTable = TableQuery[UserUserDAO]
    private val imageTable = TableQuery[HipeImageDAO]
 
-   def getUsersByEventId(eventId: Long, token: TokenRep): Future[Seq[(User, Serializable)]] = {
+   def getUsersByEventId(eventId: Long, token: TokenRepresentation): Future[Seq[(User, Serializable)]] = {
 
       val query = (for {
          (user, image) <- userTable joinLeft imageTable on (_.imageId === _.id)
@@ -47,7 +47,7 @@ class UserServiceImpl @Inject()(
       db.run(userTable.filter(_.username === username).map(_.id).exists.result)
    }
 
-   def updateUser(user: User, oldToken: TokenRep): Future[String] = {
+   def updateUser(user: User, oldToken: TokenRepresentation): Future[String] = {
       val newToken = jwtCoder.encodePrivate(oldToken.userId, user.username, user.secret)
       db.run(userTable.filter { user => user.id === oldToken.userId && user.username === oldToken.username }.update
       (user.copy(secret = newToken))).map { _ =>
@@ -56,7 +56,7 @@ class UserServiceImpl @Inject()(
 
    }
 
-   def getFriends(userId: Long, token: TokenRep): Future[Seq[(User, Serializable)]] = {
+   def getFriends(userId: Long, token: TokenRepresentation): Future[Seq[(User, Serializable)]] = {
 
       val query = (for {
          (user, image) <- userTable joinLeft imageTable on (_.imageId === _.id)
@@ -80,13 +80,13 @@ class UserServiceImpl @Inject()(
 
    }
 
-   def getFriendsIds(userId: Long, token: TokenRep): Future[Seq[Long]] = {
+   def getFriendsIds(userId: Long, token: TokenRepresentation): Future[Seq[Long]] = {
       db.run(friendsTable.filter {
          _.user_from === userId
       }.map(_.user_to).result)
    }
 
-   def findUser(searchString: String, token: TokenRep) = {
+   def findUser(searchString: String, token: TokenRepresentation) = {
 
       val queries = searchString.split("\\s+").mkString("|")
       val id = token.userId
@@ -120,7 +120,7 @@ class UserServiceImpl @Inject()(
 
    }
 
-   def getById(id: Long, token: TokenRep): Future[(User, Serializable)] = {
+   def getById(id: Long, token: TokenRepresentation): Future[(User, Serializable)] = {
 
       val execute = (for {
          (user, image) <- userTable joinLeft imageTable on (_.imageId === _.id)
@@ -138,11 +138,11 @@ class UserServiceImpl @Inject()(
       db.run(execute)
    }
 
-   def addUserToFriends(userId: Long, token: TokenRep): Future[Int] = {
+   def addUserToFriends(userId: Long, token: TokenRepresentation): Future[Int] = {
       db.run(friendsTable += UserUser( token.userId,userId))
    }
 
-   def removeUserFromFriends(userId: Long, token: TokenRep): Future[Int] = {
+   def removeUserFromFriends(userId: Long, token: TokenRepresentation): Future[Int] = {
       db.run(friendsTable.filter { s => s.user_from === userId && s.user_to === userId }.delete)
    }
 
@@ -150,9 +150,9 @@ class UserServiceImpl @Inject()(
       db.run(userTable.filter { user => user.username === username }.result.headOption)
          .map {
             case Some(user) =>
-               val token = jwtCoder.encodePrivate(user.id,username, password)
-               if (token == user.secret) {
-                  Some(token)
+               val token = jwtCoder.decodePrivate(user.secret)
+               if (token.secret == password) {
+                  Some(user.secret)
                }
                else None
 

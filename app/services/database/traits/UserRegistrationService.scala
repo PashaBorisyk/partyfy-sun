@@ -1,7 +1,7 @@
 package services.database.traits
 
 import com.google.inject.ImplementedBy
-import models.UserRegistration
+import models.persistient.UserRegistration
 import services.database.UserRegistrationServiceImpl
 
 import scala.language.higherKinds

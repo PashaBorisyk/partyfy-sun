@@ -11,14 +11,16 @@ import implicits.implicits._
 import javax.inject.Singleton
 import models.EventMessage
 import org.apache.kafka.clients.producer.{KafkaProducer, ProducerRecord}
+import play.api.Logger
 import services.traits.EventMessagePublisherService
-import util.logger
 
 import scala.concurrent.ExecutionContext
 
 @Singleton()
 class EventPublisherKafka @Inject()(kafkaConfigs: KafkaConfigs)(implicit system: ActorSystem, mat: Materializer,
                                                                 ec: ExecutionContext) extends Publisher {
+
+   private val logger = Logger(this.getClass)
 
    private final lazy val connections = scala.collection.mutable.TreeMap[String, ConnectionHandler]()
 
@@ -61,7 +63,7 @@ class EventPublisherKafka @Inject()(kafkaConfigs: KafkaConfigs)(implicit system:
       }
 
       override def receive: PartialFunction[Any, Unit] = {
-         case msg: (EventMessagePublisherService, EventMessage[_]) =>
+         case msg: (EventMessagePublisherService, EventMessage[Any]) =>
             val topic = getTopicName(msg._1)
             val handler = connections.getOrElse(topic, {
                val connectionHandler: ConnectionHandler = new ConnectionHandler(topic)

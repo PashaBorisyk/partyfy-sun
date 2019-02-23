@@ -1,6 +1,6 @@
 package controllers
 
-import models.Event
+import models.persistient.Event
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.ws.WSClient
 import play.api.test.Helpers._

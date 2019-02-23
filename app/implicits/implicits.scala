@@ -7,7 +7,8 @@ import java.util.Properties
 import com.google.gson.{Gson, GsonBuilder}
 import com.mongodb.BasicDBObject
 import com.typesafe.config.{Config, ConfigValue}
-import models.{ChatMessageNOSQL, Event, HipeImage, User}
+import models.ChatMessageNOSQL
+import models.persistient.{Event, HipeImage, User}
 import org.bson.types.BasicBSONList
 import play.api.ConfigLoader
 import play.api.libs.json.Json

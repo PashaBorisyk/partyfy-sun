@@ -2,13 +2,17 @@ package handlers
 
 import implicits.implicits._
 import javax.inject.Inject
+import play.api.Logger
 import play.api.http._
 import play.api.mvc._
 import play.api.routing.Router
 import services.traits.JWTCoder
-import util.logger
 
-class MyHttpRequestHandler @Inject()(router: Router, val jwtCoder: JWTCoder) extends HttpRequestHandler {
+class MyHttpRequestHandler @Inject()(router: Router, jwtCoder: JWTCoder,defaultActionBuilder: DefaultActionBuilder) extends
+   HttpRequestHandler {
+
+   private val logger = Logger(this.getClass)
+
    def handlerForRequest(requestHeader: RequestHeader): (RequestHeader, Handler) = {
       logger.debug(s"Incomming request $requestHeader")
       router.routes.lift(requestHeader) match {
@@ -23,7 +27,7 @@ class MyHttpRequestHandler @Inject()(router: Router, val jwtCoder: JWTCoder) ext
                   } catch {
                      case e: Exception =>
                         logger.debug("Error while parsing token : ", e)
-                        (requestHeader, Action(Results.Unauthorized("Unable to parse token")))
+                        (requestHeader, defaultActionBuilder(Results.Unauthorized("Unable to parse token")))
                   }
 
                } else {
@@ -39,21 +43,21 @@ class MyHttpRequestHandler @Inject()(router: Router, val jwtCoder: JWTCoder) ext
                         case "/user/login/" =>
                            logger.debug(s"Incoming login request : ${requestHeader.path} with params : ${requestHeader.rawQueryString}")
                            Handler.applyStages(requestHeader, handler)
-                        case _ => (requestHeader, Action(Results.Forbidden))
+                        case _ => (requestHeader, defaultActionBuilder(Results.Forbidden))
                      }
                   }
                   else if (path.isEmpty) {
                      Handler.applyStages(requestHeader, handler)
                   }
                   else {
-                     (requestHeader, Action(Results.Forbidden))
+                     (requestHeader, defaultActionBuilder(Results.Forbidden))
                   }
                }
             }
 
          case None =>
             logger.debug("Returning 404, cause required page not found")
-            (requestHeader, Action(Results.NotFound))
+            (requestHeader, defaultActionBuilder(Results.NotFound))
 
       }
    }

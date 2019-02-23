@@ -16,6 +16,16 @@ class UserRegistrationControllerImplTest extends BaseTestSuite {
 
    "registerUser" in {
 
+      val firstToken = stepOne()
+      val secondToken = stepTwo(firstToken)
+      val thirdToken = stepThree(secondToken)
+
+      println(thirdToken)
+
+   }
+
+   def stepOne() = {
+
       val loginFirstUrl = s"$baseUrl/user_register/step_one/"
       val firstRequest = wsClient.url(loginFirstUrl).addQueryStringParameters(
          ("username", username),
@@ -25,6 +35,10 @@ class UserRegistrationControllerImplTest extends BaseTestSuite {
       val firstResult = await(firstRequest)
       firstResult.status mustBe CREATED
       val firstToken = firstResult.body
+      firstToken
+   }
+
+   def stepTwo(firstToken:String ) = {
 
       val loginSecondUrl = s"$baseUrl/user_register/step_two/"
       val secondRequest = wsClient.url(loginSecondUrl).addQueryStringParameters(
@@ -36,6 +50,10 @@ class UserRegistrationControllerImplTest extends BaseTestSuite {
       val secondResult = await(secondRequest)
       secondResult.status mustBe OK
       val secondToken = secondResult.body
+      secondToken
+   }
+
+   def stepThree(secondToken:String) = {
 
       val loginThirdUrl = s"$baseUrl/user_register/step_three/"
       val thirdRequest = wsClient.url(loginThirdUrl).addQueryStringParameters(
@@ -44,8 +62,7 @@ class UserRegistrationControllerImplTest extends BaseTestSuite {
 
       val thirdResult = await(thirdRequest)
       thirdResult.status mustBe OK
-      println(thirdResult.body)
-
+      thirdResult.body
    }
 
 }

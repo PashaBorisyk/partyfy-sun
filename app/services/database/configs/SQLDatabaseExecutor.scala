@@ -1,12 +1,12 @@
 package services.database.configs
 
 import javax.inject.{Inject, Singleton}
-import models._
+import models.persistient._
+import play.api.Logger
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
 import play.api.mvc.ControllerComponents
 import slick.jdbc.JdbcProfile
 import slick.jdbc.PostgresProfile.api._
-import util.logger
 
 import scala.concurrent.ExecutionContext
 
@@ -16,7 +16,9 @@ class SQLDatabaseExecutor @Inject()(
                            cc: ControllerComponents
                         )(implicit ec: ExecutionContext)
    extends HasDatabaseConfigProvider[JdbcProfile] {
-   
+
+   private val logger = Logger(this.getClass)
+
    lazy val schema = TableQuery[HipeImageDAO].schema
    lazy val schema2 = TableQuery[ChatMessageUserDAO].schema
    lazy val schema3 = TableQuery[EventDAO].schema

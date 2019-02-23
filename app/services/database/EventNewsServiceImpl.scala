@@ -1,7 +1,7 @@
 package services.database
 
 import javax.inject.Inject
-import models.{EventNewsDAO, EventUserDAO}
+import models.persistient.{EventNewsDAO, EventUserDAO}
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
 import play.api.mvc.Request
 import services.database.traits.EventNewsService

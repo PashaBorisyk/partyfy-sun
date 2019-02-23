@@ -2,15 +2,16 @@ package services.database.configs
 
 import javax.inject.{Inject, Singleton}
 import org.mongodb.scala.{MongoClient, MongoDatabase}
-import play.api.Configuration
-import util._
+import play.api.{Configuration, Logger}
 
 
 @Singleton
 class MongoDBExecutor @Inject()(
                                   configuration: Configuration
                                ) {
-   
+
+   private val logger = Logger(this.getClass)
+
    private lazy val db: MongoDatabase = {
       logger.debug("mongo db client creating...")
       val uri = configuration.get[String]("mongo.uri")

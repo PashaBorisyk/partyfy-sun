@@ -3,6 +3,7 @@ package filters
 import akka.stream.Materializer
 import implicits.implicits._
 import javax.inject.{Inject, _}
+import play.api.Logger
 import play.api.http.HeaderNames
 import play.api.mvc.{Result, _}
 import services.traits.JWTCoder
@@ -24,6 +25,8 @@ import scala.concurrent.{ExecutionContext, Future}
 class AuthFilter @Inject()(implicit override val mat: Materializer,
                            val jwtCoder: JWTCoder,
                            exec: ExecutionContext) extends Filter {
+
+   private val logger = Logger(this.getClass)
 
    lazy val unauthorizedMap: Result => Result = {
       _ => Results.Unauthorized

@@ -2,6 +2,7 @@ package controllers
 
 import implicits.implicits._
 import javax.inject.{Inject, Singleton}
+import play.api.Logger
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
 import play.api.mvc._
 import services.database.UserServiceImpl
@@ -18,6 +19,8 @@ class UserControllerImpl @Inject()(
                                      protected val userService: UserServiceImpl,
                                      cc: ControllerComponents)(implicit ec: ExecutionContext, jwtCoder: JWTCoder)
    extends AbstractController(cc) with HasDatabaseConfigProvider[JdbcProfile] {
+
+   private val logger = Logger(this.getClass)
 
    def checkUserExistence(username: String) = Action.async {
       implicit req =>

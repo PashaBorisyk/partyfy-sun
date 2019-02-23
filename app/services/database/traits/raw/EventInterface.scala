@@ -1,6 +1,6 @@
 package services.database.traits.raw
 
-import models.Event
+import models.persistient.Event
 
 import scala.language.higherKinds
 

@@ -2,14 +2,14 @@ package controllers
 
 import implicits.implicits._
 import javax.inject.Inject
-import models.UserRegistration
+import models.persistient.UserRegistration
 import org.postgresql.util.PSQLException
+import play.api.Logger
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
 import play.api.mvc.{AbstractController, ControllerComponents}
 import services.database.traits.UserRegistrationService
 import services.traits.JWTCoder
 import slick.jdbc.JdbcProfile
-import util.logger
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -20,7 +20,9 @@ class UserRegistrationController @Inject()(
                                              val jwtCoder: JWTCoder,
                                              cc: ControllerComponents)(implicit ec: ExecutionContext)
    extends AbstractController(cc) with HasDatabaseConfigProvider[JdbcProfile] {
-   
+
+   private val logger = Logger(this.getClass)
+
    //todo usernameToken -> usernameEmailToken -> usernamePasswordId token. End of registration
    def registerUserStepOne(username: String, password: String) = Action.async {
       implicit req =>

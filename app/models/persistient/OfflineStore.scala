@@ -27,7 +27,7 @@ case class OfflineStoreChatMessage(
 
 
 
-class OfflineStoreChatMessagesDAO(tag:Tag) extends Table[OfflineStoreChatMessage](tag:Tag,"offline_store_chat_message"){
+class OfflineStoreChatMessagesTable(tag:Tag) extends Table[OfflineStoreChatMessage](tag:Tag,"offline_store_chat_message"){
    
    def offlineStoreBehaviorId = column[Long]("offline_store_behavior_id")
    def chatMessagesId = column[Long]("chat_messages_id")
@@ -37,7 +37,7 @@ class OfflineStoreChatMessagesDAO(tag:Tag) extends Table[OfflineStoreChatMessage
 }
 
 
-class OfflineStoreDAO(tag:Tag) extends Table[OfflineStore](tag:Tag,"offline_store"){
+class OfflineStoreTable(tag:Tag) extends Table[OfflineStore](tag:Tag,"offline_store"){
 
    def behaviorId = column[Long]("behavior_id",O.Unique,O.PrimaryKey,O.AutoInc)
    def chatMessagesId = column[Long]("chat_messages")

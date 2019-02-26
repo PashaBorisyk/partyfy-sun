@@ -34,7 +34,7 @@ case class Event(
 
                 ) extends Serializable
 
-class EventDAO(tag: Tag) extends Table[Event](tag, "event") {
+class EventTable(tag: Tag) extends Table[Event](tag, "event") {
 
    def id = column[Long]("id", O.PrimaryKey, O.Unique, O.AutoInc)
 
@@ -86,7 +86,7 @@ class EventDAO(tag: Tag) extends Table[Event](tag, "event") {
 
 }
 
-case class EventUser(
+case class EventToUser(
 
                        eventId: Long = 0L,
                        userId: Long = 0L,
@@ -94,7 +94,7 @@ case class EventUser(
 
                     ) extends Serializable
 
-class EventUserDAO(tag: Tag) extends Table[EventUser](tag, "event_user") {
+class EventToUserTable(tag: Tag) extends Table[EventToUser](tag, "event_user") {
 
    def eventId = column[Long]("event_id")
 
@@ -102,7 +102,7 @@ class EventUserDAO(tag: Tag) extends Table[EventUser](tag, "event_user") {
 
    def isNewForMember = column[Boolean]("is_new_for_member")
 
-   def * = (eventId, userId, isNewForMember) <> (EventUser.tupled, EventUser.unapply)
+   def * = (eventId, userId, isNewForMember) <> (EventToUser.tupled, EventToUser.unapply)
 
 }
 

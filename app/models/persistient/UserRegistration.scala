@@ -29,7 +29,7 @@ case class UserRegistration(
 
                            ) extends Serializable
 
-class UserRegistrationDAO(tag: Tag) extends Table[UserRegistration](tag, "user_registration") {
+class UserRegistrationTable(tag: Tag) extends Table[UserRegistration](tag, "user_registration") {
 
    def id = column[Long]("id", O.PrimaryKey, O.AutoInc, O.Unique)
 

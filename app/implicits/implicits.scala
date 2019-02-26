@@ -8,7 +8,7 @@ import com.google.gson.{Gson, GsonBuilder}
 import com.mongodb.BasicDBObject
 import com.typesafe.config.{Config, ConfigValue}
 import models.ChatMessageNOSQL
-import models.persistient.{Event, HipeImage, User}
+import models.persistient.{Event, Image, User}
 import org.bson.types.BasicBSONList
 import play.api.ConfigLoader
 import play.api.libs.json.Json
@@ -39,7 +39,7 @@ package object implicits {
 
    implicit def req2User(requestBody: AnyContent): User = gson.fromJson(requestBody.asText.getOrElse("null"), classOf[User])
 
-   implicit def req2HipeImage(requestBody: AnyContent): HipeImage = gson.fromJson(requestBody.asText.getOrElse("null"), classOf[HipeImage])
+   implicit def req2HipeImage(requestBody: AnyContent): Image = gson.fromJson(requestBody.asText.getOrElse("null"), classOf[Image])
 
    implicit def req2EventMembersTuple(requestBody: AnyContent): (Event, Set[Long]) = {
 
@@ -184,6 +184,14 @@ package object implicits {
 
          properties
       }
+   }
+
+   implicit class SeqImplicit[T1,T2](val seq:Seq[(T1,Option[T2])]){
+
+      def extractOptions = seq.map{ entry =>
+         entry._1->entry._2.getOrElse(None)
+      }.asInstanceOf[Seq[(T1, Product with Serializable)]]
+
    }
 
 }

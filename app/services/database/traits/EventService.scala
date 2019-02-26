@@ -1,7 +1,7 @@
 package services.database.traits
 
 import com.google.inject.ImplementedBy
-import models.persistient.Event
+import models.persistient.{Event, Image}
 import play.api.mvc.Request
 import services.database.EventServiceImpl
 import services.traits.TokenRepresentation
@@ -23,11 +23,9 @@ trait EventService[T[_]] {
 
    def getEventsByMemberId(userId: Long,token:TokenRepresentation): T[Array[(Event, Product with Serializable)]]
 
-   def getEventIdsByMemberIdForSocket(userId: Long,token:TokenRepresentation): T[Array[Long]]
-
    def getEventIdsByMemberId(userId: Long,token:TokenRepresentation): T[Array[Long]]
 
-   def getEvents(userId: Long, latitude: Double, longtitude: Double, lastReadEventId: Long,token:TokenRepresentation): T[Array[(Event, Product with Serializable)]]
+   def getEvents(token:TokenRepresentation,latitude: Double, longtitude: Double, lastReadEventId: Long): T[Array[(Event, Product with Serializable)]]
 
    def addMemberToEvent(userId: Long, eventId: Long, advancedUserId: Long,token:TokenRepresentation): T[Int]
 

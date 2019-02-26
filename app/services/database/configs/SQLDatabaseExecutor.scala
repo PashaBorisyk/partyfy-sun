@@ -19,17 +19,17 @@ class SQLDatabaseExecutor @Inject()(
 
    private val logger = Logger(this.getClass)
 
-   lazy val schema = TableQuery[HipeImageDAO].schema
-   lazy val schema2 = TableQuery[ChatMessageUserDAO].schema
-   lazy val schema3 = TableQuery[EventDAO].schema
+   lazy val schema = TableQuery[ImageTable].schema
+   lazy val schema2 = TableQuery[ChatMessageUserTable].schema
+   lazy val schema3 = TableQuery[EventTable].schema
    lazy val schema4 = TableQuery[EventHipeImageDAO].schema
-   lazy val schema5 = TableQuery[EventUserDAO].schema
-   lazy val schema6 = TableQuery[EventNewsDAO].schema
-   lazy val schema7 = TableQuery[OfflineStoreChatMessagesDAO].schema
-   lazy val schema8 = TableQuery[OfflineStoreDAO].schema
-   lazy val schema9 = TableQuery[UserDAO].schema
-   lazy val schema10 = TableQuery[UserUserDAO].schema
-   lazy val schema11 = TableQuery[UserRegistrationDAO].schema
+   lazy val schema5 = TableQuery[EventToUserTable].schema
+   lazy val schema6 = TableQuery[EventNewsTable].schema
+   lazy val schema7 = TableQuery[OfflineStoreChatMessagesTable].schema
+   lazy val schema8 = TableQuery[OfflineStoreTable].schema
+   lazy val schema9 = TableQuery[UserTable].schema
+   lazy val schema10 = TableQuery[UserToUserTable].schema
+   lazy val schema11 = TableQuery[UserRegistrationTable].schema
    
    lazy val schemaArr = Array(
       schema, schema2,

@@ -4,7 +4,7 @@ import implicits.implicits._
 import javax.inject.Inject
 import play.api.Logger
 import play.api.mvc.{AbstractController, ControllerComponents}
-import services.database.HipeImageServiceImpl
+import services.database.ImageServiceImpl
 import services.traits.JWTCoder
 import util._
 
@@ -12,7 +12,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class ImageController @Inject()(
                                   cc: ControllerComponents,
-                                  private val hipeImageService: HipeImageServiceImpl
+                                  private val hipeImageService: ImageServiceImpl
                                )(implicit ec: ExecutionContext, jwtCoder: JWTCoder)
    extends AbstractController(cc) {
 

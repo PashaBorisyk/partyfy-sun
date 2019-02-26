@@ -3,9 +3,11 @@ package services.images.traits
 import java.awt.image.BufferedImage
 
 import com.google.inject.ImplementedBy
-import models.persistient.HipeImage
+import models.persistient.Image
 import services.images.ImageWriterServiceImpl
 import services.traits.TokenRepresentation
+
+import scala.language.higherKinds
 
 @ImplementedBy(classOf[ImageWriterServiceImpl])
 trait ImageWriterService [T[_]] {
@@ -17,6 +19,6 @@ trait ImageWriterService [T[_]] {
    final val IMG_SIZE_MINI_WIDTH = 90
 
    def write(eventId: Long, token: TokenRepresentation, formatName: String, imageIO: BufferedImage,host:String)
-   : T[HipeImage]
+   : T[Image]
 
 }

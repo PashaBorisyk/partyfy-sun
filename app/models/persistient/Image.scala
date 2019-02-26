@@ -4,7 +4,7 @@ import java.io.Serializable
 
 import slick.jdbc.PostgresProfile.api._
 
-case class HipeImage(
+case class Image(
    
    id:Long = 0l,
    exist:Boolean = false,
@@ -23,8 +23,8 @@ case class HipeImage(
 ) extends Serializable
 
 
-class HipeImageDAO(tag:Tag)
-   extends Table[HipeImage](tag,"hipe_image"){
+class ImageTable(tag:Tag)
+   extends Table[Image](tag,"hipe_image"){
    
    def id = column[Long]("id",O.Unique,O.PrimaryKey,O.AutoInc)
    def exist = column[Boolean]("exist")
@@ -47,6 +47,6 @@ class HipeImageDAO(tag:Tag)
       urlHuge,behaviorId,
       eventId,
       creationMills
-   ) <> (HipeImage.tupled,HipeImage.unapply)
+   ) <> (Image.tupled,Image.unapply)
    
 }

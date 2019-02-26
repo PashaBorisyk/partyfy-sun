@@ -1,14 +1,12 @@
-package services.database.traits
+package dao.traits
 
 import com.google.inject.ImplementedBy
+import dao.EventNewsDAOImpl
 import models.persistient.EventNewsTable
 import play.api.mvc.Request
-import services.database.EventNewsServiceImpl
 
-import scala.language.higherKinds
-
-@ImplementedBy(classOf[EventNewsServiceImpl])
-trait EventNewsService[T[_]] {
+@ImplementedBy(classOf[EventNewsDAOImpl])
+trait EventNewsDAO[T[_]] {
 
    def get(userId: Long, lastReadId: Long)(implicit request: Request[_]): T[Seq[EventNewsTable#TableElementType]]
 

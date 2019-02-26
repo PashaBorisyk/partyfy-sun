@@ -8,7 +8,7 @@ import models.persistient._
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
 import play.api.libs.Files
 import play.api.mvc.{MultipartFormData, Request}
-import services.database.traits.HipeImageService
+import services.database.traits.ImageService
 import services.images.traits.ImageWriterService
 import services.traits.TokenRepresentation
 import slick.jdbc.JdbcProfile
@@ -16,16 +16,16 @@ import slick.jdbc.PostgresProfile.api._
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class HipeImageServiceImpl @Inject()(
+class ImageServiceImpl @Inject()(
                                        protected val dbConfigProvider: DatabaseConfigProvider,
                                        imageWriterService: ImageWriterService[Future]
                                     )(implicit ec: ExecutionContext)
-   extends HasDatabaseConfigProvider[JdbcProfile] with HipeImageService[Future] {
+   extends HasDatabaseConfigProvider[JdbcProfile] with ImageService[Future] {
 
-   private lazy val hipeImageTable = TableQuery[HipeImageDAO]
+   private lazy val hipeImageTable = TableQuery[ImageTable]
    private lazy val eventHipeImageTable = TableQuery[EventHipeImageDAO]
-   private lazy val userHipeImageTable = TableQuery[UserHipeImageDAO]
-   private lazy val eventTable = TableQuery[EventDAO]
+   private lazy val userHipeImageTable = TableQuery[UserToImageTable]
+   private lazy val eventTable = TableQuery[EventTable]
 
    override def create(eventId: Long, token: TokenRepresentation, picture: MultipartFormData
    .FilePart[Files.TemporaryFile], host: String) = {
@@ -60,7 +60,7 @@ class HipeImageServiceImpl @Inject()(
       }.sortBy(_.creationMills.desc).result)
    }
 
-   private val insertImageQuery = { (image: HipeImage, eventId: Long) =>
+   private val insertImageQuery = { (image: Image, eventId: Long) =>
       val query = hipeImageTable returning hipeImageTable.map(_.id)
       val execute = eventTable.filter(_.id === eventId).result.head.zip(query += image).flatMap {
          eventWithImageID =>

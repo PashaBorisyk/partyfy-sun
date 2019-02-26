@@ -7,7 +7,7 @@ import java.nio.file.Paths
 import javax.imageio.ImageIO
 import javax.inject.Inject
 import models.dto.ImageNames
-import models.persistient.HipeImage
+import models.persistient.Image
 import org.imgscalr.Scalr
 import play.api.Logger
 import services.images.traits.ImageWriterService
@@ -90,7 +90,7 @@ class ImageWriterServiceImpl @Inject()()(implicit executionContext: ExecutionCon
    private def createImage(userId:Long,eventId:Long,ratio:Float,width:Long,height:Long,imageNames: ImageNames,
                            host:String)
                            = {
-      HipeImage(
+      Image(
          ratio = 1f / ratio,
          exist = true,
          eventId = eventId,

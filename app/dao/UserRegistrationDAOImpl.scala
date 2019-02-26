@@ -1,22 +1,21 @@
-package services.database
+package dao
 
+import dao.traits.UserRegistrationDAO
 import javax.inject.Inject
-import models.persistient.UserRegistration
-import models.persistient.{User, UserTable, UserRegistration, UserRegistrationTable}
+import models.persistient.{User, UserRegistration, UserRegistrationTable, UserTable}
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
-import services.database.traits.UserRegistrationService
 import services.traits.{EventMessagePublisherService, JWTCoder}
 import slick.jdbc.JdbcProfile
 import slick.jdbc.PostgresProfile.api._
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class UserRegistrationServiceImpl @Inject()(
+class UserRegistrationDAOImpl @Inject()(
                                               protected val dbConfigProvider: DatabaseConfigProvider,
                                               private val jwtCoder: JWTCoder,
                                               private val eventMessagePublisherService: EventMessagePublisherService
                                            )(implicit ec: ExecutionContext)
-   extends HasDatabaseConfigProvider[JdbcProfile] with UserRegistrationService[Future] {
+   extends HasDatabaseConfigProvider[JdbcProfile] with UserRegistrationDAO[Future] {
 
    private val userRegistrationTable = TableQuery[UserRegistrationTable]
    private val userTable = TableQuery[UserTable]

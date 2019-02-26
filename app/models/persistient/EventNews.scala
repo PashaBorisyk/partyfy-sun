@@ -21,7 +21,7 @@ case class EventNews(
 ) extends Serializable
 
 
-class EventNewsDAO(tag: Tag) extends Table[EventNews](tag, "event_news") {
+class EventNewsTable(tag: Tag) extends Table[EventNews](tag, "event_news") {
    
    def id = column[Long]("id", O.AutoInc, O.PrimaryKey, O.Unique)
    def eventId = column[Long]("event_id")

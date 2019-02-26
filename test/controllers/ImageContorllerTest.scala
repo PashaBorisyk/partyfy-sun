@@ -1,18 +1,14 @@
 package controllers
 
-import models.persistient.Event
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.ws.WSClient
 import play.api.test.Helpers._
-import play.api.libs.ws._
-import akka.util.ByteString
 import org.apache.http.client.methods.HttpPost
 import org.apache.http.entity.ContentType
 import org.apache.http.entity.mime.MultipartEntityBuilder
 import org.apache.http.impl.client.HttpClients
 import java.io._
 
-import play.api.mvc.Request
 
 class ImageContorllerTest extends BaseTestSuite {
 

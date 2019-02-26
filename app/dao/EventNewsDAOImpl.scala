@@ -1,19 +1,19 @@
-package services.database
+package dao
 
+import dao.traits.EventNewsDAO
 import javax.inject.Inject
 import models.persistient.{EventNewsTable, EventToUserTable}
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
 import play.api.mvc.Request
-import services.database.traits.EventNewsService
 import slick.jdbc.JdbcProfile
 import slick.jdbc.PostgresProfile.api._
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class EventNewsServiceImpl @Inject()(
+class EventNewsDAOImpl @Inject()(
                                    protected val dbConfigProvider: DatabaseConfigProvider,
                                 )(implicit ec: ExecutionContext)
-   extends HasDatabaseConfigProvider[JdbcProfile] with EventNewsService[Future] {
+   extends HasDatabaseConfigProvider[JdbcProfile] with EventNewsDAO[Future] {
    
    val eventNewsTable = TableQuery[EventNewsTable]
    val userEventTable = TableQuery[EventToUserTable]

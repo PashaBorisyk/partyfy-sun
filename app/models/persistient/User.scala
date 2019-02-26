@@ -29,7 +29,7 @@ case class User(
                ) extends Serializable
 
 
-class UserDAO(tag: Tag) extends Table[User](tag, "user") {
+class UserTable(tag: Tag) extends Table[User](tag, "user") {
    
    def id = column[Long]("id", O.PrimaryKey, O.AutoInc, O.Unique)
    
@@ -65,35 +65,35 @@ class UserDAO(tag: Tag) extends Table[User](tag, "user") {
    
 }
 
-case class UserUser(
+case class UserToUser(
 
                       userFrom: Long = 0L,
                       userTo: Long = 0L
 
                    )
 
-class UserUserDAO(tag: Tag) extends Table[UserUser](tag, "user_user") {
-   
+class UserToUserTable(tag: Tag) extends Table[UserToUser](tag, "user_to_user") {
+
    def user_from = column[Long]("user_from")
 
    def user_to = column[Long]("user_to")
 
-   def * = (user_from, user_to) <> (UserUser.tupled, UserUser.unapply)
+   def * = (user_from, user_to) <> (UserToUser.tupled, UserToUser.unapply)
    
 }
 
 
-case class UserHipeImage(
+case class UserToImage(
                            userId: Long,
                            imageId: Long
                         )
 
-class UserHipeImageDAO(tag: Tag) extends Table[UserHipeImage](tag, "user_image") {
-   
+class UserToImageTable(tag: Tag) extends Table[UserToImage](tag, "user_image") {
+
    def userId = column[Long]("user_id")
-   
+
    def imageId = column[Long]("image_id")
 
-   def * = (userId, imageId) <> (UserHipeImage.tupled, UserHipeImage.unapply)
+   def * = (userId, imageId) <> (UserToImage.tupled, UserToImage.unapply)
    
 }

@@ -22,7 +22,7 @@ case class ChatMessageUser(
                           
 )
 
-class ChatMessageUserDAO(tag:Tag) extends Table[ChatMessageUser](tag,"chat_message_user"){
+class ChatMessageUserTable(tag:Tag) extends Table[ChatMessageUser](tag,"chat_message_user"){
    
    def chatMessageId = column[Long]("chat_message_id")
    def userId = column[Long]("user_id")

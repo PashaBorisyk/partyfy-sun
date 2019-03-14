@@ -1,79 +1,62 @@
 package services
 
 import javax.inject.Inject
+import models.{TokenRep, TokenRepPrivate, TokenRepRegistration}
 import pdi.jwt.JwtSession
 import play.api.Configuration
-import services.traits.{JWTCoder, TokenRepresentation}
+import services.traits.JWTCoder
 
 class JWTCoderImpl @Inject()()(implicit val configuration: Configuration) extends JWTCoder {
 
-   override def encodePrivate(userId: Long, username: String, secret: String): String = {
-      val session = JwtSession() ++ (
-         ("id", userId),
-         ("username", username),
-         ("secret", secret),
-      )
-      if (session.isEmpty()) {
-         //            .withClaim(JwtClaim(expiration = Some(System.currentTimeMillis()+ 1000000L)))
-         throw new RuntimeException("JWT session can not be empty")
-      }
-
+   override def encode(tokenRep: TokenRep): String = {
+      val session = JwtSession() ++ (tokenRep.toMapOfFields:_*)
       session.serialize
+   }
+
+   override def decodeRegistrationToken(jwt: String) = {
+
+      val session = JwtSession.deserialize(jwt)
+
+      if(session.isEmpty())
+         throw new RuntimeException("Jwt session must not be empty")
+
+      val (username,secret,emailAddress) = getBasicCredentials(session)
+
+      TokenRepRegistration(username,secret,emailAddress)
 
    }
 
-   override def decodePrivate(jwt: String) = {
+   override def decodePrivateToken(jwt: String) = {
 
-      val result = JwtSession.deserialize(jwt)
+      val session = JwtSession.deserialize(jwt)
 
-      val id = result.getAs[Long]("id") match {
-         case Some(value) =>
-            value
-         case None => throw new RuntimeException("Can not get id from private token")
-      }
-      val username = result.getAs[String]("username") match {
-         case Some(value) =>
-            value
-         case None => throw new RuntimeException("Can not get username from private token")
-      }
-      val password: String = result.getAs[String]("secret") match {
-         case Some(value) =>
-            value
-         case None => throw new RuntimeException("Can not get password from private token")
-      }
+      if(session.isEmpty())
+         throw new RuntimeException("Jwt session must not be empty")
 
-      TokenRepresentation(id, username, password)
+      val (username,secret,emailAddress) = getBasicCredentials(session)
 
-   }
-
-
-   override def encodePublic(creds: (String, String)): String = {
-
-      val session = JwtSession() ++ (
-         ("username", creds._1),
-         ("secret", creds._2)
+      val userId = session.getAs[Long]("id").getOrElse(
+         throw new RuntimeException("Can not get userId from private token")
       )
 
-      if (session.isEmpty()) {
-         throw new RuntimeException("JWT session can not be empty")
-      }
-
-      session.serialize
+      TokenRepPrivate(userId,username,secret,emailAddress)
 
    }
 
-   override def decodePublic(jwt: String) = {
-      val result = JwtSession.deserialize(jwt)
+   def getBasicCredentials(session: JwtSession) = {
 
-      (result.get("username") match {
-         case Some(username) =>
-            Some("username" -> username.toString())
-         case None => throw new RuntimeException("Can not get username from public token")
-      }, result.get("password") match {
-         case Some(password) =>
-            Some("password" -> password.toString())
-         case None => throw new RuntimeException("Can not get password from public token")
-      })
+      val username = session.getAs[String]("username").getOrElse(
+         throw new RuntimeException("Can not get username from private token")
+      )
+      val secret: String = session.getAs[String]("secret").getOrElse(
+         throw new RuntimeException("Can not get secret from private token")
+      )
+      val emailAddress: String = session.getAs[String]("emailAddress").getOrElse(
+         throw new RuntimeException("Can not get emailAddress from private token")
+      )
+
+      (username,secret,emailAddress)
 
    }
+
 }

@@ -1,13 +1,11 @@
 package filters
 
 import akka.stream.Materializer
-import implicits.implicits._
 import javax.inject.{Inject, _}
 import play.api.Logger
 import play.api.http.HeaderNames
 import play.api.mvc.{Result, _}
 import services.traits.JWTCoder
-import util._
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -40,36 +38,36 @@ class AuthFilter @Inject()(implicit override val mat: Materializer,
       var map: Result => Result = { result => result }
       var initialRequestHeader = requestHeader
 
-      requestHeader.headers.get(HeaderNames.AUTHORIZATION).getOrElse("").run { token =>
-         if (!token.isEmpty) {
-            try {
+      val token = requestHeader.headers.get(HeaderNames.AUTHORIZATION).getOrElse("")
+      if (token.nonEmpty) {
+         try {
 
-               val tokenRep = jwtCoder.decodePrivate(token)
-               //todo Rules check
+            val tokenRep = jwtCoder.decodePrivateToken(token)
+            //todo Rules check
 
-            }catch {
-               case e:Exception =>
-                  logger.debug("Error decoding token : ",e)
-                  map = unauthorizedMap
-            }
-
-//            match {
-//               case (Some(username), Some(_), _) =>
-//                  initialRequestHeader = requestHeader.withHeaders(
-//                     requestHeader.headers
-//                        .add("username" -> username._2)
-//                  )
-//                  logger.debug(s"${initialRequestHeader.headers}")
-//
-//            }
-
-         } else requestHeader.path match {
-            case "/user/login/" => logger.debug(s"Incoming login request : ${requestHeader.path}")
-            case "/user/register/" => logger.debug(s"Incoming register request : ${requestHeader.path}")
-            case "/event/test/" => logger.debug(s"Incoming test request : ${requestHeader.path}")
-            case _ => map = unauthorizedMap
+         } catch {
+            case e: Exception =>
+               logger.debug("Error decoding token : ", e)
+               map = unauthorizedMap
          }
+
+         //            match {
+         //               case (Some(username), Some(_), _) =>
+         //                  initialRequestHeader = requestHeader.withHeaders(
+         //                     requestHeader.headers
+         //                        .add("username" -> username._2)
+         //                  )
+         //                  logger.debug(s"${initialRequestHeader.headers}")
+         //
+         //            }
+
+      } else requestHeader.path match {
+         case "/user/login/" => logger.debug(s"Incoming login request : ${requestHeader.path}")
+         case "/user/register/" => logger.debug(s"Incoming register request : ${requestHeader.path}")
+         case "/event/test/" => logger.debug(s"Incoming test request : ${requestHeader.path}")
+         case _ => map = unauthorizedMap
       }
+
       nextFilter(initialRequestHeader).map(map)
 
    }

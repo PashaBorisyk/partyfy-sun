@@ -27,9 +27,9 @@ trait EventDAO[T[_]] {
 
    def addMemberToEvent(userId: Long, eventId: Long, advancedUserId: Long): T[Int]
 
-   def cancelEvent(userId: Long, eventId: Long): T[Any]
+   def cancelEvent(userId: Long, eventId: Long): T[Long]
 
-   def removeMember(userId: Long, advancedUserId: Long, eventId: Long): T[Any]
+   def removeMember(userId: Long, advancedUserId: Long, eventId: Long): T[Int]
 
    def test()
 }

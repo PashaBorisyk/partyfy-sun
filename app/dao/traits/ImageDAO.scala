@@ -3,23 +3,20 @@ package dao.traits
 import com.google.inject.ImplementedBy
 import dao.ImageDAOImpl
 import models.persistient.Image
-import play.api.libs.Files
-import play.api.mvc.{MultipartFormData, Request}
-import services.traits.TokenRepresentation
 
 import scala.language.higherKinds
 
 @ImplementedBy(classOf[ImageDAOImpl])
 trait ImageDAO[T[_]] {
 
-   def create(eventId: Long, token: TokenRepresentation, picture: MultipartFormData.FilePart[Files.TemporaryFile], host: String): T[Image]
+   def create(eventId: Long, image: Image): T[Image]
 
-   def delete(id: Long)(implicit request: Request[_]): T[Int]
+   def delete(id: Long): T[Int]
 
-   def findById(id: Long)(implicit request: Request[_]): T[Image]
+   def findById(id: Long): T[Image]
 
-   def findByEventId(eventId: Long)(implicit request: Request[_]): T[Seq[Image]]
+   def findByEventId(eventId: Long): T[Seq[Image]]
 
-   def findByUserId(userId: Long)(implicit request: Request[_]): T[Seq[Image]]
+   def findByUserId(userId: Long): T[Seq[Image]]
 
 }

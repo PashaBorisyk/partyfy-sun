@@ -6,12 +6,12 @@ import java.nio.file.Paths
 
 import javax.imageio.ImageIO
 import javax.inject.Inject
+import models.TokenRepPrivate
 import models.dto.ImageNames
 import models.persistient.Image
 import org.imgscalr.Scalr
 import play.api.Logger
 import services.images.traits.ImageWriterService
-import services.traits.TokenRepresentation
 import util.generateName
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -30,7 +30,7 @@ class ImageWriterServiceImpl @Inject()()(implicit executionContext: ExecutionCon
       path
    }
 
-   override def write(eventId: Long, token: TokenRepresentation, formatName: String, imageIO: BufferedImage,host:String) =
+   override def write(eventId: Long, token: TokenRepPrivate, formatName: String, imageIO: BufferedImage, host:String) =
       Future {
       logger.debug(s"Image write() format name : $formatName ; ratio : ; width : ${imageIO.getWidth}")
 

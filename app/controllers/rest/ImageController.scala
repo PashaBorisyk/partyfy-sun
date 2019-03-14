@@ -1,8 +1,10 @@
-package controllers
+package controllers.rest
 
-import implicits.implicits._
+import controllers.rest.implicits.getToken
+import models.persistient.implicits._
 import javax.inject.Inject
 import play.api.Logger
+import play.api.libs.json.Json
 import play.api.mvc.{AbstractController, ControllerComponents}
 import services.database.ImageServiceImpl
 import services.traits.JWTCoder
@@ -21,10 +23,11 @@ class ImageController @Inject()(
    def upload(eventId: Long) = Action.async(parse.multipartFormData) {
       implicit request =>
          logger.debug(request.toString())
-         request.body.file(Const.PART_FILE).map { picture =>
+         implicit val token = getToken
 
+         request.body.file(Const.PART_FILE).map { picture =>
             hipeImageService.create(eventId,getToken, picture,request.host).map {
-               image => Created(image.toJson)
+               image => Created(Json.toJson(image))
             }.recover {
                case e: Exception =>
                   e.printStackTrace()
@@ -40,8 +43,9 @@ class ImageController @Inject()(
    def get(id: Long) = Action.async {
       implicit req =>
          logger.debug(req.toString())
+         implicit val token = getToken
          hipeImageService.findById(id).map {
-            s => Ok(s.toJson)
+            image => Ok(Json.toJson(image))
          }.recover {
             case e: Exception =>
                logger.debug("Error gerring picture : ", e)
@@ -52,8 +56,9 @@ class ImageController @Inject()(
    def delete(id: Long) = Action.async {
       implicit req =>
          logger.debug(req.toString())
+         implicit val token = getToken
          hipeImageService.delete(id).map {
-            s => Accepted(s.toJson)
+            deletedRows => Accepted(deletedRows.toString)
          }.recover {
             case e: Exception =>
                logger.error("Error deleting picture : ", e)
@@ -64,8 +69,9 @@ class ImageController @Inject()(
    def getByEventId(eventId: Long) = Action.async {
       implicit req =>
          logger.debug(req.toString())
+         implicit val token = getToken
          hipeImageService.findByEventId(eventId).map {
-            s => if (s.nonEmpty) Ok(s.toArray.toJson) else NoContent
+            images => if (images.nonEmpty) Ok(Json.toJson(images)) else NoContent
          }.recover {
             case e: Exception =>
                logger.error("Error getting picture : ", e)
@@ -76,9 +82,10 @@ class ImageController @Inject()(
    def getByUserId(userId: Long) = Action.async {
       implicit req =>
          logger.debug(req.toString())
+         implicit val token = getToken
          hipeImageService.findByUserId(userId).map {
 
-            s => if (s.nonEmpty) Ok(s.toArray.toJson) else NoContent
+            images => if (images.nonEmpty) Ok(Json.toJson(images)) else NoContent
          }.recover {
             case e: Exception =>
                logger.error("Error getting by userId : ", e)

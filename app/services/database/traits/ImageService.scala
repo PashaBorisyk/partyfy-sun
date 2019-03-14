@@ -1,18 +1,17 @@
 package services.database.traits
 
 import com.google.inject.ImplementedBy
+import models.TokenRepPrivate
 import models.persistient.Image
 import play.api.libs.Files
 import play.api.mvc.{MultipartFormData, Request}
 import services.database.ImageServiceImpl
-import services.traits.TokenRepresentation
-
 import scala.language.higherKinds
 
 @ImplementedBy(classOf[ImageServiceImpl])
 trait ImageService[T[_]] {
 
-   def create(eventId: Long, token: TokenRepresentation, picture: MultipartFormData.FilePart[Files.TemporaryFile], host: String): T[Image]
+   def create(eventId: Long, token: TokenRepPrivate, picture: MultipartFormData.FilePart[Files.TemporaryFile], host: String): T[Image]
 
    def delete(id: Long)(implicit request: Request[_]): T[Int]
 

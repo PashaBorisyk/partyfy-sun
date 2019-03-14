@@ -1,11 +1,12 @@
 package services.database
 
 import dao.traits.EventDAO
-import implicits.implicits._
+import implicits._
 import javax.inject.Inject
+import models.TokenRepPrivate
 import models.persistient._
 import services.database.traits.EventService
-import services.traits.{EventMessagePublisherService, TokenRepresentation}
+import services.traits.EventMessagePublisherService
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -14,55 +15,47 @@ class EventServiceImpl @Inject()(
                                    eventDAO:EventDAO[Future]
                                 )(implicit ec:ExecutionContext)extends EventService[Future] {
 
-   override def getEventById(id: Long,token:TokenRepresentation)  = {
-      eventDAO.getEventById(id).map{eventImageSeq =>
-         eventImageSeq.extractOptions.toArray
-      }
+   override def getEventById(id: Long)(implicit token:TokenRepPrivate)  = {
+      eventDAO.getEventById(id)
    }
 
-   override def delete(id: Long,token:TokenRepresentation)  = {
+   override def delete(id: Long)(implicit token:TokenRepPrivate)  = {
       eventDAO.deleteById(id)
    }
 
-   override def create(event: (Event, Set[Long]),token:TokenRepresentation) = {
+   override def create(event: (Event, Set[Long]))(implicit token:TokenRepPrivate) = {
       eventDAO.create(event)
    }
 
-   override def update(event: Event,token:TokenRepresentation)  = {
+   override def update(event: Event)(implicit token:TokenRepPrivate)  = {
       eventDAO.update(event)
    }
 
-   override def getEventsByOwner(userId: Long,token:TokenRepresentation)  = {
-      eventDAO.getEventsByOwner(userId).map{ eventWithImageSeq =>
-         eventWithImageSeq.extractOptions.toArray
-      }
+   override def getEventsByOwner(userId: Long)(implicit token:TokenRepPrivate)  = {
+      eventDAO.getEventsByOwner(userId)
    }
 
-   override def getEventsByMemberId(userId: Long,token:TokenRepresentation)  = {
-      eventDAO.getEventsByMemberId(userId).map { eventWithImageSeq =>
-         eventWithImageSeq.extractOptions.toArray
-      }
+   override def getEventsByMemberId(userId: Long)(implicit token:TokenRepPrivate)  = {
+      eventDAO.getEventsByMemberId(userId)
    }
 
-   override def getEventIdsByMemberId(userId: Long,token:TokenRepresentation) = {
-      eventDAO.getEventIdsByMemberId(userId).map(_.toArray)
+   override def getEventIdsByMemberId(userId: Long)(implicit token:TokenRepPrivate) = {
+      eventDAO.getEventIdsByMemberId(userId)
    }
 
-   override def getEvents(token:TokenRepresentation,latitude: Double, longtitude: Double, lastReadEventId: Long)  = {
-      eventDAO.getEvents(token.userId,latitude,longtitude,lastReadEventId).map{ eventWithImagesSeq =>
-         eventWithImagesSeq.extractOptions.toArray
-      }
+   override def getEvents(latitude: Double, longtitude: Double, lastReadEventId: Long)(implicit token:TokenRepPrivate)  = {
+      eventDAO.getEvents(token.userId,latitude,longtitude,lastReadEventId)
    }
 
-   override def addMemberToEvent(eventId: Long, userId: Long, advancedUserId: Long,token:TokenRepresentation)  = {
+   override def addMemberToEvent(eventId: Long, userId: Long, advancedUserId: Long)(implicit token:TokenRepPrivate)  = {
       eventDAO.addMemberToEvent(token.userId,eventId,advancedUserId)
    }
 
-   override def cancelEvent(userId: Long, eventId: Long,token:TokenRepresentation)  = {
+   override def cancelEvent(userId: Long, eventId: Long)(implicit token:TokenRepPrivate)  = {
       eventDAO.cancelEvent(token.userId,eventId)
    }
 
-   override def removeMember(userId: Long, advancedUserId: Long, eventId: Long,token:TokenRepresentation)  = {
+   override def removeMember(userId: Long, advancedUserId: Long, eventId: Long)(implicit token:TokenRepPrivate)  = {
       eventDAO.removeMember(token.userId,advancedUserId,eventId)
    }
 

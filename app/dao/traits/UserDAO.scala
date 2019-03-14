@@ -2,30 +2,33 @@ package dao.traits
 
 import com.google.inject.ImplementedBy
 import dao.UserDAOImpl
-import models.persistient.User
-import services.traits.TokenRepresentation
+import models.persistient.{Image, User}
+
+import scala.language.higherKinds
 
 @ImplementedBy(classOf[UserDAOImpl])
 trait UserDAO[T[_]] {
 
-   def getUsersByEventId(eventId: Long, token: TokenRepresentation): T[Seq[(User, Serializable)]]
+   def getUsersByEventId(eventId: Long): T[Seq[(User, Option[Image])]]
 
-   def checkUserExistence(nickname: String): T[Boolean]
+   def checkUserExistence(username: String) : T[Boolean]
 
-   def updateUser(user: User, token: TokenRepresentation): T[String]
+   def updateUser(user: User): T[User]
 
-   def getFriends(userId: Long, token: TokenRepresentation): T[Seq[(User, Serializable)]]
+   def getFriends(userId: Long): T[Seq[(User, Option[Image])]]
 
-   def getFriendsIds(userId: Long, token: TokenRepresentation): T[Seq[Long]]
+   def getFriendsIds(userId: Long): T[Seq[Long]]
 
-   def findUser(query: String, token: TokenRepresentation):T[Seq[(User, Serializable with Product)]]
+   def findUser(userId: Long, query: String): T[Seq[(User, Option[Image])]]
 
-   def getById(id: Long, token: TokenRepresentation): T[(User, Serializable)]
+   def getById(id: Long): T[(User, Option[Image])]
 
-   def addUserToFriends(userId: Long, token: TokenRepresentation): T[Int]
+   def addUserToFriends(userId: Long, addedUserId: Long) : T[Int]
 
-   def removeUserFromFriends(userId: Long, token: TokenRepresentation): T[Int]
+   def removeUserFromFriends(userId: Long, removedUserId: Long) : T[Int]
 
-   def login(username: String, password: String): T[Option[String]]
+   def getByUsername(username: String): T[Option[User]]
+
+   def getTokenByUserId(username:String) : T[Option[String]]
 
 }

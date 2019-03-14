@@ -1,9 +1,9 @@
 import com.google.inject.AbstractModule
 import java.time.Clock
 
+import dao.sql.tables.workers.SchemasCreator
 import play.api.db.slick.DatabaseConfigProvider
 import services._
-import services.database.configs.SQLDatabaseExecutor
 
 /**
  * This class is a Guice module that tells Guice how to bind several
@@ -26,7 +26,7 @@ class Module extends AbstractModule {
     // Set AtomicCounter as the implementation for Counter.
     bind(classOf[Counter]).to(classOf[AtomicCounter])
     
-    bind(classOf[SQLDatabaseExecutor]).asEagerSingleton()
+    bind(classOf[SchemasCreator]).asEagerSingleton()
     
   }
   

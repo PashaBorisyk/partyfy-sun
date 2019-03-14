@@ -41,7 +41,7 @@ package object util {
          any.isInstanceOf[Double] ||
          any.isInstanceOf[Boolean]
 
-   def getToken(implicit request: Request[_], jwtCoder: JWTCoder) = jwtCoder.decodePrivate(
+   def getToken(implicit request: Request[_], jwtCoder: JWTCoder) = jwtCoder.decodePrivateToken(
       request
          .headers
          .get(HeaderNames.AUTHORIZATION).getOrElse {

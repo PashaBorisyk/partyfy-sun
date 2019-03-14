@@ -1,14 +1,16 @@
-package controllers
+package controllers.rest
 
-import implicits.implicits._
+import models.persistient.implicits._
 import javax.inject.{Inject, Singleton}
+import models.persistient.User
 import play.api.Logger
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
 import play.api.mvc._
 import services.database.UserServiceImpl
 import services.traits.JWTCoder
 import slick.jdbc.JdbcProfile
-import util._
+import implicits._
+import play.api.libs.json.Json
 
 import scala.concurrent.ExecutionContext
 
@@ -25,6 +27,7 @@ class UserControllerImpl @Inject()(
    def checkUserExistence(username: String) = Action.async {
       implicit req =>
          logger.debug(req.toString)
+         implicit val token = getToken
          userService.checkUserExistence(username).map {
             userExists: Boolean => if (userExists)
                Ok else
@@ -37,11 +40,12 @@ class UserControllerImpl @Inject()(
 
    }
 
-   def updateUser() = Action.async {
+   def updateUser() = Action.async(parse.json[User]) {
       implicit req =>
          logger.debug(req.toString)
-         userService.updateUser(req.body, getToken).map {
-            token: String => Accepted(token.toJson)
+         implicit val token = getToken
+         userService.updateUser(req.body).map {
+            user => Accepted(Json.toJson(user))
          }.recover {
             case e: Exception =>
                logger.debug("Error while updateUser : ", e)
@@ -53,9 +57,10 @@ class UserControllerImpl @Inject()(
    def findUser(query: String) = Action.async {
       implicit req =>
          logger.debug(req.toString)
-         userService.findUser(query, getToken).map { s =>
-            if (s.nonEmpty)
-               Ok(s.toArray.toJson)
+         implicit val token = getToken
+         userService.findUser(query).map { usersWithImage =>
+            if (usersWithImage.nonEmpty)
+               Ok(Json.toJson(usersWithImage))
             else
                NoContent
          }.recover {
@@ -68,8 +73,9 @@ class UserControllerImpl @Inject()(
    def addUserToFriends(userId: Long) = Action.async {
       implicit req =>
          logger.debug(req.toString)
-         userService.addUserToFriends(userId, getToken).map {
-            _ => Ok(userId.toJson)
+         implicit val token = getToken
+         userService.addUserToFriends(userId).map {
+            _ => Ok(userId.toString)
          }.recover {
             case e: Exception =>
                logger.debug("Error while addUserToFriends : ", e)
@@ -81,8 +87,9 @@ class UserControllerImpl @Inject()(
    def removeUserFromFriends(userId: Long) = Action.async {
       implicit req =>
          logger.debug(req.toString)
-         userService.removeUserFromFriends(userId, getToken).map {
-            _ => Accepted(userId.toJson)
+         implicit val token = getToken
+         userService.removeUserFromFriends(userId).map {
+            _ => Accepted(userId.toString)
          }.recover {
             case e: Exception =>
                logger.debug("Error while removeUserFromFriends : ", e)
@@ -94,8 +101,9 @@ class UserControllerImpl @Inject()(
    def getById(userId: Long) = Action.async {
       implicit req =>
          logger.debug(req.toString)
-         userService.getById(userId, getToken).map {
-            s => Ok(s.toJson)
+         implicit val token = getToken
+         userService.getById(userId).map {
+            userWithImage => Ok(Json.toJson(userWithImage))
          }.recover {
             case e: Exception =>
                logger.debug("Error while getById : ", e)
@@ -107,8 +115,9 @@ class UserControllerImpl @Inject()(
    def getFriends(userId: Long) = Action.async {
       implicit req =>
          logger.debug(req.toString)
-         userService.getFriends(userId, getToken).map {
-            s => Ok(s.toArray.toJson)
+         implicit val token = getToken
+         userService.getFriends(userId).map {
+            usersWithImages => Ok(Json.toJson(usersWithImages))
          }.recover {
             case e: Exception =>
                logger.debug("Error while getFriends : ", e)
@@ -119,8 +128,9 @@ class UserControllerImpl @Inject()(
    def getFriendsIds(userId: Long) = Action.async {
       implicit req =>
          logger.debug(req.toString)
-         userService.getFriendsIds(userId, getToken).map {
-            s => Ok(s.toArray.toJson)
+         implicit val token = getToken
+         userService.getFriendsIds(userId).map {
+            friendsIds => Ok(Json.toJson(friendsIds))
          }.recover {
             case e: Exception =>
                logger.debug("Error while getFriendsIds : ", e)
@@ -131,8 +141,9 @@ class UserControllerImpl @Inject()(
    def getUsersByEvent(eventId: Long) = Action.async {
       implicit req =>
          logger.debug(req.toString)
-         userService.getUsersByEventId(eventId, getToken).map {
-            result => Ok(result.toArray.toJson)
+         implicit val token = getToken
+         userService.getUsersByEventId(eventId).map {
+            usersWithImages => Ok(Json.toJson(usersWithImages))
          }.recover {
             case e: Exception =>
                logger.debug("Error while getUsersByEvent : ", e)
@@ -144,13 +155,14 @@ class UserControllerImpl @Inject()(
    def loginUser(username: String, password: String) = Action.async {
       implicit req =>
          logger.debug(req.toString)
+         implicit val token = getToken
          userService.login(username, password).map {
             case Some(token) => Ok(token)
             case None => NoContent
          }.recover {
             case e:Exception =>
                logger.debug("Error while loginUser : ", e)
-               InternalServerError(e.toJson)
+               InternalServerError(e.getMessage)
          }
    }
 

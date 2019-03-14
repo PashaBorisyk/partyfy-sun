@@ -1,37 +1,37 @@
 package services.database.traits
 
 import com.google.inject.ImplementedBy
+import models.TokenRepPrivate
 import models.persistient.{Event, Image}
-import play.api.mvc.Request
 import services.database.EventServiceImpl
-import services.traits.TokenRepresentation
 
 import scala.language.higherKinds
 
 @ImplementedBy(classOf[EventServiceImpl])
 trait EventService[T[_]] {
 
-   def getEventById(id: Long,token:TokenRepresentation): T[Array[(Event, Product with Serializable)]]
+   def getEventById(id: Long)(implicit token:TokenRepPrivate): T[Seq[(Event, Option[Image])]]
 
-   def delete(id: Long,token:TokenRepresentation): T[Int]
+   def delete(id: Long)(implicit token:TokenRepPrivate): T[Int]
 
-   def create(event: (Event, Set[Long]),token:TokenRepresentation): T[Long]
+   def create(event: (Event, Set[Long]))(implicit token:TokenRepPrivate): T[Long]
 
-   def update(event: Event,token:TokenRepresentation): T[Int]
+   def update(event: Event)(implicit token:TokenRepPrivate): T[Int]
 
-   def getEventsByOwner(userId: Long,token:TokenRepresentation): T[Array[(Event, Product with Serializable)]]
+   def getEventsByOwner(userId: Long)(implicit token:TokenRepPrivate): T[Seq[(Event, Option[Image])]]
 
-   def getEventsByMemberId(userId: Long,token:TokenRepresentation): T[Array[(Event, Product with Serializable)]]
+   def getEventsByMemberId(userId: Long)(implicit token:TokenRepPrivate): T[Seq[(Event, Option[Image])]]
 
-   def getEventIdsByMemberId(userId: Long,token:TokenRepresentation): T[Array[Long]]
+   def getEventIdsByMemberId(userId: Long)(implicit token:TokenRepPrivate): T[Seq[Long]]
 
-   def getEvents(token:TokenRepresentation,latitude: Double, longtitude: Double, lastReadEventId: Long): T[Array[(Event, Product with Serializable)]]
+   def getEvents(latitude: Double, longtitude: Double, lastReadEventId: Long)(implicit token:TokenRepPrivate): T[Seq[
+      (Event, Option[Image])]]
 
-   def addMemberToEvent(userId: Long, eventId: Long, advancedUserId: Long,token:TokenRepresentation): T[Int]
+   def addMemberToEvent(userId: Long, eventId: Long, advancedUserId: Long)(implicit token:TokenRepPrivate): T[Int]
 
-   def cancelEvent(userId: Long, eventId: Long,token:TokenRepresentation): T[Any]
+   def cancelEvent(userId: Long, eventId: Long)(implicit token:TokenRepPrivate): T[Long]
 
-   def removeMember(userId: Long, advancedUserId: Long, eventId: Long,token:TokenRepresentation): T[Any]
+   def removeMember(userId: Long, advancedUserId: Long, eventId: Long)(implicit token:TokenRepPrivate): T[Int]
 
    def test()
 }

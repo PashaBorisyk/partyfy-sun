@@ -1,12 +1,12 @@
 package dao.sql
 
-import implicits.implicits._
+import dao.sql.tables.{EventTable, EventToUserTable, ImageTable}
 import models.persistient._
 import slick.jdbc.PostgresProfile.api._
 
 import scala.concurrent.ExecutionContext
 
-object EventSql {
+private[dao] object EventSql {
 
    private val eventTable = TableQuery[EventTable]
    private val eventToUserTable = TableQuery[EventToUserTable]
@@ -21,9 +21,8 @@ object EventSql {
       val execute  = (insertQuery += event._1).flatMap { eventId =>
 
          val eventUserConnections = event._2.map { userId =>
-//            val execute: DBIOAction[_, slick.dbio.NoStream, Effect.Write] =
-//            execute
-               eventToUserTable += EventToUser(eventId, userId)
+            val execute: DBIOAction[_, slick.dbio.NoStream, Effect.Write] = eventToUserTable += EventToUser(eventId, userId)
+            execute
          }
 
          DBIO.seq(eventUserConnections.toArray: _*).map { _ =>
@@ -82,14 +81,14 @@ object EventSql {
    }
 
    def cancel(userId:Long,eventId:Long)(implicit ec: ExecutionContext) = {
-      eventTable.filter(_.id === eventId).map(_.creatorId).result.head.map {
+      eventTable.filter(_.id === eventId).map(_.creatorId).result.head.flatMap {
          id =>
             if (id == userId) {
                eventToUserTable.filter { e => e.eventId === eventId }.delete.andThen(
                   eventTable.filter(_.id === eventId).delete
                )
             }
-            id
+            Sql(id)
       }
    }
 

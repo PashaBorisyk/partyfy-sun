@@ -162,7 +162,7 @@ class UserControllerImplTest extends PlaySpec with GuiceOneServerPerSuite {
 
    lazy val getUser = User(
       username = "pashaborisyk",
-      secret = "Puschinarij1",
+      token = "Puschinarij1",
       name = "pasha",
       surname = "borisyk",
       isMale = true,

@@ -49,7 +49,7 @@ class EventPublisherKafka @Inject()(kafkaConfigs: KafkaConfigs)(implicit system:
 
       def send(msg: Any) = {
          logger.debug(s"Sending message to topic : $topic")
-         producer.send(new ProducerRecord[String, String](topic, msg.toJson))
+         producer.send(new ProducerRecord[String, String](topic, msg.toString))
       }
 
    }

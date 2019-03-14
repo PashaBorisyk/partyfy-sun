@@ -3,9 +3,9 @@ package services.images.traits
 import java.awt.image.BufferedImage
 
 import com.google.inject.ImplementedBy
+import models.TokenRepPrivate
 import models.persistient.Image
 import services.images.ImageWriterServiceImpl
-import services.traits.TokenRepresentation
 
 import scala.language.higherKinds
 
@@ -18,7 +18,7 @@ trait ImageWriterService [T[_]] {
    final val IMG_SIZE_SMALL_WIDTH = 360
    final val IMG_SIZE_MINI_WIDTH = 90
 
-   def write(eventId: Long, token: TokenRepresentation, formatName: String, imageIO: BufferedImage,host:String)
+   def write(eventId: Long, token: TokenRepPrivate, formatName: String, imageIO: BufferedImage, host:String)
    : T[Image]
 
 }

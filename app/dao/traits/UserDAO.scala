@@ -15,6 +15,8 @@ trait UserDAO[T[_]] {
 
    def updateUser(user: User): T[User]
 
+   def clientUpdateUser(user:User) : T[User]
+
    def getFriends(userId: Long): T[Seq[(User, Option[Image])]]
 
    def getFriendsIds(userId: Long): T[Seq[Long]]

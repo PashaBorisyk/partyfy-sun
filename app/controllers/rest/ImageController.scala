@@ -28,10 +28,6 @@ class ImageController @Inject()(
          request.body.file(Const.PART_FILE).map { picture =>
             hipeImageService.create(eventId,getToken, picture,request.host).map {
                image => Created(Json.toJson(image))
-            }.recover {
-               case e: Exception =>
-                  e.printStackTrace()
-                  InternalServerError(e.getMessage)
             }
 
          }.getOrElse(Future {
@@ -46,10 +42,6 @@ class ImageController @Inject()(
          implicit val token = getToken
          hipeImageService.findById(id).map {
             image => Ok(Json.toJson(image))
-         }.recover {
-            case e: Exception =>
-               logger.debug("Error gerring picture : ", e)
-               InternalServerError(e.getMessage)
          }
    }
 
@@ -59,10 +51,6 @@ class ImageController @Inject()(
          implicit val token = getToken
          hipeImageService.delete(id).map {
             deletedRows => Accepted(deletedRows.toString)
-         }.recover {
-            case e: Exception =>
-               logger.error("Error deleting picture : ", e)
-               InternalServerError(e.getMessage)
          }
    }
 
@@ -72,10 +60,6 @@ class ImageController @Inject()(
          implicit val token = getToken
          hipeImageService.findByEventId(eventId).map {
             images => if (images.nonEmpty) Ok(Json.toJson(images)) else NoContent
-         }.recover {
-            case e: Exception =>
-               logger.error("Error getting picture : ", e)
-               InternalServerError(e.getMessage)
          }
    }
 
@@ -86,10 +70,6 @@ class ImageController @Inject()(
          hipeImageService.findByUserId(userId).map {
 
             images => if (images.nonEmpty) Ok(Json.toJson(images)) else NoContent
-         }.recover {
-            case e: Exception =>
-               logger.error("Error getting by userId : ", e)
-               InternalServerError(e.getMessage)
          }
    }
 

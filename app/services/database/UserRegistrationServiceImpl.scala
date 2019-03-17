@@ -16,7 +16,7 @@ class UserRegistrationServiceImpl @Inject()(private val jwtCoder: JWTCoder,
                                            (implicit ec:ExecutionContext)
    extends UserRegistrationService[Future] {
 
-   def registerUser(username: String, secret: String, email: String) = {
+   def createRegistration(username: String, secret: String, email: String) = {
       val registrationTokenRep = TokenRepRegistration(username,secret,email)
       val registrationToken = jwtCoder.encode(registrationTokenRep)
       val userRegistration = UserRegistration(
@@ -30,10 +30,10 @@ class UserRegistrationServiceImpl @Inject()(private val jwtCoder: JWTCoder,
    def confirmRegistrationAndCreateUser(registrationToken: String) = {
       val registrationTokenRep = jwtCoder.decodeRegistrationToken(registrationToken)
       val userRegistration = UserRegistration(username = registrationTokenRep.username,registrationToken = registrationToken)
-      val tokenGen = jwtCoder.lazyUserId(registrationTokenRep)(_)
+      val tokenGen = jwtCoder.fromLazyUserId(registrationTokenRep)(_)
       userRegistrationDAO.finishRegistrationAndGetUser(userRegistration,tokenGen).map{
          case (registration,user)=>
-            registration
+            registration->user
       }
    }
 

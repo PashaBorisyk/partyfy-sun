@@ -1,6 +1,5 @@
 package services.database
 
-import implicits._
 import dao.traits.UserDAO
 import javax.inject.Inject
 import models.TokenRepPrivate
@@ -27,8 +26,15 @@ class UserServiceImpl @Inject()(
       userDAO.checkUserExistence(username)
    }
 
-   def updateUser(user: User)(implicit token: TokenRepPrivate) = {
-      userDAO.updateUser(user)
+   def clientUpdateUser(user: User)(implicit token: TokenRepPrivate) = {
+      val newTokenRep = TokenRepPrivate(
+         userId = token.userId,
+         email = user.email,
+         username = user.username,
+         secret = token.secret
+      )
+      val newToken = jwtCoder.encode(newTokenRep)
+      userDAO.clientUpdateUser(user.copy(id = token.userId,token = newToken,state = UserState.ACTIVE))
    }
 
    def getFriends(userId: Long)(implicit token: TokenRepPrivate) = {
@@ -55,9 +61,9 @@ class UserServiceImpl @Inject()(
       userDAO.removeUserFromFriends(token.userId,userId)
    }
 
-   def login(username: String, password: String) = {
+   def login(username: String, secret: String) = {
       userDAO.getTokenByUserId(username).map{
-         case Some(token) if jwtCoder.decodePrivateToken(token).secret == password => Some(token)
+         case Some(token) if jwtCoder.decodePrivateToken(token).secret == secret => Some(token)
          case _ => None
       }
    }

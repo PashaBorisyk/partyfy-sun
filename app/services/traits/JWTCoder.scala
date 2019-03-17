@@ -7,10 +7,11 @@ import services.JWTCoderImpl
 
 @ImplementedBy(classOf[JWTCoderImpl])
 trait JWTCoder  {
+
    def encode(tokenRep: TokenRep) : String
    def decodePrivateToken(token:String) : TokenRepPrivate
    def decodeRegistrationToken(token:String) : TokenRepRegistration
 
-   def lazyUserId(tokenRep:TokenRep)(id:Long) = encode(TokenRep(tokenRep)(id))
+   def fromLazyUserId(tokenRep:TokenRep)(id:Long) = encode(TokenRep(tokenRep)(id))
 
 }

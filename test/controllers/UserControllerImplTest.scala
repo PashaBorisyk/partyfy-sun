@@ -1,6 +1,6 @@
 package controllers
 
-import models.persistient.User
+import models.persistient.{User, UserSex}
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.libs.ws.WSClient
@@ -18,7 +18,7 @@ class UserControllerImplTest extends PlaySpec with GuiceOneServerPerSuite {
    final val userId = 1
    final val eventId = 0
 
-   lazy val token: String = {
+   var token: String = {
 
       val loginUrl = s"$baseUrl/user/login/"
       val request = wsClient.url(loginUrl).addQueryStringParameters(
@@ -50,7 +50,8 @@ class UserControllerImplTest extends PlaySpec with GuiceOneServerPerSuite {
 
       val updateuserUrl = s"$baseUrl/user/update/"
       val request = wsClient.url(updateuserUrl).withHttpHeaders(
-         AUTHORIZATION->token
+         AUTHORIZATION->token,
+         CONTENT_TYPE->JSON
       ).put(
          Util.asJson(getUser)
       )
@@ -58,6 +59,7 @@ class UserControllerImplTest extends PlaySpec with GuiceOneServerPerSuite {
       val result = await(request)
       println(result.body)
       result.status mustBe ACCEPTED
+      token = result.body
    }
 
    "findUser" in {
@@ -109,14 +111,15 @@ class UserControllerImplTest extends PlaySpec with GuiceOneServerPerSuite {
 
    "getById" in {
 
-      val getByIdUrl = s"$baseUrl/user/get_by_id/0/"
+      val getByIdUrl = s"$baseUrl/user/get_by_id/1/"
 
       val request = wsClient.url(getByIdUrl).withHttpHeaders(
          AUTHORIZATION->token
       ).get()
       val response = await(request)
       println(response.body)
-      response.status mustBe OK
+      val isOk = response.status == OK || response.status == NO_CONTENT
+      isOk mustBe true
 
    }
 
@@ -160,13 +163,11 @@ class UserControllerImplTest extends PlaySpec with GuiceOneServerPerSuite {
 
    }
 
-   lazy val getUser = User(
+   val getUser = User(
       username = "pashaborisyk",
-      token = "Puschinarij1",
       name = "pasha",
       surname = "borisyk",
-      isMale = true,
-      isOnline = true,
+      sex = UserSex.MALE,
       status = "Hipe application creator",
       latitude = 123.23,
       longitude = 321.123,

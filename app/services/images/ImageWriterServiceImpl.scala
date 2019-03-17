@@ -30,34 +30,34 @@ class ImageWriterServiceImpl @Inject()()(implicit executionContext: ExecutionCon
       path
    }
 
-   override def write(eventId: Long, token: TokenRepPrivate, formatName: String, imageIO: BufferedImage, host:String) =
+   override def write(eventId: Long, token: TokenRepPrivate, formatName: String, imageIO: BufferedImage, host: String) =
       Future {
-      logger.debug(s"Image write() format name : $formatName ; ratio : ; width : ${imageIO.getWidth}")
+         logger.debug(s"Image write() format name : $formatName ; ratio : ; width : ${imageIO.getWidth}")
 
-      val ratio = imageIO.getHeight.toFloat / imageIO.getWidth.toFloat
+         val ratio = imageIO.getHeight.toFloat / imageIO.getWidth.toFloat
 
-      val imageNames = createImageNames(formatName)
-      val pathSizeMap = getPathSizeMap(imageNames)
+         val imageNames = createImageNames(formatName)
+         val pathSizeMap = getPathSizeMap(imageNames)
 
-      pathSizeMap.foreach {
-         pathSize =>
-            if (imageIO.getWidth > pathSize._2) {
-               logger.debug("Resizing image")
-               ImageIO.write(
-                  Scalr.resize(imageIO, Scalr.Method.ULTRA_QUALITY, pathSize._2, (pathSize._2 / ratio).toInt),
-                  formatName, Paths.get(pathSize._1).toFile
-               )
-            }
-            else {
-               logger.debug("Not resizing image")
-               ImageIO.write(imageIO, formatName, Paths.get(pathSize._1).toFile)
-            }
+         pathSizeMap.foreach {
+            case (path,size) =>
+               if (imageIO.getWidth > size) {
+                  logger.debug("Resizing image")
+                  ImageIO.write(
+                     Scalr.resize(imageIO, Scalr.Method.ULTRA_QUALITY, size, (size / ratio).toInt),
+                     formatName, Paths.get(path).toFile
+                  )
+               }
+               else {
+                  logger.debug("Not resizing image")
+                  ImageIO.write(imageIO, formatName, Paths.get(path).toFile)
+               }
 
+         }
+
+         val image = createImage(token.userId, eventId, ratio, imageIO.getWidth(), imageIO.getHeight(), imageNames, host)
+         image
       }
-
-      val image = createImage(token.userId,eventId,ratio,imageIO.getWidth(),imageIO.getHeight(),imageNames,host)
-      image
-   }
 
    private def getPathSizeMap(imageNames: ImageNames) = {
 
@@ -87,26 +87,26 @@ class ImageWriterServiceImpl @Inject()()(implicit executionContext: ExecutionCon
 
    )
 
-   private def createImage(userId:Long,eventId:Long,ratio:Float,width:Long,height:Long,imageNames: ImageNames,
-                           host:String)
-                           = {
+   private def createImage(userId: Long, eventId: Long, ratio: Float, width: Long, height: Long, imageNames: ImageNames,
+                           host: String)
+   = {
       Image(
          ratio = 1f / ratio,
          exist = true,
          eventId = eventId,
          width = width,
          height = height,
-         urlMini = getPublicPath(host,imageNames.miniName),
-         urlSmall = getPublicPath(host,imageNames.smallName),
-         urlMedium = getPublicPath(host,imageNames.mediumName),
-         urlLarge = getPublicPath(host,imageNames.largeName),
-         urlHuge = getPublicPath(host,imageNames.hugeName),
+         urlMini = getPublicPath(host, imageNames.miniName),
+         urlSmall = getPublicPath(host, imageNames.smallName),
+         urlMedium = getPublicPath(host, imageNames.mediumName),
+         urlLarge = getPublicPath(host, imageNames.largeName),
+         urlHuge = getPublicPath(host, imageNames.hugeName),
          behaviorId = userId
       )
 
    }
 
-   private def getPublicPath(host:String,name: String) = {
+   private def getPublicPath(host: String, name: String) = {
       s"$host/public/images/$name"
    }
 }

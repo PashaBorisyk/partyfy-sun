@@ -45,16 +45,16 @@ class EventControllerTest extends BaseTestSuite {
    "addMemberToEvent" in {
       val addMemberToEventUrl = s"$eventUrl/add_member/"
       val request = wsClient.url(addMemberToEventUrl).addQueryStringParameters(
-         ("event_id", "123"),
-         ("user_id", "123"),
-         ("advanced_user_id", "123")
+         ("event_id", "1"),
+         ("user_id", "1"),
+         ("advanced_user_id", "1")
       ).withHttpHeaders(
          AUTHORIZATION->token
       ).execute("PUT")
 
       val result = await(request)
       println(result.body)
-      val isSuccess = result.status == OK || result.status == NO_CONTENT
+      val isSuccess = result.status == ACCEPTED || result.status == NO_CONTENT
       isSuccess mustBe true
 
    }
@@ -71,16 +71,35 @@ class EventControllerTest extends BaseTestSuite {
 
       val result = await(request)
       println(result.body)
-      val isSuccess = result.status == OK || result.status == NO_CONTENT
+      val isSuccess = result.status == ACCEPTED || result.status == NO_CONTENT
       isSuccess mustBe true
+   }
+
+   "createEvent" in {
+
+      val array = new java.util.ArrayList[Int]()
+      array.add(1)
+      val content = Util.asJson(Array[Any](createEvent(),array))
+      println(content)
+      val createEventUrl = s"$eventUrl/create/"
+      val request = wsClient.url(createEventUrl).withHttpHeaders(
+         AUTHORIZATION->token,
+         CONTENT_TYPE->JSON
+      ).post(content)
+
+      val result = await(request)
+      println(result.body)
+      val isSuccess = result.status == CREATED || result.status == ACCEPTED
+      isSuccess mustBe true
+
    }
 
    "cancelEvent" in {
 
       val cancelEvent = s"$eventUrl/cancel/"
       val request = wsClient.url(cancelEvent).addQueryStringParameters(
-         ("user_id", "123"),
-         ("event_id", "123")
+         ("user_id", "1"),
+         ("event_id", "1")
       ).withHttpHeaders(
          AUTHORIZATION->token
       ).delete()
@@ -96,7 +115,7 @@ class EventControllerTest extends BaseTestSuite {
 
       val getEventsUrl = s"$eventUrl/get/"
       val request = wsClient.url(getEventsUrl).addQueryStringParameters(
-         ("user_id", "123"),
+         ("user_id", "1"),
          ("latitude", "123.123"),
          ("longitude", "123.321"),
          ("last_read_event_id", "456")
@@ -115,7 +134,7 @@ class EventControllerTest extends BaseTestSuite {
 
       val getByMemberUrl = s"$eventUrl/get_by_member_id/1/"
       val request = wsClient.url(getByMemberUrl).addQueryStringParameters(
-         ("user_id", "123")
+         ("user_id", "1")
       ).withHttpHeaders(
          AUTHORIZATION->token
       ).get()
@@ -159,7 +178,8 @@ class EventControllerTest extends BaseTestSuite {
 
       val updateEventUrl = s"$eventUrl/update/"
       val request = wsClient.url(updateEventUrl).withHttpHeaders(
-         AUTHORIZATION->token
+         AUTHORIZATION->token,
+         CONTENT_TYPE->JSON
       ).put(Util.asJson(createEvent()))
 
       val result = await(request)
@@ -172,7 +192,7 @@ class EventControllerTest extends BaseTestSuite {
 
 
    private def createEvent() = Event(
-      123L,
+      1L,
       1L,
       System.currentTimeMillis() + 1000 * 1000,
       System.currentTimeMillis(),

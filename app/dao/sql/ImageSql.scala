@@ -17,7 +17,7 @@ private[dao] object ImageSql {
       val query = imageTable returning imageTable.map(_.id)
       eventTable.filter(_.id === eventId).result.head.zip(query += image).flatMap {
          eventWithImageID =>
-            eventTable.update(eventWithImageID._1.copy(eventImageId = eventWithImageID._2)).map { _ =>
+            eventTable.insertOrUpdate(eventWithImageID._1.copy(eventImageId = eventWithImageID._2)).map { _ =>
                image.copy(id = eventWithImageID._2)
             }
       }

@@ -32,10 +32,6 @@ class UserControllerImpl @Inject()(
             userExists: Boolean => if (userExists)
                Ok else
                NoContent
-         }.recover {
-            case e: Exception =>
-               logger.debug("Error while checkUserExistence : ", e)
-               InternalServerError(e.getMessage)
          }
 
    }
@@ -44,12 +40,8 @@ class UserControllerImpl @Inject()(
       implicit req =>
          logger.debug(req.toString)
          implicit val token = getToken
-         userService.updateUser(req.body).map {
-            user => Accepted(Json.toJson(user))
-         }.recover {
-            case e: Exception =>
-               logger.debug("Error while updateUser : ", e)
-               InternalServerError(e.getMessage)
+         userService.clientUpdateUser(req.body).map {
+            user => Accepted(user.token)
          }
 
    }
@@ -63,10 +55,6 @@ class UserControllerImpl @Inject()(
                Ok(Json.toJson(usersWithImage))
             else
                NoContent
-         }.recover {
-            case e: Exception =>
-               logger.debug("Error while findUser : ", e)
-               InternalServerError(e.getMessage)
          }
    }
 
@@ -76,10 +64,6 @@ class UserControllerImpl @Inject()(
          implicit val token = getToken
          userService.addUserToFriends(userId).map {
             _ => Ok(userId.toString)
-         }.recover {
-            case e: Exception =>
-               logger.debug("Error while addUserToFriends : ", e)
-               InternalServerError(e.getMessage)
          }
 
    }
@@ -90,10 +74,6 @@ class UserControllerImpl @Inject()(
          implicit val token = getToken
          userService.removeUserFromFriends(userId).map {
             _ => Accepted(userId.toString)
-         }.recover {
-            case e: Exception =>
-               logger.debug("Error while removeUserFromFriends : ", e)
-               InternalServerError(e.getMessage)
          }
 
    }
@@ -102,12 +82,8 @@ class UserControllerImpl @Inject()(
       implicit req =>
          logger.debug(req.toString)
          implicit val token = getToken
-         userService.getById(userId).map {
-            userWithImage => Ok(Json.toJson(userWithImage))
-         }.recover {
-            case e: Exception =>
-               logger.debug("Error while getById : ", e)
-               InternalServerError(e.getMessage)
+         userService.getById(userId).map { userWithImage =>
+            Ok(Json.toJson(userWithImage))
          }
 
    }
@@ -118,10 +94,6 @@ class UserControllerImpl @Inject()(
          implicit val token = getToken
          userService.getFriends(userId).map {
             usersWithImages => Ok(Json.toJson(usersWithImages))
-         }.recover {
-            case e: Exception =>
-               logger.debug("Error while getFriends : ", e)
-               InternalServerError(e.getMessage)
          }
    }
 
@@ -131,10 +103,6 @@ class UserControllerImpl @Inject()(
          implicit val token = getToken
          userService.getFriendsIds(userId).map {
             friendsIds => Ok(Json.toJson(friendsIds))
-         }.recover {
-            case e: Exception =>
-               logger.debug("Error while getFriendsIds : ", e)
-               InternalServerError(e.getMessage)
          }
    }
 
@@ -144,25 +112,16 @@ class UserControllerImpl @Inject()(
          implicit val token = getToken
          userService.getUsersByEventId(eventId).map {
             usersWithImages => Ok(Json.toJson(usersWithImages))
-         }.recover {
-            case e: Exception =>
-               logger.debug("Error while getUsersByEvent : ", e)
-               InternalServerError(e.getMessage)
          }
 
    }
 
-   def loginUser(username: String, password: String) = Action.async {
+   def login(username: String, password: String) = Action.async {
       implicit req =>
          logger.debug(req.toString)
-         implicit val token = getToken
          userService.login(username, password).map {
             case Some(token) => Ok(token)
             case None => NoContent
-         }.recover {
-            case e:Exception =>
-               logger.debug("Error while loginUser : ", e)
-               InternalServerError(e.getMessage)
          }
    }
 

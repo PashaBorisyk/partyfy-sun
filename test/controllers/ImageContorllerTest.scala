@@ -63,7 +63,7 @@ class ImageContorllerTest extends BaseTestSuite {
 
    "get" in {
 
-      val getUrl = s"$imageUrl/get/get_by_id/1/"
+      val getUrl = s"$imageUrl/get_by_id/1/"
       val request = wsClient.url(getUrl).withHttpHeaders(
          AUTHORIZATION->token
       ).get()
@@ -76,14 +76,15 @@ class ImageContorllerTest extends BaseTestSuite {
 
    "getByUserId" in {
 
-      val getByUserIdUrl = s"$imageUrl/get_by_user_id/0/"
+      val getByUserIdUrl = s"$imageUrl/get_by_user_id/1/"
       val request = wsClient.url(getByUserIdUrl).withHttpHeaders(
          AUTHORIZATION->token
       ).get()
 
       val response = await(request)
       println(response.body)
-      response.status mustBe OK
+      val isSuccess = response.status == OK || response.status == NO_CONTENT
+      isSuccess mustBe true
    }
 
    "getByEventId" in {
@@ -95,13 +96,14 @@ class ImageContorllerTest extends BaseTestSuite {
 
       val response = await(request)
       println(response.body)
-      response.status mustBe OK
+      val isSuccess = response.status == OK || response.status == NO_CONTENT
+      isSuccess mustBe true
 
    }
 
    "delete" in {
 
-      val deletUrl = s"$imageUrl/delete/5/"
+      val deletUrl = s"$imageUrl/delete/1/"
       val request = wsClient.url(deletUrl).withHttpHeaders(
          AUTHORIZATION->token
       ).delete()

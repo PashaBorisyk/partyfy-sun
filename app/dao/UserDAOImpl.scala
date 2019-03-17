@@ -15,43 +15,47 @@ class UserDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigProvid
                            )(implicit ec: ExecutionContext)
    extends HasDatabaseConfigProvider[JdbcProfile] with UserDAO[Future] {
 
-   def getUsersByEventId(eventId: Long): Future[Seq[(User, Option[Image])]] = {
+   override def getUsersByEventId(eventId: Long) = {
       db.run(UserSql.getUsersByEventId(eventId))
    }
 
-   def checkUserExistence(username: String) = {
+   override def checkUserExistence(username: String) = {
       db.run(UserSql.checkUserExistence(username))
    }
 
-   def updateUser(user: User): Future[User] = {
+   override def updateUser(user: User) = {
       db.run(UserSql.updateUser(user))
    }
 
-   def getFriends(userId: Long): Future[Seq[(User, Option[Image])]] = {
+   override def clientUpdateUser(user: User) = {
+      db.run(UserSql.clientUpdateUser(user))
+   }
+
+   override def getFriends(userId: Long) = {
       db.run(UserSql.getFriends(userId))
    }
 
-   def getFriendsIds(userId: Long): Future[Seq[Long]] = {
+   override def getFriendsIds(userId: Long) = {
       db.run(UserSql.getFriendsIds(userId))
    }
 
-   def findUser(userId: Long, searchString: String): Future[Seq[(User, Option[Image])]] = {
+   override def findUser(userId: Long, searchString: String) = {
       db.run(UserSql.findUser(userId, searchString))
    }
 
-   def getById(id: Long): Future[(User, Option[Image])] = {
+   override def getById(id: Long) = {
       db.run(UserSql.getById(id))
    }
 
-   def addUserToFriends(userId: Long, addedUserId: Long) = {
+   override def addUserToFriends(userId: Long, addedUserId: Long) = {
       db.run(UserSql.addUserToFriends(userId, addedUserId))
    }
 
-   def removeUserFromFriends(userId: Long, removedUserId: Long) = {
+   override def removeUserFromFriends(userId: Long, removedUserId: Long) = {
       db.run(UserSql.removeUserFromFriends(userId, removedUserId))
    }
 
-   def getByUsername(username: String): Future[Option[User]] = {
+   override def getByUsername(username: String) = {
       db.run(UserSql.getByUsername(username))
    }
 

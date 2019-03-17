@@ -2,21 +2,21 @@ package dao.sql.tables
 
 import slick.jdbc.PostgresProfile.api._
 import implicits._
-import models.persistient.{User, UserState}
+import models.persistient.{User, UserSex, UserState}
 
 private[sql] class UserTable(tag: Tag) extends Table[User](tag, "user") {
 
-   def id = column[Long]("id", O.PrimaryKey, O.AutoInc, O.Unique)
+   def id = column[Long]("id",O.PrimaryKey, O.AutoInc)
 
    def username = column[String]("username", O.Unique)
 
-   def token = column[String]("token")
+   def token = column[String]("token", O.Unique)
 
    def name = column[String]("name")
 
    def surname = column[String]("surname")
 
-   def isMale = column[Boolean]("is_male")
+   def sex = column[UserSex]("sex")
 
    def isOnline = column[Boolean]("is_online")
 
@@ -34,7 +34,7 @@ private[sql] class UserTable(tag: Tag) extends Table[User](tag, "user") {
 
    def * = (id, username,
       token, name,
-      surname, isMale,
+      surname, sex,
       isOnline,
       status,
       latitude, longtitude,

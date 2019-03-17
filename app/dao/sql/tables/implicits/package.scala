@@ -1,6 +1,6 @@
 package dao.sql.tables
 
-import models.persistient.{UserRegistrationState, UserState}
+import models.persistient.{UserRegistrationState, UserSex, UserState}
 import slick.ast.TypedType
 import slick.jdbc.JdbcType
 import slick.jdbc.PostgresProfile.api._
@@ -17,6 +17,12 @@ package object implicits {
       MappedColumnType.base[UserState, String](
          enumState => enumState.toString,
          stringState => UserState.valueOf(stringState)
+      )
+
+   implicit val userSexMapper: JdbcType[UserSex] with TypedType[UserSex] =
+      MappedColumnType.base[UserSex, String](
+         enumState => enumState.toString,
+         stringState => UserSex.valueOf(stringState)
       )
 
 }

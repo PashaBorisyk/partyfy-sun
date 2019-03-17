@@ -4,6 +4,7 @@ import dao.sql.tables.{EventToUserTable, ImageTable, UserTable, UserToUserTable}
 import models.persistient._
 import slick.jdbc.PostgresProfile.api._
 import implicits._
+import tables.implicits._
 
 import scala.concurrent.ExecutionContext
 
@@ -23,7 +24,7 @@ private[dao] object UserSql {
       }.result
    }
 
-   def create(user:User) ={
+   def create(user:User) = {
       (userTable returning userTable.map(_.id) into((user,id) => user.copy(id))) += user
    }
 
@@ -34,8 +35,15 @@ private[dao] object UserSql {
    }
 
    def updateUser(user: User) (implicit ec:ExecutionContext) = {
-      //noinspection ComparingUnrelatedTypes
       userTable.update(user).map(_ => user)
+   }
+
+   //used when user updates itself
+   def clientUpdateUser(user: User) (implicit ec:ExecutionContext) ={
+      userTable.filter{
+         userTable =>
+            userTable.state === UserState.ACTIVE && userTable.id === user.id
+      }.update(user).map(_ => user)
    }
 
    def getFriends(userId: Long) = {

@@ -16,20 +16,20 @@ class UserRegistrationControllerImplTest extends BaseTestSuite {
 
    "registerUser" in {
 
-      val firstToken = stepOne()
-      val secondToken = stepTwo(firstToken)
-      val thirdToken = stepThree(secondToken)
+      val firstToken = createRegistration()
+      val secondToken = confirmRegistrationAndCreateUser(firstToken)
 
-      println(thirdToken)
+      println(secondToken)
 
    }
 
-   def stepOne() = {
+   def createRegistration() = {
 
-      val loginFirstUrl = s"$baseUrl/user_register/step_one/"
+      val loginFirstUrl = s"$baseUrl/user_register/create_registration/"
       val firstRequest = wsClient.url(loginFirstUrl).addQueryStringParameters(
          ("username", username),
-         ("password", "Puschinarij1")
+         ("secret", "Puschinarij1"),
+         ("email",s"$username@gmail.com")
       ).execute("POST")
 
       val firstResult = await(firstRequest)
@@ -38,31 +38,17 @@ class UserRegistrationControllerImplTest extends BaseTestSuite {
       firstToken
    }
 
-   def stepTwo(firstToken:String ) = {
+   def confirmRegistrationAndCreateUser(firstToken:String ) = {
 
-      val loginSecondUrl = s"$baseUrl/user_register/step_two/"
+      val loginSecondUrl = s"$baseUrl/user_register/confirmRegistration_and_create_user/"
       val secondRequest = wsClient.url(loginSecondUrl).addQueryStringParameters(
-         ("username",username),
-         ("email",s"$username@gmail.com"),
-         ("publicToken",firstToken)
+         "registrationToken"->firstToken
       ).execute("POST")
 
       val secondResult = await(secondRequest)
       secondResult.status mustBe OK
       val secondToken = secondResult.body
       secondToken
-   }
-
-   def stepThree(secondToken:String) = {
-
-      val loginThirdUrl = s"$baseUrl/user_register/step_three/"
-      val thirdRequest = wsClient.url(loginThirdUrl).addQueryStringParameters(
-         ("publicTokenTwo",secondToken)
-      ).execute("POST")
-
-      val thirdResult = await(thirdRequest)
-      thirdResult.status mustBe OK
-      thirdResult.body
    }
 
 }

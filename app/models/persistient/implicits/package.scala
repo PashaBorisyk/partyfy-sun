@@ -12,6 +12,10 @@ package object implicits {
       override def reads(json: JsValue) = JsSuccess(UserState.valueOf(json.as[String]))
       override def writes(o: UserState) = JsString(o.toString)
    }
+   implicit val userSexFormat:Format[UserSex] = new Format[UserSex] {
+      override def reads(json: JsValue) = JsSuccess(UserSex.valueOf(json.as[String]))
+      override def writes(o: UserSex) = JsString(o.toString)
+   }
 
    implicit val eventFormat: OFormat[Event] = Json.format[Event]
    implicit val userFormat:OFormat[User] = Json.format[User]

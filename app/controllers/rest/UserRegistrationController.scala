@@ -1,9 +1,7 @@
 package controllers.rest
 
-import controllers.rest.implicits.getToken
 import javax.inject.Inject
 import models.persistient.UserRegistrationState
-import org.postgresql.util.PSQLException
 import play.api.Logger
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
 import play.api.mvc.{AbstractController, ControllerComponents}
@@ -23,11 +21,10 @@ class UserRegistrationController @Inject()(
    private val logger = Logger(this.getClass)
 
    //todo usernameToken -> usernameEmailToken -> usernamePasswordId token. End of registration
-   def registerUser(username: String, secret: String, email: String) = Action.async {
+   def createRegistration(username: String, secret: String, email: String) = Action.async {
       implicit req =>
          logger.debug(req.toString)
-         implicit val token = getToken
-         userRegistrationService.registerUser(username, secret,email).map {
+         userRegistrationService.createRegistration(username, secret,email).map {
             userRegistration =>
                if(userRegistration.state == UserRegistrationState.DUPLICATE){
                   Conflict
@@ -35,35 +32,21 @@ class UserRegistrationController @Inject()(
                   logger.debug(s"Created with userRegistration : ${userRegistration.username}")
                   Created(userRegistration.registrationToken)
                }
-         }.recover {
-            case e: PSQLException =>
-               logger.debug("Insert error:", e)
-               Conflict
-            case e: Exception =>
-               e.printStackTrace()
-               InternalServerError(e.getMessage)
          }
    }
    
    def confirmRegistrationAndCreateUser(registrationToken: String) = Action.async {
       implicit req =>
          logger.debug(req.toString)
-         implicit val token = getToken
-         userRegistrationService.confirmRegistrationAndCreateUser(registrationToken).map { registration =>
+         userRegistrationService.confirmRegistrationAndCreateUser(registrationToken).map {
+            case (registration,user)=>
                if (registration.state == UserRegistrationState.EXPIRED) {
                   Gone
-               } else if (registration.state == UserRegistrationState.EXPIRED){
-                  Ok("")
+               } else if (registration.state == UserRegistrationState.CONFIRMED){
+                  Ok(user.token)
                } else {
                   InternalServerError("Unknown registration state")
                }
-         }.recover {
-            case e: PSQLException =>
-               logger.debug("Insert error:", e)
-               Conflict
-            case e: Exception =>
-               logger.error(e.getMessage)
-               InternalServerError(e.getMessage)
          }
       
    }

@@ -30,16 +30,13 @@ class MyHttpRequestHandler @Inject()(router: Router, jwtCoder: JWTCoder, default
                }
 
             } else {
-               val path = requestHeader.path
-               if (path.length > 1l) {
-                  path match {
-                     case "/user_register/step_one/" | "/user_register/step_two/" | "/user_register/step_three/" =>
+               val path = requestHeader.path.split("/")
+               if (path.size > 1) {
+                  path(1) match {
+                     case "user_register" =>
                         logger.debug(s"Incoming login request : ${requestHeader.path} with params : ${requestHeader.rawQueryString}")
                         Handler.applyStages(requestHeader, handler)
-                     case "event" =>
-                        logger.debug(s"Incomming test request : ${requestHeader.path}")
-                        Handler.applyStages(requestHeader, handler)
-                     case "/user/login/" =>
+                     case "user" if path(2) == "login" =>
                         logger.debug(s"Incoming login request : ${requestHeader.path} with params : ${requestHeader.rawQueryString}")
                         Handler.applyStages(requestHeader, handler)
                      case _ => (requestHeader, defaultActionBuilder(Results.Forbidden))

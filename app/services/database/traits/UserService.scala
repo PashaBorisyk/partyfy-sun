@@ -14,7 +14,7 @@ trait UserService[T[_]] {
 
    def checkUserExistence(nickname: String): T[Boolean]
 
-   def updateUser(user: User)(implicit token: TokenRepPrivate): T[User]
+   def clientUpdateUser(user: User)(implicit token: TokenRepPrivate): T[User]
 
    def getFriends(userId: Long)(implicit token: TokenRepPrivate): T[Seq[(User, Serializable)]]
 

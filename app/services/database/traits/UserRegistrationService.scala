@@ -9,9 +9,9 @@ import scala.language.higherKinds
 @ImplementedBy(classOf[UserRegistrationServiceImpl])
 trait UserRegistrationService[T[_]] {
 
-   def registerUser(username: String, password: String, email: String) : T[UserRegistration]
+   def createRegistration(username: String, secret: String, email: String) : T[UserRegistration]
 
-   def confirmRegistrationAndCreateUser(registrationToken:String): T[UserRegistration]
+   def confirmRegistrationAndCreateUser(registrationToken:String): T[(UserRegistration,User)]
 
    def deleteUserRegistration(id: Long): T[Int]
 

@@ -24,7 +24,7 @@ class EventServiceImpl @Inject()(
    }
 
    override def create(event: (Event, Set[Long]))(implicit token:TokenRepPrivate) = {
-      eventDAO.create(event)
+      eventDAO.create(event.copy(event._1.copy(ownerId = token.userId,ownerUsername = token.username)))
    }
 
    override def update(event: Event)(implicit token:TokenRepPrivate)  = {

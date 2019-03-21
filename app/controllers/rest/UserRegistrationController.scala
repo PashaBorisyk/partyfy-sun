@@ -45,7 +45,7 @@ class UserRegistrationController @Inject()(
                } else if (registration.state == UserRegistrationState.CONFIRMED){
                   Ok(user.token)
                } else {
-                  InternalServerError("Unknown registration state")
+                  InternalServerError(s"Illegal registration state : ${registration.state}")
                }
          }
       

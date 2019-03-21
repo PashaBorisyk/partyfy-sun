@@ -1,177 +1,175 @@
 package controllers
 
 import models.persistient.{User, UserSex}
-import org.scalatestplus.play.PlaySpec
-import org.scalatestplus.play.guice.GuiceOneServerPerSuite
-import play.api.libs.ws.WSClient
 import play.api.test.Helpers._
 import util.Util
 
-class UserControllerImplTest extends PlaySpec with GuiceOneServerPerSuite {
+import scala.util.Random
+
+class UserControllerImplTest extends BaseTestSuite {
 
    println(s"Strarting ${classOf[UserControllerImplTest].getSimpleName}")
 
-   final val wsClient = app.injector.instanceOf[WSClient]
-   final val myPublicAddress = s"localhost:$port"
-   final val baseUrl = s"http://$myPublicAddress"
    final val eventUrl = s"$baseUrl/user"
-   final val userId = 1
    final val eventId = 0
 
-   var token: String = {
-
-      val loginUrl = s"$baseUrl/user/login/"
-      val request = wsClient.url(loginUrl).addQueryStringParameters(
-         ("username", "pashaborisyk"),
-         ("password", "Puschinarij1")
-      ).get()
-
-      val result = await(request)
-      println(result.body)
-      result.status mustBe OK
-      result.body
-
-   }
-
    "checkUserExistence" in {
+      usernames.foreach { username =>
+         val checkUserExistenceUrl = s"$baseUrl/user/check_existence/$randomUsername/"
+         val request = wsClient.url(checkUserExistenceUrl).withHttpHeaders(
+            AUTHORIZATION -> token(username)
+         ).get()
 
-      val checkUserExistanceUrl = s"$baseUrl/user/check_existence/pashaborisyk"
-      val request = wsClient.url(checkUserExistanceUrl).withHttpHeaders(
-         AUTHORIZATION->token
-      ).get()
-
-      val result = await(request)
-      println(result.body)
-      result.status mustBe OK
-
+         val result = await(request)
+         println(result.body)
+         val isSuccessful = result.status == OK || result.status == NO_CONTENT
+         isSuccessful mustBe true
+      }
    }
 
    "updateUser" in {
 
-      val updateuserUrl = s"$baseUrl/user/update/"
-      val request = wsClient.url(updateuserUrl).withHttpHeaders(
-         AUTHORIZATION->token,
-         CONTENT_TYPE->JSON
-      ).put(
-         Util.asJson(getUser)
-      )
+      usernames.foreach { username =>
+         val updateuserUrl = s"$baseUrl/user/update/"
+         val request = wsClient.url(updateuserUrl).withHttpHeaders(
+            AUTHORIZATION -> token(username),
+            CONTENT_TYPE -> JSON
+         ).put(
+            Util.asJson(getUser(username))
+         )
 
-      val result = await(request)
-      println(result.body)
-      result.status mustBe ACCEPTED
-      token = result.body
+         val result = await(request)
+         println(result.body)
+         result.status mustBe ACCEPTED
+         setToken(username,result.body)
+      }
    }
 
    "findUser" in {
 
-      val findUser = s"$baseUrl/user/find/"
-      val query = "pashab"
-      val request = wsClient.url(findUser).withHttpHeaders(
-         AUTHORIZATION->token
-      ).withQueryStringParameters(
-         "query"->query
-      ).get()
+      usernames.foreach { username =>
+         val findUser = s"$baseUrl/user/find/"
+         val request = wsClient.url(findUser).withHttpHeaders(
+            AUTHORIZATION -> token(username)
+         ).withQueryStringParameters(
+            "query" -> randomUsername.substring(2)
+         ).get()
 
-      val response = await(request)
-      println(response.body)
-      val isSuccess = response.status == 204 || response.status == 200
-      isSuccess mustBe true
-
-   }
-
-   "addUserToFriends" in {
-
-      val addUserToFriendsUrl = s"$baseUrl/user/add_user_to_friends/"
-      val request = wsClient.url(addUserToFriendsUrl).withHttpHeaders(
-         AUTHORIZATION->token
-      ).withQueryStringParameters(
-         "user_id" -> 0L.toString
-      ).execute(POST)
-
-      val response = await(request)
-      println(response.body)
-      response.status mustBe OK
+         val response = await(request)
+         println(response.body)
+         val isSuccess = response.status == 204 || response.status == 200
+         isSuccess mustBe true
+      }
 
    }
 
-   "removeUserFromFriends" in {
+   "createUsersRelation" in {
 
-      val removeUserFromFriendsUrl = s"$baseUrl/user/remove_user_from_friends/"
-      val request = wsClient.url(removeUserFromFriendsUrl).withHttpHeaders(
-         AUTHORIZATION->token
-      ).withQueryStringParameters(
-         "user_id" -> 0L.toString
-      ).execute(DELETE)
+      usernames.foreach { username =>
+         val addUserToFriendsUrl = s"$baseUrl/user/create_users_relation/"
+         val request = wsClient.url(addUserToFriendsUrl).withHttpHeaders(
+            AUTHORIZATION -> token(username)
+         ).withQueryStringParameters(
+            "user_id" -> randomUserId.toString,
+            "relation_type" -> randomUsersRelationType.toString
+         ).execute(PUT)
 
-      val response = await(request)
-      println(response.body)
-      response.status mustBe ACCEPTED
+         val response = await(request)
+         println(response.body)
+         val isOk = response.status == OK || response.status == NOT_MODIFIED || response.body.contains("User is not allowed to relate to himself")
+         isOk mustBe true
+      }
+   }
+
+   "removeUsersRelation" in {
+      usernames.foreach { username =>
+
+         val removeUserFromFriendsUrl = s"$baseUrl/user/remove_users_relation/"
+         val request = wsClient.url(removeUserFromFriendsUrl).withHttpHeaders(
+            AUTHORIZATION -> token(username)
+         ).withQueryStringParameters(
+            "user_id" -> randomUserId.toString
+         ).execute(DELETE)
+
+         val response = await(request)
+         println(response.body)
+         val isOk = response.status == ACCEPTED || response.status == NOT_MODIFIED
+         isOk mustBe true
+      }
 
    }
 
    "getById" in {
 
-      val getByIdUrl = s"$baseUrl/user/get_by_id/1/"
+      usernames.foreach { username =>
+         val getByIdUrl = s"$baseUrl/user/get_by_id/$randomUserId/"
 
-      val request = wsClient.url(getByIdUrl).withHttpHeaders(
-         AUTHORIZATION->token
-      ).get()
-      val response = await(request)
-      println(response.body)
-      val isOk = response.status == OK || response.status == NO_CONTENT
-      isOk mustBe true
-
+         val request = wsClient.url(getByIdUrl).withHttpHeaders(
+            AUTHORIZATION -> token(username)
+         ).get()
+         val response = await(request)
+         println(response.body)
+         val isOk = response.status == OK || response.status == NO_CONTENT
+         isOk mustBe true
+      }
    }
 
    "getFriends" in {
 
-      val getFriendsUrl = s"$baseUrl/user/get_friends/$userId/"
+      usernames.foreach { username =>
+         val getFriendsUrl = s"$baseUrl/user/get_friends/$randomUserId/"
 
-      val request = wsClient.url(getFriendsUrl).withHttpHeaders(
-         AUTHORIZATION->token
-      ).get()
-      val response = await(request)
+         val request = wsClient.url(getFriendsUrl).withHttpHeaders(
+            AUTHORIZATION -> token(username)
+         ).get()
+         val response = await(request)
 
-      println(response.body)
-      response.status mustBe OK
+         println(response.body)
+         val isOk = response.status == OK || response.status == NO_CONTENT
+         isOk mustBe true
+      }
 
    }
 
-   "getFrindsIds" in {
+   "getFriendsIds" in {
+      usernames.foreach { username =>
 
-      val getFriendsIdsUrl = s"$baseUrl/user/get_friends_ids/$userId/"
-      val request = wsClient.url(getFriendsIdsUrl).withHttpHeaders(
-         AUTHORIZATION->token
-      ).get()
-      val response = await(request)
+         val getFriendsIdsUrl = s"$baseUrl/user/get_friends_ids/$randomUserId/"
+         val request = wsClient.url(getFriendsIdsUrl).withHttpHeaders(
+            AUTHORIZATION -> token(username)
+         ).get()
+         val response = await(request)
 
-      println(response.body)
-      response.status mustBe OK
-
+         println(response.body)
+         val isOk = response.status == OK || response.status == NO_CONTENT
+         isOk mustBe true
+      }
    }
 
    "getUsersByEvent" in {
 
-      val getUsersByEventUrl = s"$baseUrl/user/get_users_by_event_id/$eventId/"
-      val request = wsClient.url(getUsersByEventUrl).withHttpHeaders(
-         AUTHORIZATION->token
-      ).get()
-      val response = await(request)
+      usernames.foreach { username =>
+         val getUsersByEventUrl = s"$baseUrl/user/get_users_by_event_id/$eventId/"
+         val request = wsClient.url(getUsersByEventUrl).withHttpHeaders(
+            AUTHORIZATION -> token(username)
+         ).get()
+         val response = await(request)
 
-      println(response.body)
-      response.status mustBe OK
-
+         println(response.body)
+         val isOk = response.status == OK || response.status == NO_CONTENT
+         isOk mustBe true
+      }
    }
 
-   val getUser = User(
-      username = "pashaborisyk",
-      name = "pasha",
-      surname = "borisyk",
-      sex = UserSex.MALE,
-      status = "Hipe application creator",
-      latitude = 123.23,
-      longitude = 321.123,
-      email = "pashaborisyk@gmail.com"
+   def getUser(username:String) = User(
+      username = username,
+      name = username.substring(0,4),
+      surname = username.substring(4,username.length-1),
+      sex = UserSex.values()(new Random().nextInt(2)),
+      status = "Hi! Im " + username,
+      latitude = randomCoordinate,
+      longitude = randomCoordinate,
+      email = s"$username@gmail.com"
    )
 
 

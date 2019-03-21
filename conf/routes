@@ -10,12 +10,12 @@ GET           /public/*file                                              control
 ###################USER####################################
 ###########################################################
 
-GET           /user/check_existence/:username                            controllers.rest.UserControllerImpl.checkUserExistence(username:String)
+GET           /user/check_existence/:username/                            controllers.rest.UserControllerImpl.checkUserExistence(username:String)
 GET           /user/login/                                               controllers.rest.UserControllerImpl.login(username:String,password:String)
 PUT           /user/update/                                              controllers.rest.UserControllerImpl.updateUser()
 GET           /user/find/                                                controllers.rest.UserControllerImpl.findUser(query:String)
-POST          /user/add_user_to_friends/                                 controllers.rest.UserControllerImpl.addUserToFriends(user_id:Long)
-DELETE        /user/remove_user_from_friends/                            controllers.rest.UserControllerImpl.removeUserFromFriends(user_id:Long)
+PUT           /user/create_users_relation/                               controllers.rest.UserControllerImpl.createUsersRelation(user_id:Long,relation_type:String)
+DELETE        /user/remove_users_relation/                               controllers.rest.UserControllerImpl.removeUsersRelation(user_id:Long)
 GET           /user/get_by_id/:user_id/                                  controllers.rest.UserControllerImpl.getById(user_id:Long)
 GET           /user/get_friends/:user_id/                                controllers.rest.UserControllerImpl.getFriends(user_id:Long)
 GET           /user/get_friends_ids/:user_id/                            controllers.rest.UserControllerImpl.getFriendsIds(user_id:Long)

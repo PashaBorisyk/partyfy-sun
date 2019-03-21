@@ -1,10 +1,10 @@
 package dao.sql
 
-import dao.sql.tables.{EventToUserTable, ImageTable, UserTable, UserToUserTable}
+import dao.sql.implicits._
+import dao.sql.tables.implicits._
+import dao.sql.tables.{EventToUserTable, ImageTable, UserTable, UserToUserRelationTable}
 import models.persistient._
 import slick.jdbc.PostgresProfile.api._
-import implicits._
-import tables.implicits._
 
 import scala.concurrent.ExecutionContext
 
@@ -12,88 +12,115 @@ private[dao] object UserSql {
 
    private val eventToUserTable = TableQuery[EventToUserTable]
    private val userTable = TableQuery[UserTable]
-   private val userToUserTable = TableQuery[UserToUserTable]
+   private val userToUserRelationTable = TableQuery[UserToUserRelationTable]
    private val imageTable = TableQuery[ImageTable]
 
    def getUsersByEventId(eventId: Long) = {
 
-      (userTable joinLeft imageTable on (_.imageId === _.id)).filter { userWithImage =>
-         userWithImage._1.id in eventToUserTable.filter { eventToUser =>
+      (userTable joinLeft imageTable on (_.imageId === _.id)).filter { case (user, _) =>
+         (user.state === UserState.ACTIVE) && (user.id in eventToUserTable.filter { eventToUser =>
             eventToUser.eventId === eventId
-         }.map(_.userId)
+         }.map(_.userId))
       }.result
    }
 
-   def create(user:User) = {
-      (userTable returning userTable.map(_.id) into((user,id) => user.copy(id))) += user
+   def create(user: User) = {
+      (userTable returning userTable.map(_.id) into ((user, id) => user.copy(id))) += user
    }
 
    def checkUserExistence(username: String) = {
       userTable.filter { user =>
          user.username === username
-      }.map(_.id).exists.result
+      }.map(_ => 1).exists.result
    }
 
-   def updateUser(user: User) (implicit ec:ExecutionContext) = {
-      userTable.update(user).map(_ => user)
+   def checkUserExistence(id: Long) = {
+      userTable.filter { user =>
+         user.id === id
+      }.map(_ => 1).exists.result
+   }
+
+   def updateUser(user: User)(implicit ec: ExecutionContext) = {
+      userTable.insertOrUpdate(user).map(_ => user)
    }
 
    //used when user updates itself
-   def clientUpdateUser(user: User) (implicit ec:ExecutionContext) ={
-      userTable.filter{
+   def clientUpdateUser(user: User)(implicit ec: ExecutionContext) = {
+      userTable.filter {
          userTable =>
             userTable.state === UserState.ACTIVE && userTable.id === user.id
       }.update(user).map(_ => user)
    }
 
    def getFriends(userId: Long) = {
-      (userTable joinLeft imageTable on (_.imageId === _.id)).filter { userWithImage =>
-         userWithImage._1.id in {
-            userToUserTable.filter { userToUser =>
-               userToUser.user_from === userId
-            }.map(userToUser => userToUser.user_to)
-         }
-      }.sortBy(userWithImage => userWithImage._1.id.desc).result
+      (userTable joinLeft imageTable on (_.imageId === _.id)).filter { case (user, _) =>
+         user.state === UserState.ACTIVE && (user.id in {
+            userToUserRelationTable.filter { userToUser =>
+               userToUser.userFrom === userId && userToUser.relation === UsersRelationType.FRIEND
+            }.map(userToUser => userToUser.userTo)
+         })
+      }.sortBy { case (user, _) => user.id.desc }.result
    }
 
    def getFriendsIds(userId: Long) = {
-      userToUserTable.filter { userToUser =>
-         userToUser.user_from === userId
-      }.map(userToUser => userToUser.user_to).result
+      userToUserRelationTable.filter { userToUser =>
+         userToUser.userFrom === userId && userToUser.relation === UsersRelationType.FRIEND
+      }.map(userToUser => userToUser.userFrom).result
+   }
+
+   def getFollowersIds(userId: Long) = {
+      userToUserRelationTable.filter { userToUser =>
+         userToUser.userTo === userId && userToUser.relation === UsersRelationType.FOLLOW
+      }.map(userToUser => userToUser.userFrom).result
    }
 
    def findUser(userId: Long, searchRegex: String) = {
 
-      (userTable joinLeft imageTable on (_.imageId === _.id)).filter { userWithImage =>
-         ((userWithImage._1.username regexLike searchRegex) ||
-            (userWithImage._1.name regexLike searchRegex) ||
-            (userWithImage._1.surname regexLike searchRegex)) && (userWithImage._1.id =!= userId)
+      (userTable joinLeft imageTable on (_.imageId === _.id)).filter { case (user, _) =>
+         ((user.username regexLike searchRegex) ||
+            (user.name regexLike searchRegex) ||
+            (user.surname regexLike searchRegex))&&
+            (user.id =!= userId) &&
+            user.state === UserState.ACTIVE
       }.result
 
    }
 
    def getById(userId: Long) = {
-      (userTable joinLeft imageTable on (_.imageId === _.id)).filter { userWithImage =>
-         userWithImage._1.id === userId
+      (userTable joinLeft imageTable on (_.imageId === _.id)).filter { case (user, _) =>
+         user.id === userId && user.state === UserState.ACTIVE
       }.result.head
    }
 
-   def addUserToFriends(userId: Long, addedUserId: Long) = {
-      userToUserTable += UserToUser(userId, addedUserId)
+   def createUserRelation(userToUser: UserToUserRelation) = {
+      userToUserRelationTable.insertOrUpdate(userToUser)
    }
 
-   def removeUserFromFriends(userId: Long, removedUserId: Long) = {
-      userToUserTable.filter { userToUser =>
-         (userToUser.user_from === userId) && (userToUser.user_to === removedUserId)
-      }.delete
+   def checkIsBlocked(userBlocked: Long, userBy: Long) = {
+      userToUserRelationTable.filter { usersRelation =>
+         usersRelation.userTo === userBlocked &&
+            usersRelation.userFrom === userBy &&
+            usersRelation.relation === UsersRelationType.BLOCKED
+      }.map(_ => 1).exists.result
+   }
+
+   def removeUsersRelation(userToUser: UserToUserRelation) = {
+      userToUserRelationTable
+         .filter {
+            userToUserTable =>
+               (userToUserTable.userFrom === userToUser.userFrom) && (userToUserTable.userTo === userToUser.userTo)
+         }.delete
    }
 
    def getByUsername(username: String) = {
-      userTable.filter { user => user.username === username }.result.headOption
+      userTable
+         .filter { user => user.username === username }
+         .result
+         .headOption
    }
 
-   def getTokenByUsername(username:String) = {
-      userTable.filterIf(username.nonEmpty){user => user.username === username}
+   def getTokenByUsername(username: String) = {
+      userTable.filterIf(username.nonEmpty) { user => user.username === username }
          .map(user => user.token)
          .result
          .headOption

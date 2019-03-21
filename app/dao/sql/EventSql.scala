@@ -1,5 +1,6 @@
 package dao.sql
 
+import dao.sql.tables.implicits._
 import dao.sql.tables.{EventTable, EventToUserTable, ImageTable}
 import models.persistient._
 import slick.jdbc.PostgresProfile.api._
@@ -18,23 +19,19 @@ private[dao] object EventSql {
 
    def create(event: (Event, Set[Long]))(implicit ec: ExecutionContext) = {
       val insertQuery = eventTable returning eventTable.map(table => table.id)
-      val execute  = (insertQuery += event._1).flatMap { eventId =>
+      val execute = (insertQuery += event._1).flatMap { eventId =>
 
          val eventUserConnections = event._2.map { userId =>
-            val execute: DBIOAction[_, slick.dbio.NoStream, Effect.Write] = eventToUserTable += EventToUser(eventId, userId)
-            execute
+            EventToUser(eventId, userId)
          }
-
-         DBIO.seq(eventUserConnections.toArray: _*).map { _ =>
-            eventId
-         }
+         (eventToUserTable++=eventUserConnections).map(_=> eventId)
       }
 
       execute
    }
 
    def update(event: Event) = {
-      eventTable.update(event)
+      eventTable.insertOrUpdate(event)
    }
 
    def getById(id: Long) = {
@@ -42,7 +39,7 @@ private[dao] object EventSql {
    }
 
    def getByOwnerId(userId: Long) = {
-      (eventTable joinLeft imageTable on (_.eventImageId === _.id)).filter(_._1.creatorId === userId).sortBy(_._1.id)
+      (eventTable joinLeft imageTable on (_.eventImageId === _.id)).filter(_._1.ownerId === userId).sortBy(_._1.id)
          .result
    }
 
@@ -62,12 +59,17 @@ private[dao] object EventSql {
 
    def getPublicEvents(userId: Long, latitude: Double, longtitude: Double, lastReadEventId: Long) = {
       (eventTable joinLeft imageTable on (_.eventImageId === _.id)).filter {
-         eventAndImage =>
-            eventAndImage._1.isPublic === true && eventAndImage._1.latitude > (latitude - 0.3) && eventAndImage._1.latitude < (latitude + 0.3)
+         case (event, _) =>
+            event.privacyType === EventPrivacyType.PUBLIC &&
+               event.latitude > (latitude - 0.3) &&
+               event.latitude < (latitude + 0.3)
       }.filter {
-         eventAndImage =>
-            eventAndImage._1.longtitude > (longtitude - 0.3) && eventAndImage._1.longtitude < (longtitude + 0.3)
-      }.filter(_._1.id > lastReadEventId).take(30).sortBy(_._1.id.desc).result
+         case (event, _) =>
+            event.longtitude > (longtitude - 0.3) && event.longtitude < (longtitude + 0.3)
+      }.filter(_._1.id > lastReadEventId)
+         .take(30)
+         .sortBy(_._1.creationDateMills.desc)
+         .result
    }
 
    def addUserToEvent(eventId: Long, userId: Long) = {
@@ -75,20 +77,26 @@ private[dao] object EventSql {
    }
 
    def deleteUserFromEvent(userId: Long, eventId: Long) = {
-      eventToUserTable.filter{eventToUser =>
+      eventToUserTable.filter { eventToUser =>
          eventToUser.userId === userId && eventToUser.eventId === eventId
       }.delete
    }
 
-   def cancel(userId:Long,eventId:Long)(implicit ec: ExecutionContext) = {
-      eventTable.filter(_.id === eventId).map(_.creatorId).result.head.flatMap {
+   def cancel(userId: Long, eventId: Long)(implicit ec: ExecutionContext) = {
+      eventTable
+         .filter(_.id === eventId)
+         .map(_.ownerId)
+         .result
+         .head
+         .flatMap {
          id =>
             if (id == userId) {
                eventToUserTable.filter { e => e.eventId === eventId }.delete.andThen(
                   eventTable.filter(_.id === eventId).delete
-               )
+               ).andThen(Sql(id))
             }
-            Sql(id)
+            else
+               Sql(id)
       }
    }
 

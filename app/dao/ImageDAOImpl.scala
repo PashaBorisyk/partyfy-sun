@@ -20,8 +20,8 @@ class ImageDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigProvi
       db.run(ImageSql.delete(id))
    }
 
-   override def findById(id: Long) = {
-      db.run(ImageSql.findById(id))
+   override def getById(id: Long) = {
+      db.run(ImageSql.getById(id))
    }
 
    override def findByEventId(eventId: Long) = {
@@ -30,6 +30,10 @@ class ImageDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigProvi
 
    override def findByUserId(userId: Long) = {
       db.run(ImageSql.findByUserId(userId))
+   }
+
+   override def attachToUser(userToImage: UserToImage) = {
+      db.run(ImageSql.attachToUser(userToImage))
    }
 
 }

@@ -2,7 +2,7 @@ package dao.traits
 
 import com.google.inject.ImplementedBy
 import dao.ImageDAOImpl
-import models.persistient.Image
+import models.persistient.{Image, UserToImage}
 
 import scala.language.higherKinds
 
@@ -13,10 +13,12 @@ trait ImageDAO[T[_]] {
 
    def delete(id: Long): T[Int]
 
-   def findById(id: Long): T[Image]
+   def getById(id: Long): T[Option[Image]]
 
    def findByEventId(eventId: Long): T[Seq[Image]]
 
    def findByUserId(userId: Long): T[Seq[Image]]
+
+   def attachToUser(userToImage:UserToImage) : T[UserToImage]
 
 }

@@ -1,15 +1,9 @@
-import java.io.File
 import java.util.Random
-
-import play.api.http.HeaderNames
-import play.api.mvc.Request
-import services.traits.JWTCoder
-
 
 package object util {
 
    private lazy val random = new Random
-   private lazy val patterns: Array[Char] = Array[Char](
+   private lazy val charsUTF8 = Array(
       '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
       'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j',
       'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't',
@@ -23,12 +17,10 @@ package object util {
 
    def generateName(postfix: String): String = {
 
-      val name = new Array[Char](NAME_LENGTH)
-
-      for (i <- 0 until NAME_LENGTH)
-         name(i) = patterns(random.nextInt(patterns.length - 1))
-
-      new String(name) + "." + postfix
+      val name = (0 until NAME_LENGTH).map { _ =>
+         charsUTF8(random.nextInt(charsUTF8.length - 1))
+      }
+      new String(name.toArray) + "." + postfix
    }
 
    @inline def isPrimitiveOrString(any: Any) =
@@ -40,14 +32,5 @@ package object util {
          any.isInstanceOf[Float] ||
          any.isInstanceOf[Double] ||
          any.isInstanceOf[Boolean]
-
-   def getToken(implicit request: Request[_], jwtCoder: JWTCoder) = jwtCoder.decodePrivateToken(
-      request
-         .headers
-         .get(HeaderNames.AUTHORIZATION).getOrElse {
-         throw new RuntimeException("Request does not have an Authorization header")
-      }
-   )
-
 
 }

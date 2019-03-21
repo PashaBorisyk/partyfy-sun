@@ -33,7 +33,7 @@ private[dao] object UserRegistrationSql extends Sql {
    }
 
    def update(userRegistration: UserRegistration)(implicit ec: ExecutionContext) = {
-      userRegistrationTable.update(userRegistration).map { _ =>
+      userRegistrationTable.insertOrUpdate(userRegistration).map { _ =>
          userRegistration
       }
    }

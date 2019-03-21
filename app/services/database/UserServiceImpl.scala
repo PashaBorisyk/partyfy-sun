@@ -53,12 +53,17 @@ class UserServiceImpl @Inject()(
       userDAO.getById(id)
    }
 
-   def addUserToFriends(userId: Long)(implicit token: TokenRepPrivate) = {
-      userDAO.addUserToFriends(token.userId,userId)
+   def createUsersRelation(userId: Long,relationType: String)(implicit token: TokenRepPrivate) = {
+      if(token.userId == userId)
+         throw new RuntimeException("User is not allowed to relate to himself.")
+      val relation = UsersRelationType.valueOf(relationType)
+      val userToUser = UserToUserRelation(token.userId,userId,relation)
+      userDAO.createUsersRelation(userToUser)
    }
 
-   def removeUserFromFriends(userId: Long)(implicit token: TokenRepPrivate) = {
-      userDAO.removeUserFromFriends(token.userId,userId)
+   def removeUsersRelation(userId: Long)(implicit token: TokenRepPrivate) = {
+      val userToUser = UserToUserRelation(token.userId,userId)
+      userDAO.removeUsersRelation(userToUser)
    }
 
    def login(username: String, secret: String) = {

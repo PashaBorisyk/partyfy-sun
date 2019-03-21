@@ -2,7 +2,7 @@ package dao.traits
 
 import com.google.inject.ImplementedBy
 import dao.UserDAOImpl
-import models.persistient.{Image, User}
+import models.persistient.{Image, User, UserToUserRelation}
 
 import scala.language.higherKinds
 
@@ -25,9 +25,9 @@ trait UserDAO[T[_]] {
 
    def getById(id: Long): T[(User, Option[Image])]
 
-   def addUserToFriends(userId: Long, addedUserId: Long) : T[Int]
+   def createUsersRelation(userToUser: UserToUserRelation) : T[Int]
 
-   def removeUserFromFriends(userId: Long, removedUserId: Long) : T[Int]
+   def removeUsersRelation(userToUser: UserToUserRelation) : T[Int]
 
    def getByUsername(username: String): T[Option[User]]
 

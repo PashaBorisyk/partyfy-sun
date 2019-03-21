@@ -1,19 +1,18 @@
 package controllers.rest
 
-import models.persistient.implicits._
+import controllers.rest.implicits._
 import javax.inject.{Inject, Singleton}
 import models.persistient.User
+import models.persistient.implicits._
 import play.api.Logger
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
+import play.api.libs.json.Json
 import play.api.mvc._
 import services.database.UserServiceImpl
 import services.traits.JWTCoder
 import slick.jdbc.JdbcProfile
-import implicits._
-import play.api.libs.json.Json
 
 import scala.concurrent.ExecutionContext
-
 
 @Singleton
 class UserControllerImpl @Inject()(
@@ -29,9 +28,10 @@ class UserControllerImpl @Inject()(
          logger.debug(req.toString)
          implicit val token = getToken
          userService.checkUserExistence(username).map {
-            userExists: Boolean => if (userExists)
-               Ok else
-               NoContent
+            userExists: Boolean =>
+               if (userExists)
+                  Ok else
+                  NoContent
          }
 
    }
@@ -58,22 +58,29 @@ class UserControllerImpl @Inject()(
          }
    }
 
-   def addUserToFriends(userId: Long) = Action.async {
+   def createUsersRelation(userId: Long,relationType:String) = Action.async {
       implicit req =>
          logger.debug(req.toString)
          implicit val token = getToken
-         userService.addUserToFriends(userId).map {
-            _ => Ok(userId.toString)
+         userService.createUsersRelation(userId,relationType).map {
+            insertedRows =>
+               if (insertedRows > 0)
+                  Ok
+               else
+                  NotModified
          }
 
    }
 
-   def removeUserFromFriends(userId: Long) = Action.async {
+   def removeUsersRelation(userId: Long) = Action.async {
       implicit req =>
          logger.debug(req.toString)
          implicit val token = getToken
-         userService.removeUserFromFriends(userId).map {
-            _ => Accepted(userId.toString)
+         userService.removeUsersRelation(userId).map {
+            rowsDeleted =>
+               if (rowsDeleted > 0)
+                  Accepted
+               else NotModified
          }
 
    }
@@ -93,7 +100,11 @@ class UserControllerImpl @Inject()(
          logger.debug(req.toString)
          implicit val token = getToken
          userService.getFriends(userId).map {
-            usersWithImages => Ok(Json.toJson(usersWithImages))
+            usersWithImages =>
+               if (usersWithImages.nonEmpty)
+                  Ok(Json.toJson(usersWithImages))
+               else
+                  NoContent
          }
    }
 
@@ -102,7 +113,11 @@ class UserControllerImpl @Inject()(
          logger.debug(req.toString)
          implicit val token = getToken
          userService.getFriendsIds(userId).map {
-            friendsIds => Ok(Json.toJson(friendsIds))
+            friendsIds =>
+               if (friendsIds.nonEmpty)
+                  Ok(Json.toJson(friendsIds))
+               else
+                  NoContent
          }
    }
 
@@ -111,7 +126,11 @@ class UserControllerImpl @Inject()(
          logger.debug(req.toString)
          implicit val token = getToken
          userService.getUsersByEventId(eventId).map {
-            usersWithImages => Ok(Json.toJson(usersWithImages))
+            usersWithImages =>
+               if (usersWithImages.nonEmpty)
+                  Ok(Json.toJson(usersWithImages))
+               else
+                  NoContent
          }
 
    }

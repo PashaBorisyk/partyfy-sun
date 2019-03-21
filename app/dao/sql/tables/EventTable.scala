@@ -1,13 +1,14 @@
 package dao.sql.tables
 
-import models.persistient.Event
+import models.persistient.{Event, EventPrivacyType, UserSex}
+import implicits._
 import slick.jdbc.PostgresProfile.api._
 
 private[sql] class EventTable(tag: Tag) extends Table[Event](tag, "event") {
 
    def id = column[Long]("id", O.PrimaryKey, O.Unique, O.AutoInc)
 
-   def creatorId = column[Long]("creator_id")
+   def ownerId = column[Long]("owner_id")
 
    def dateMills = column[Long]("date_mills")
 
@@ -19,7 +20,7 @@ private[sql] class EventTable(tag: Tag) extends Table[Event](tag, "event") {
 
    def latitude = column[Double]("latitude")
 
-   def creatorNickname = column[String]("creator_nickname")
+   def ownerUsername = column[String]("owner_nickname")
 
    def country = column[String]("country")
 
@@ -31,26 +32,21 @@ private[sql] class EventTable(tag: Tag) extends Table[Event](tag, "event") {
 
    def description = column[String]("description")
 
-   def isPublic = column[Boolean]("is_public")
+   def openedFor = column[UserSex]("opened_for")
 
-   def isForOneGender = column[Boolean]("is_for_one_gender")
-
-   def isForMale = column[Boolean]("is_for_male")
+   def privacyType = column[EventPrivacyType]("privacy_type")
 
    def eventImageId = column[Long]("event_image_id")
 
-   def creatorsImageUrl = column[String]("creators_image_url")
+   def ownerImageUrl = column[String]("owner_image_url")
 
    def * = (
-      id, creatorId,
-      dateMills, creationDateMills,
-      maxMembers, longtitude,
-      latitude, creatorNickname, country,
-      city, street,
-      localName,
-      description, isPublic,
-      isForOneGender, isForMale,
-      eventImageId, creatorsImageUrl
+      id, ownerId, dateMills,
+      creationDateMills, maxMembers, longtitude,
+      latitude, ownerUsername, country,
+      city, street, localName,
+      description, openedFor, privacyType,
+      eventImageId, ownerImageUrl
    ) <> (Event.tupled, Event.unapply)
 
 }

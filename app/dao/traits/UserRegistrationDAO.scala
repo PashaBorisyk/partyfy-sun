@@ -11,7 +11,7 @@ trait UserRegistrationDAO[T[_]] {
 
    def createUserRegistration(userRegistration: UserRegistration) : T[UserRegistration]
 
-   def finishRegistrationAndGetUser(userRegistration: UserRegistration, tokenGen : Long => String)
+   def confirmRegistrationAndGetUser(userRegistration: UserRegistration, tokenGen : Long => String)
    : T[(UserRegistration,User)]
 
    def deleteUserRegistration(id: Long): T[Int]

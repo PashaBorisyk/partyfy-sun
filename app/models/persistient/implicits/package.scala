@@ -7,7 +7,6 @@ import scala.language.higherKinds
 
 package object implicits {
 
-
    implicit val myEnumFormat: Format[UserState] = new Format[UserState] {
       override def reads(json: JsValue) = JsSuccess(UserState.valueOf(json.as[String]))
       override def writes(o: UserState) = JsString(o.toString)
@@ -15,6 +14,10 @@ package object implicits {
    implicit val userSexFormat:Format[UserSex] = new Format[UserSex] {
       override def reads(json: JsValue) = JsSuccess(UserSex.valueOf(json.as[String]))
       override def writes(o: UserSex) = JsString(o.toString)
+   }
+   implicit val eventPrivacyTypeFormat:Format[EventPrivacyType] = new Format[EventPrivacyType] {
+      override def reads(json: JsValue) = JsSuccess(EventPrivacyType.valueOf(json.as[String]))
+      override def writes(o: EventPrivacyType) = JsString(o.toString)
    }
 
    implicit val eventFormat: OFormat[Event] = Json.format[Event]

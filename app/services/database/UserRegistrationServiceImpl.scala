@@ -31,7 +31,7 @@ class UserRegistrationServiceImpl @Inject()(private val jwtCoder: JWTCoder,
       val registrationTokenRep = jwtCoder.decodeRegistrationToken(registrationToken)
       val userRegistration = UserRegistration(username = registrationTokenRep.username,registrationToken = registrationToken)
       val tokenGen = jwtCoder.fromLazyUserId(registrationTokenRep)(_)
-      userRegistrationDAO.finishRegistrationAndGetUser(userRegistration,tokenGen).map{
+      userRegistrationDAO.confirmRegistrationAndGetUser(userRegistration,tokenGen).map{
          case (registration,user)=>
             registration->user
       }

@@ -1,6 +1,6 @@
 package dao.sql
 
-import dao.sql.tables.{EventTable, EventToImageTable, ImageTable, UserToImageTable}
+import dao.sql.tables.{EventTable, ImageTable, UserToImageTable}
 import models.persistient._
 import slick.jdbc.PostgresProfile.api._
 
@@ -9,7 +9,6 @@ import scala.concurrent.ExecutionContext
 private[dao] object ImageSql {
 
    private lazy val imageTable = TableQuery[ImageTable]
-   private lazy val eventToImageTable = TableQuery[EventToImageTable]
    private lazy val userToImageTable = TableQuery[UserToImageTable]
    private lazy val eventTable = TableQuery[EventTable]
 
@@ -27,22 +26,31 @@ private[dao] object ImageSql {
       imageTable.filter { image => image.id === id }.delete
    }
 
-   def findById(id: Long) = {
-      imageTable.filter { image => image.id === id }.result.head
+   def getById(id: Long) = {
+      imageTable
+         .filter { image => image.id === id}
+         .result
+         .headOption
    }
 
    def findByEventId(eventId: Long) = {
       imageTable.filter { image =>
-         image.id in eventToImageTable.filter(_.eventId === eventId).map(_.imageId)
+         image.eventId === eventId
       }.sortBy(_.creationMills.desc).result
    }
 
    def findByUserId(userId: Long) = {
 
       imageTable.filter { image =>
-         image.id in userToImageTable.filter(_.userId === userId).map(_.imageId)
+         image.id in userToImageTable
+            .filter(_.userId === userId)
+            .map(_.imageId)
       }.sortBy(_.creationMills.desc).result
 
+   }
+
+   def attachToUser(userToImage: UserToImage)(implicit ec:ExecutionContext) = {
+      (userToImageTable+=userToImage).map(_=>userToImage)
    }
 
 }

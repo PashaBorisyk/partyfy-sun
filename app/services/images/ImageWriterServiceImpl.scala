@@ -61,7 +61,6 @@ class ImageWriterServiceImpl @Inject()()(implicit executionContext: ExecutionCon
 
    private def getPathSizeMap(imageNames: ImageNames) = {
 
-
       val resultPathMini = s"$PICTURE_PATH/${imageNames.miniName}"
       val resultPathSmall = s"$PICTURE_PATH/${imageNames.smallName}"
       val resultPathMedium = s"$PICTURE_PATH/${imageNames.mediumName}"
@@ -92,7 +91,6 @@ class ImageWriterServiceImpl @Inject()()(implicit executionContext: ExecutionCon
    = {
       Image(
          ratio = 1f / ratio,
-         exist = true,
          eventId = eventId,
          width = width,
          height = height,
@@ -101,7 +99,7 @@ class ImageWriterServiceImpl @Inject()()(implicit executionContext: ExecutionCon
          urlMedium = getPublicPath(host, imageNames.mediumName),
          urlLarge = getPublicPath(host, imageNames.largeName),
          urlHuge = getPublicPath(host, imageNames.hugeName),
-         behaviorId = userId
+         ownerId = userId
       )
 
    }

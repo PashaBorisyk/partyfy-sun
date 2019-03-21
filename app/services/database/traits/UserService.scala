@@ -2,7 +2,7 @@ package services.database.traits
 
 import com.google.inject.ImplementedBy
 import models.TokenRepPrivate
-import models.persistient.{Image, User}
+import models.persistient.{Image, User, UsersRelationType}
 import services.database.UserServiceImpl
 
 import scala.language.higherKinds
@@ -24,9 +24,9 @@ trait UserService[T[_]] {
 
    def getById(id: Long)(implicit token: TokenRepPrivate): T[(User, Option[Image])]
 
-   def addUserToFriends(userId: Long)(implicit token: TokenRepPrivate): T[Int]
+   def createUsersRelation(userId: Long,relationType:String)(implicit token: TokenRepPrivate): T[Int]
 
-   def removeUserFromFriends(userId: Long)(implicit token: TokenRepPrivate): T[Int]
+   def removeUsersRelation(userId: Long)(implicit token: TokenRepPrivate): T[Int]
 
    def login(username: String, password: String): T[Option[String]]
 

@@ -18,16 +18,15 @@ class SchemasCreator @Inject()(
 
    lazy val schema = TableQuery[ImageTable].schema
    lazy val schema2 = TableQuery[EventTable].schema
-   lazy val schema3 = TableQuery[EventToImageTable].schema
    lazy val schema4 = TableQuery[EventToUserTable].schema
    lazy val schema5 = TableQuery[UserTable].schema
-   lazy val schema6 = TableQuery[UserToUserTable].schema
+   lazy val schema6 = TableQuery[UserToUserRelationTable].schema
    lazy val schema7 = TableQuery[UserRegistrationTable].schema
    lazy val schema8 = TableQuery[UserToImageTable].schema
 
    lazy val schemaArr = Array(
       schema, schema2,
-      schema3, schema4,
+      schema4,
       schema5, schema6,
       schema7,schema8
    )

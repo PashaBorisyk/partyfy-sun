@@ -23,9 +23,7 @@ class EventPublisherKafka @Inject()(kafkaConfigs: KafkaConfigs)(implicit system:
    private val logger = Logger(this.getClass)
 
    private final lazy val connections = scala.collection.mutable.TreeMap[String, ConnectionHandler]()
-
    private final val messageProxyActor = system.actorOf(Props(new MessageProxyActor))
-
    private final val producer = new KafkaProducer[String, String](kafkaConfigs.props)
 
    override def publish(publisher: EventMessagePublisherService, toPublish: Any): Unit = messageProxyActor ! toPublish
@@ -62,7 +60,7 @@ class EventPublisherKafka @Inject()(kafkaConfigs: KafkaConfigs)(implicit system:
 
       }
 
-      override def receive: PartialFunction[Any, Unit] = {
+      override def receive = {
          case msg: (EventMessagePublisherService, EventMessage[Any]) =>
             val topic = getTopicName(msg._1)
             val handler = connections.getOrElse(topic, {

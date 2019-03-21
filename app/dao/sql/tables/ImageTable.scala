@@ -8,8 +8,6 @@ private[dao] class ImageTable(tag: Tag)
 
    def id = column[Long]("id", O.Unique, O.PrimaryKey, O.AutoInc)
 
-   def exist = column[Boolean]("exist")
-
    def width = column[Long]("width")
 
    def ratio = column[Double]("ratio")
@@ -26,18 +24,18 @@ private[dao] class ImageTable(tag: Tag)
 
    def urlHuge = column[String]("url_huge")
 
-   def behaviorId = column[Long]("behavior_id")
+   def ownerId = column[Long]("owner_id")
 
    def eventId = column[Long]("event_id")
 
    def creationMills = column[Long]("creation_mills")
 
    def * = (
-      id, exist,
+      id,
       width, ratio, height,
       urlMini, urlSmall,
       urlMedium, urlLarge,
-      urlHuge, behaviorId,
+      urlHuge, ownerId,
       eventId,
       creationMills
    ) <> (Image.tupled, Image.unapply)

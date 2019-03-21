@@ -6,8 +6,10 @@ import com.google.inject.Inject
 import dao.traits.ImageDAO
 import javax.imageio.ImageIO
 import models.TokenRepPrivate
+import models.persistient.UserToImage
+import play.api.Logger
 import play.api.libs.Files
-import play.api.mvc.{MultipartFormData, Request}
+import play.api.mvc.{MultipartFormData}
 import services.database.traits.ImageService
 import services.images.traits.ImageWriterService
 
@@ -19,30 +21,49 @@ class ImageServiceImpl @Inject()(
                                     )(implicit ec: ExecutionContext)
    extends ImageService[Future] {
 
-   override def create(eventId: Long, token: TokenRepPrivate, picture: MultipartFormData
-   .FilePart[Files.TemporaryFile], host: String) = {
+   private final val logger = Logger(this.getClass)
 
-      val filename = Paths.get(picture.filename).getFileName
-      val formatName = filename.toString.split("\\.")(1)
-      val imageIO = ImageIO.read(picture.ref)
+   override def create(eventId: Long, picture: MultipartFormData
+   .FilePart[Files.TemporaryFile], host: String)(implicit token: TokenRepPrivate) = {
+
+      val (imageIO,formatName) = getImageWithName(picture)
       imageWriterService.write(eventId, token, formatName, imageIO, host).flatMap {
-         image => imageDAO.create(eventId,image)
+         image =>
+            imageDAO
+               .create(eventId,image)
+               .zip(imageDAO.attachToUser(UserToImage(token.userId,image.id)))
+      }.map{
+         case (image,_) => image
       }
    }
 
-   override def delete(id: Long)(implicit request: Request[_]) = {
+   private def getImageWithName(picture: MultipartFormData.FilePart[Files.TemporaryFile]) ={
+
+      try {
+         val filename = Paths.get(picture.filename).getFileName
+         val formatName = filename.toString.split("\\.")(1)
+         val imageIO = ImageIO.read(picture.ref)
+         imageIO->formatName
+      }catch {
+         case e:IndexOutOfBoundsException =>
+            logger.debug("Filename must have format after '.'")
+            throw e
+      }
+   }
+
+   override def delete(id: Long)(implicit token: TokenRepPrivate) = {
       imageDAO.delete(id)
    }
 
-   override def findById(id: Long)(implicit request: Request[_]) = {
-      imageDAO.findById(id)
+   override def findById(id: Long)(implicit token: TokenRepPrivate) = {
+      imageDAO.getById(id)
    }
 
-   override def findByEventId(eventId: Long)(implicit request: Request[_]) = {
+   override def findByEventId(eventId: Long)(implicit token: TokenRepPrivate) = {
       imageDAO.findByEventId(eventId)
    }
 
-   override def findByUserId(userId: Long)(implicit request: Request[_]) = {
+   override def findByUserId(userId: Long)(implicit token: TokenRepPrivate) = {
       imageDAO.findByUserId(userId)
    }
 

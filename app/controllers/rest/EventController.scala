@@ -23,8 +23,6 @@ class EventController @Inject()(
                                    )(implicit ec: ExecutionContext,jwtCoder: JWTCoder)
    extends AbstractController(cc) {
 
-
-
    private val logger = Logger(this.getClass)
 
    def createEvent() = Action.async(parse.json[(Event, Set[Long])]) {
@@ -33,13 +31,7 @@ class EventController @Inject()(
          implicit val token = getToken
          eventService.create(req.body).map {
             eventId =>
-               eventMessagePublisherService ! eventId -> req.body._2
                Created(Json.toJson(eventId))
-         }.recover {
-            case e: Exception => InternalServerError({
-               e.printStackTrace()
-               e.getMessage
-            })
          }
    }
    
@@ -48,15 +40,7 @@ class EventController @Inject()(
          implicit val token = getToken
          eventService.update(req.body).map {
             rowsUpdated =>
-               eventMessagePublisherService ! (
-                  Const.MSG_INSTANCE_OF_EVENT, req.body
-               )
                Ok(rowsUpdated.toString)
-         }.recover {
-            case e: Exception => InternalServerError({
-               e.printStackTrace()
-               e.getMessage
-            })
          }
    }
    
@@ -66,11 +50,6 @@ class EventController @Inject()(
          implicit val token = getToken
          eventService.getEventById(id).map {
             eventWithImage => Ok(Json.toJson(eventWithImage))
-         }.recover {
-            case e: Exception => InternalServerError({
-               e.printStackTrace()
-               e.getMessage
-            })
          }
       
    }
@@ -81,11 +60,6 @@ class EventController @Inject()(
          implicit val token = getToken
          eventService.getEventsByOwner(userId).map {
             eventWithImages => if (eventWithImages.nonEmpty) Ok(Json.toJson(eventWithImages)) else NoContent
-         }.recover {
-            case e: Exception => InternalServerError({
-               e.printStackTrace()
-               e.getMessage
-            })
          }
       
    }
@@ -96,11 +70,6 @@ class EventController @Inject()(
          implicit val token = getToken
          eventService.getEventsByMemberId(userId).map {
             eventsWithImages => if (eventsWithImages.nonEmpty) Ok(Json.toJson(eventsWithImages)) else NoContent
-         }.recover {
-            case e: Exception => InternalServerError({
-               e.printStackTrace()
-               e.getMessage
-            })
          }
       
    }
@@ -112,11 +81,6 @@ class EventController @Inject()(
          eventService.getEvents(latitude, longtitude, lastReadEventId).map {
             eventsWithImages =>
                Ok(Json.toJson(eventsWithImages))
-         }.recover {
-            case e: Exception => InternalServerError({
-               e.printStackTrace()
-               e.getMessage
-            })
          }
       
    }
@@ -128,11 +92,6 @@ class EventController @Inject()(
          eventService.cancelEvent(userId, eventId).map {
             creatorId =>
                Ok(creatorId.toString)
-         }.recover {
-            case e: Exception => InternalServerError({
-               e.printStackTrace()
-               e.getMessage
-            })
          }
    }
    
@@ -142,11 +101,6 @@ class EventController @Inject()(
          implicit val token = getToken
          eventService.removeMember(userId, advancedUserId, eventId).map {
             _ => Accepted
-         }.recover {
-            case e: Exception => InternalServerError({
-               e.printStackTrace()
-               e.getMessage
-            })
          }
       
    }
@@ -157,11 +111,6 @@ class EventController @Inject()(
          implicit val token = getToken
          eventService.addMemberToEvent(eventId, userId, advancedUserId).map {
             _ => Accepted
-         }.recover {
-            case e: Exception => InternalServerError({
-               e.printStackTrace()
-               e.getMessage
-            })
          }
       
    }

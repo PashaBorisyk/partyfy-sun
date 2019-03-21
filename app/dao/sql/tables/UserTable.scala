@@ -26,7 +26,7 @@ private[sql] class UserTable(tag: Tag) extends Table[User](tag, "user") {
 
    def longtitude = column[Double]("longtitude")
 
-   def imageId = column[Long]("image_id",O.Unique)
+   def imageId = column[Long]("image_id")
 
    def email = column[String]("email",O.Unique)
 

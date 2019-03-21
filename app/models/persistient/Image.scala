@@ -1,9 +1,8 @@
 package models.persistient
 
-case class Image(
+final case class Image(
 
                    id: Long = 0l,
-                   exist: Boolean = false,
                    width: Long = 0l,
                    ratio: Double = 0d,
                    height: Long = 0l,
@@ -12,7 +11,7 @@ case class Image(
                    urlMedium: String = "",
                    urlLarge: String = "",
                    urlHuge: String = "",
-                   behaviorId: Long = 0l,
+                   ownerId: Long = 0l,
                    eventId: Long = 0l,
                    creationMills: Long = System.currentTimeMillis()
 

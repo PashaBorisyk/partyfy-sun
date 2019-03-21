@@ -1,6 +1,6 @@
 package dao
 
-import dao.sql.UserSql
+import dao.sql.{Sql, UserSql}
 import dao.traits.UserDAO
 import javax.inject.Inject
 import models.persistient._
@@ -47,12 +47,22 @@ class UserDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigProvid
       db.run(UserSql.getById(id))
    }
 
-   override def addUserToFriends(userId: Long, addedUserId: Long) = {
-      db.run(UserSql.addUserToFriends(userId, addedUserId))
+   override def createUsersRelation(userToUser: UserToUserRelation) = {
+      val query = UserSql.checkUserExistence(userToUser.userTo)
+         .zip(UserSql.checkIsBlocked(userToUser.userFrom,userToUser.userTo))
+         .flatMap{
+            case (userExists,userIsBlockedBy)=> if(userExists && !userIsBlockedBy)
+               UserSql.createUserRelation(userToUser)
+            else
+               Sql(0)
+         }
+
+      db.run(query)
+
    }
 
-   override def removeUserFromFriends(userId: Long, removedUserId: Long) = {
-      db.run(UserSql.removeUserFromFriends(userId, removedUserId))
+   override def removeUsersRelation(userToUser: UserToUserRelation) = {
+      db.run(UserSql.removeUsersRelation(userToUser))
    }
 
    override def getByUsername(username: String) = {

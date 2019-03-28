@@ -1,8 +1,10 @@
 import com.google.inject.AbstractModule
 import java.time.Clock
 
+import actors.{EventActionRecord, ImageActionRecord, ProducerActor, Protocol}
 import dao.sql.tables.workers.SchemasCreator
 import play.api.db.slick.DatabaseConfigProvider
+import play.api.libs.concurrent.AkkaGuiceSupport
 import services._
 
 /**
@@ -15,7 +17,7 @@ import services._
  * adding `play.modules.enabled` settings to the `application.conf`
  * configuration file.
  */
-class Module extends AbstractModule {
+class Module extends AbstractModule with AkkaGuiceSupport{
 
   override def configure(): Unit = {
     // Use the system clock as the default implementation of Clock
@@ -25,8 +27,10 @@ class Module extends AbstractModule {
     bind(classOf[ApplicationTimer]).asEagerSingleton()
     // Set AtomicCounter as the implementation for Counter.
     bind(classOf[Counter]).to(classOf[AtomicCounter])
-    
+
     bind(classOf[SchemasCreator]).asEagerSingleton()
+    bindActor[ProducerActor]("kafka-producer")
+//    bindActor[ProducerActor[EventChanges]]("image-producer")
     
   }
   

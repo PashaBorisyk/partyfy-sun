@@ -23,7 +23,7 @@ import scala.concurrent.Future
 @Singleton
 class ApplicationTimer @Inject() (clock: Clock, appLifecycle: ApplicationLifecycle) {
 
-  private val logger = Logger(this.getClass)
+  private val logger = Logger("application")
 
   // This code is called when the application starts.
   private val start: Instant = clock.instant

@@ -10,15 +10,15 @@ GET           /public/*file                                              control
 ###################USER####################################
 ###########################################################
 
-GET           /user/check_existence/:username/                            controllers.rest.UserControllerImpl.checkUserExistence(username:String)
+GET           /user/check_existence/:username/                           controllers.rest.UserControllerImpl.checkUserExistence(username:String)
 GET           /user/login/                                               controllers.rest.UserControllerImpl.login(username:String,password:String)
 PUT           /user/update/                                              controllers.rest.UserControllerImpl.updateUser()
 GET           /user/find/                                                controllers.rest.UserControllerImpl.findUser(query:String)
-PUT           /user/create_users_relation/                               controllers.rest.UserControllerImpl.createUsersRelation(user_id:Long,relation_type:String)
-DELETE        /user/remove_users_relation/                               controllers.rest.UserControllerImpl.removeUsersRelation(user_id:Long)
-GET           /user/get_by_id/:user_id/                                  controllers.rest.UserControllerImpl.getById(user_id:Long)
-GET           /user/get_friends/:user_id/                                controllers.rest.UserControllerImpl.getFriends(user_id:Long)
-GET           /user/get_friends_ids/:user_id/                            controllers.rest.UserControllerImpl.getFriendsIds(user_id:Long)
+PUT           /user/create_users_relation/                               controllers.rest.UserControllerImpl.createUsersRelation(user_id:Int,relation_type:String)
+DELETE        /user/remove_users_relation/                               controllers.rest.UserControllerImpl.removeUsersRelation(user_id:Int)
+GET           /user/get_by_id/:user_id/                                  controllers.rest.UserControllerImpl.getById(user_id:Int)
+GET           /user/get_friends/:user_id/                                controllers.rest.UserControllerImpl.getFriends(user_id:Int)
+GET           /user/get_friends_ids/:user_id/                            controllers.rest.UserControllerImpl.getFriendsIds(user_id:Int)
 GET           /user/get_users_by_event_id/:event_id/                     controllers.rest.UserControllerImpl.getUsersByEvent(event_id:Long)
 
 ###########################################################
@@ -34,14 +34,13 @@ POST          /user_register/confirmRegistration_and_create_user/        control
 
 POST          /event/create/                                             controllers.rest.EventController.createEvent
 PUT           /event/update/                                             controllers.rest.EventController.updateEvent
-GET           /event/get_user_events/                                    controllers.rest.EventController.getEvents(user_id: Long, latitude: Double, longtitude: Double, last_read_event_id: Long)
-DELETE        /event/cancel/                                             controllers.rest.EventController.cancelEvent(user_id:Long, event_id: Long)
-DELETE        /event/remove_member/                                      controllers.rest.EventController.removeMember(user_id:Long,advanced_user_id:Long,event_id:Long)
-PUT           /event/add_member/                                         controllers.rest.EventController.addMemberToEvent(event_id:Long, user_id: Long, advanced_user_id: Long)
+DELETE        /event/cancel/                                             controllers.rest.EventController.cancelEvent(event_id: Long)
+DELETE        /event/remove_member/                                      controllers.rest.EventController.removeMember(event_id:Long,user_id:Int)
+PUT           /event/add_member/                                         controllers.rest.EventController.addMemberToEvent(event_id:Long, user_id: Int)
 GET           /event/get_by_id/:event_id/                                controllers.rest.EventController.getById(event_id:Long)
-GET           /event/get_by_owner_id/:user_id/                           controllers.rest.EventController.getByOwner(user_id:Long)
-GET           /event/get/                                                controllers.rest.EventController.getEvents(user_id: Long, latitude: Double, longitude: Double, last_read_event_id: Long)
-GET           /event/get_by_member_id/:user_id/                          controllers.rest.EventController.getByMember(user_id:Long)
+GET           /event/get_by_owner_id/:user_id/                           controllers.rest.EventController.getByOwner(user_id:Int)
+GET           /event/get/                                                controllers.rest.EventController.getEvents(latitude: Double, longitude: Double, last_read_event_id: Long)
+GET           /event/get_by_member_id/:user_id/                          controllers.rest.EventController.getByMember(user_id:Int)
 GET           /event/test/                                               controllers.rest.EventController.test
 
 ###########################################################
@@ -50,8 +49,8 @@ GET           /event/test/                                               control
 
 POST          /image/upload/                                             controllers.rest.ImageController.upload(event_id:Long)
 GET           /image/get_by_id/:id/                                      controllers.rest.ImageController.get(id:Long)
-GET           /image/get_by_user_id/:id/                                 controllers.rest.ImageController.getByUserId(id:Long)
-GET           /image/get_by_event_id/:id/                                controllers.rest.ImageController.getByEventId(id:Long)
+GET           /image/get_by_user_id/:user_id/                            controllers.rest.ImageController.getByUserId(user_id:Int)
+GET           /image/get_by_event_id/:event_id/                          controllers.rest.ImageController.getByEventId(event_id:Long)
 DELETE        /image/delete/:id/                                         controllers.rest.ImageController.delete(id:Long)
 
 #GET           /publisher/                                      controllers.publishers.EventPublisherWebSocket.socket

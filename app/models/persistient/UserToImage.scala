@@ -1,7 +1,10 @@
 package models.persistient
 
 
-case class UserToImage(
-                         userId: Long,
+final case class UserToImage(
+                         userId: Int,
                          imageId: Long,
+                         isMarked:Boolean,
+                         x:Float = -1,
+                         y:Float = -1
                       )

@@ -21,7 +21,7 @@ class UserControllerImpl @Inject()(
                                      cc: ControllerComponents)(implicit ec: ExecutionContext, jwtCoder: JWTCoder)
    extends AbstractController(cc) with HasDatabaseConfigProvider[JdbcProfile] {
 
-   private val logger = Logger(this.getClass)
+   private val logger = Logger("application")
 
    def checkUserExistence(username: String) = Action.async {
       implicit req =>
@@ -58,7 +58,7 @@ class UserControllerImpl @Inject()(
          }
    }
 
-   def createUsersRelation(userId: Long,relationType:String) = Action.async {
+   def createUsersRelation(userId: Int,relationType:String) = Action.async {
       implicit req =>
          logger.debug(req.toString)
          implicit val token = getToken
@@ -72,7 +72,7 @@ class UserControllerImpl @Inject()(
 
    }
 
-   def removeUsersRelation(userId: Long) = Action.async {
+   def removeUsersRelation(userId: Int) = Action.async {
       implicit req =>
          logger.debug(req.toString)
          implicit val token = getToken
@@ -85,7 +85,7 @@ class UserControllerImpl @Inject()(
 
    }
 
-   def getById(userId: Long) = Action.async {
+   def getById(userId: Int) = Action.async {
       implicit req =>
          logger.debug(req.toString)
          implicit val token = getToken
@@ -95,7 +95,7 @@ class UserControllerImpl @Inject()(
 
    }
 
-   def getFriends(userId: Long) = Action.async {
+   def getFriends(userId: Int) = Action.async {
       implicit req =>
          logger.debug(req.toString)
          implicit val token = getToken
@@ -108,7 +108,7 @@ class UserControllerImpl @Inject()(
          }
    }
 
-   def getFriendsIds(userId: Long) = Action.async {
+   def getFriendsIds(userId: Int) = Action.async {
       implicit req =>
          logger.debug(req.toString)
          implicit val token = getToken

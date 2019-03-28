@@ -5,14 +5,13 @@ import javax.inject.Inject
 import models.TokenRepRegistration
 import models.persistient.UserRegistration
 import services.database.traits.UserRegistrationService
-import services.traits.{EventMessagePublisherService, JWTCoder}
+import services.traits.JWTCoder
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class UserRegistrationServiceImpl @Inject()(private val jwtCoder: JWTCoder,
                                             private val userRegistrationDAO: UserRegistrationDAO[Future],
-                                            private val userDAO:UserDAO[Future],
-                                            eventMessagePublisherService: EventMessagePublisherService)
+                                            private val userDAO:UserDAO[Future])
                                            (implicit ec:ExecutionContext)
    extends UserRegistrationService[Future] {
 

@@ -8,7 +8,7 @@ private[sql] class EventTable(tag: Tag) extends Table[Event](tag, "event") {
 
    def id = column[Long]("id", O.PrimaryKey, O.Unique, O.AutoInc)
 
-   def ownerId = column[Long]("owner_id")
+   def ownerId = column[Int]("owner_id")
 
    def dateMills = column[Long]("date_mills")
 

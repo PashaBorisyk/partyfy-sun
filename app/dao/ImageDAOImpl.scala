@@ -12,8 +12,8 @@ import scala.concurrent.{ExecutionContext, Future}
 class ImageDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigProvider)(implicit ec: ExecutionContext)
    extends HasDatabaseConfigProvider[JdbcProfile] with ImageDAO[Future] {
 
-   override def create(eventId: Long, image:Image) = {
-      db.run(ImageSql.create(eventId,image))
+   override def create(image:Image,usersToImages: Array[UserToImage]) = {
+      db.run(ImageSql.create(image).zip(ImageSql.attachToUser(usersToImages)))
    }
 
    override def delete(id: Long) = {
@@ -28,12 +28,12 @@ class ImageDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigProvi
       db.run(ImageSql.findByEventId(eventId))
    }
 
-   override def findByUserId(userId: Long) = {
+   override def findByUserId(userId: Int) = {
       db.run(ImageSql.findByUserId(userId))
    }
 
-   override def attachToUser(userToImage: UserToImage) = {
-      db.run(ImageSql.attachToUser(userToImage))
+   override def attachToUser(usersToImages: Array[UserToImage]): Future[Option[Int]] = {
+      db.run(ImageSql.attachToUser(usersToImages))
    }
 
 }

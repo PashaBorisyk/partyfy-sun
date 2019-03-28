@@ -13,7 +13,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class UserRegistrationDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigProvider)(implicit ec: ExecutionContext)
    extends HasDatabaseConfigProvider[JdbcProfile] with UserRegistrationDAO[Future] {
 
-   private final val logger = Logger(this.getClass)
+   private final val logger = Logger("application")
 
    override def createUserRegistration(userRegistration: UserRegistration) = {
       logger.debug(s"Creating user registration : $userRegistration")
@@ -40,7 +40,7 @@ class UserRegistrationDAOImpl @Inject()(protected val dbConfigProvider: Database
       db.run(query)
    }
 
-   override def confirmRegistrationAndGetUser(userRegistration: UserRegistration, tokenGen: Long => String) = {
+   override def confirmRegistrationAndGetUser(userRegistration: UserRegistration, tokenGen: Int => String) = {
       logger.debug(s"Confirming user registration: $userRegistration")
 
       val query = UserRegistrationSql
@@ -51,12 +51,12 @@ class UserRegistrationDAOImpl @Inject()(protected val dbConfigProvider: Database
 
             if(registration.expirationDateMills < System.currentTimeMillis())
                UserRegistrationSql.update(registration.copy(state = UserRegistrationState.EXPIRED)).zip(Sql(user))
-
-            val newRegisteredUser = user.copy(token = tokenGen(user.id), state = UserState.ACTIVE)
-            UserRegistrationSql
-               .update(registration.copy(state = UserRegistrationState.CONFIRMED))
-               .zip(UserSql.updateUser(newRegisteredUser))
-
+            else {
+               val newRegisteredUser = user.copy(token = tokenGen(user.id), state = UserState.ACTIVE)
+               UserRegistrationSql
+                  .update(registration.copy(state = UserRegistrationState.CONFIRMED))
+                  .zip(UserSql.updateUser(newRegisteredUser))
+            }
          case _ => throw new RuntimeException("Cannot find user or user registration by given token")
 
       }

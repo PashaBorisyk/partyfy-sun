@@ -172,5 +172,4 @@ class UserControllerImplTest extends BaseTestSuite {
       email = s"$username@gmail.com"
    )
 
-
 }

@@ -10,7 +10,7 @@ class MongoDBExecutor @Inject()(
                                   configuration: Configuration
                                ) {
 
-   private val logger = Logger(this.getClass)
+   private val logger = Logger("application")
 
    private lazy val db: MongoDatabase = {
       logger.debug("mongo db client creating...")

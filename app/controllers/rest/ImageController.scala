@@ -18,7 +18,7 @@ class ImageController @Inject()(
                                )(implicit ec: ExecutionContext, jwtCoder: JWTCoder)
    extends AbstractController(cc) {
 
-   private val logger = Logger(this.getClass)
+   private val logger = Logger("application")
 
    def upload(eventId: Long) = Action.async(parse.multipartFormData) {
       implicit request =>
@@ -70,7 +70,7 @@ class ImageController @Inject()(
          }
    }
 
-   def getByUserId(userId: Long) = Action.async {
+   def getByUserId(userId: Int) = Action.async {
       implicit req =>
          logger.debug(req.toString())
          implicit val token = getToken

@@ -3,8 +3,8 @@ package models.persistient
 
 case class UserToUserRelation(
 
-                        userFrom: Long = 0L,
-                        userTo: Long = 0L,
+                        userFrom: Int = 0,
+                        userTo: Int = 0,
                         relation:UsersRelationType = UsersRelationType.FOLLOW
 
                      ) extends Serializable

@@ -16,17 +16,17 @@ trait UserService[T[_]] {
 
    def clientUpdateUser(user: User)(implicit token: TokenRepPrivate): T[User]
 
-   def getFriends(userId: Long)(implicit token: TokenRepPrivate): T[Seq[(User, Serializable)]]
+   def getFriends(userId: Int)(implicit token: TokenRepPrivate): T[Seq[(User, Serializable)]]
 
-   def getFriendsIds(userId: Long)(implicit token: TokenRepPrivate): T[Seq[Long]]
+   def getFriendsIds(userId: Int)(implicit token: TokenRepPrivate): T[Seq[Int]]
 
    def findUser(query: String)(implicit token: TokenRepPrivate):T[Seq[(User, Option[Image])]]
 
-   def getById(id: Long)(implicit token: TokenRepPrivate): T[(User, Option[Image])]
+   def getById(userId: Int)(implicit token: TokenRepPrivate): T[(User, Option[Image])]
 
-   def createUsersRelation(userId: Long,relationType:String)(implicit token: TokenRepPrivate): T[Int]
+   def createUsersRelation(userId: Int,relationType:String)(implicit token: TokenRepPrivate): T[Int]
 
-   def removeUsersRelation(userId: Long)(implicit token: TokenRepPrivate): T[Int]
+   def removeUsersRelation(userId: Int)(implicit token: TokenRepPrivate): T[Int]
 
    def login(username: String, password: String): T[Option[String]]
 

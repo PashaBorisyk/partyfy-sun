@@ -17,13 +17,13 @@ trait UserDAO[T[_]] {
 
    def clientUpdateUser(user:User) : T[User]
 
-   def getFriends(userId: Long): T[Seq[(User, Option[Image])]]
+   def getFriends(userId: Int): T[Seq[(User, Option[Image])]]
 
-   def getFriendsIds(userId: Long): T[Seq[Long]]
+   def getFriendsIds(userId: Int): T[Seq[Int]]
 
-   def findUser(userId: Long, query: String): T[Seq[(User, Option[Image])]]
+   def findUser(userId: Int, query: String): T[Seq[(User, Option[Image])]]
 
-   def getById(id: Long): T[(User, Option[Image])]
+   def getById(userId: Int): T[(User, Option[Image])]
 
    def createUsersRelation(userToUser: UserToUserRelation) : T[Int]
 

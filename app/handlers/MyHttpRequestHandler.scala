@@ -10,7 +10,7 @@ import services.traits.JWTCoder
 class MyHttpRequestHandler @Inject()(router: Router, jwtCoder: JWTCoder, defaultActionBuilder: DefaultActionBuilder) extends
    HttpRequestHandler {
 
-   private val logger = Logger(this.getClass)
+   private val logger = Logger("application")
 
    def handlerForRequest(requestHeader: RequestHeader): (RequestHeader, Handler) = {
       logger.debug(s"Incomming request $requestHeader")

@@ -4,8 +4,6 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.Helpers._
 import util.Util
 
-import scala.util.Random
-
 class EventControllerTest extends BaseTestSuite {
 
    override def fakeApplication() = new GuiceApplicationBuilder().configure().build()
@@ -87,7 +85,6 @@ class EventControllerTest extends BaseTestSuite {
 
          val getEventsUrl = s"$eventUrl/get/"
          val request = wsClient.url(getEventsUrl).addQueryStringParameters(
-            ("user_id", randomUserId.toString),
             ("latitude", randomCoordinate.toString),
             ("longitude", randomCoordinate.toString),
             ("last_read_event_id", randomEventId.toString)
@@ -107,7 +104,7 @@ class EventControllerTest extends BaseTestSuite {
       usernames.foreach { username =>
          val getByMemberUrl = s"$eventUrl/get_by_member_id/$randomUserId/"
          val request = wsClient.url(getByMemberUrl).addQueryStringParameters(
-            ("user_id", "1")
+            ("user_id", randomUserId.toString)
          ).withHttpHeaders(
             AUTHORIZATION -> token(username)
          ).get()

@@ -17,17 +17,6 @@ package object implicits {
 
    }
 
-   implicit val config2Properties = new ConfigLoader[Properties] {
-      override def load(config: Config, path: String): Properties = {
 
-         val properties = new Properties()
-
-         config.getConfig(path).entrySet().toArray(Array[SimpleImmutableEntry[String, ConfigValue]]()).foreach { item =>
-            properties.put(item.getKey, item.getValue.unwrapped())
-         }
-
-         properties
-      }
-   }
 
 }

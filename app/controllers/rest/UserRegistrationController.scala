@@ -18,7 +18,7 @@ class UserRegistrationController @Inject()(
                                              cc: ControllerComponents)(implicit ec: ExecutionContext, jwtCoder: JWTCoder)
    extends AbstractController(cc) with HasDatabaseConfigProvider[JdbcProfile] {
 
-   private val logger = Logger(this.getClass)
+   private val logger = Logger("application")
 
    //todo usernameToken -> usernameEmailToken -> usernamePasswordId token. End of registration
    def createRegistration(username: String, secret: String, email: String) = Action.async {

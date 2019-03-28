@@ -24,7 +24,7 @@ class AuthFilter @Inject()(implicit override val mat: Materializer,
                            val jwtCoder: JWTCoder,
                            exec: ExecutionContext) extends Filter {
 
-   private val logger = Logger(this.getClass)
+   private val logger = Logger("application")
 
    lazy val unauthorizedMap: Result => Result = {
       _ => Results.Unauthorized

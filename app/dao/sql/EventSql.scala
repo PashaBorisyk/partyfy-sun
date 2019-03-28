@@ -17,11 +17,11 @@ private[dao] object EventSql {
       eventTable.filter(_.id === id).delete
    }
 
-   def create(event: (Event, Set[Long]))(implicit ec: ExecutionContext) = {
+   def create(event:Event,usersIds: Array[Int])(implicit ec: ExecutionContext) = {
       val insertQuery = eventTable returning eventTable.map(table => table.id)
-      val execute = (insertQuery += event._1).flatMap { eventId =>
+      val execute = (insertQuery += event).flatMap { eventId =>
 
-         val eventUserConnections = event._2.map { userId =>
+         val eventUserConnections = usersIds.map { userId =>
             EventToUser(eventId, userId)
          }
          (eventToUserTable++=eventUserConnections).map(_=> eventId)
@@ -38,12 +38,13 @@ private[dao] object EventSql {
       (eventTable joinLeft imageTable on (_.eventImageId === _.id)).filter(_._1.id === id).result
    }
 
-   def getByOwnerId(userId: Long) = {
-      (eventTable joinLeft imageTable on (_.eventImageId === _.id)).filter(_._1.ownerId === userId).sortBy(_._1.id)
+   def getByOwnerId(userId: Int) = {
+      (eventTable joinLeft imageTable on (_.eventImageId === _.id)).filter{case (event,image) => event.ownerId ===
+         userId}.sortBy(_._1.dateMills.desc)
          .result
    }
 
-   def getByMemberId(userId: Long)(implicit ec: ExecutionContext) = {
+   def getByMemberId(userId: Int)(implicit ec: ExecutionContext) = {
       (eventTable joinLeft imageTable on (_.eventImageId === _.id)).filter { event =>
          event._1.id in eventToUserTable.filter { event =>
             event.userId === userId
@@ -51,13 +52,13 @@ private[dao] object EventSql {
       }.result
    }
 
-   def getIdsByMemberId(userId: Long) = {
+   def getIdsByMemberId(userId: Int) = {
       eventTable.filter { event =>
          event.id in eventToUserTable.filter { eventToUser => eventToUser.userId === userId }.map(_.eventId)
       }.map(_.id).result
    }
 
-   def getPublicEvents(userId: Long, latitude: Double, longtitude: Double, lastReadEventId: Long) = {
+   def getPublicEvents(userId: Int, latitude: Double, longtitude: Double, lastReadEventId: Long) = {
       (eventTable joinLeft imageTable on (_.eventImageId === _.id)).filter {
          case (event, _) =>
             event.privacyType === EventPrivacyType.PUBLIC &&
@@ -72,17 +73,17 @@ private[dao] object EventSql {
          .result
    }
 
-   def addUserToEvent(eventId: Long, userId: Long) = {
+   def addUserToEvent(eventId: Long, userId: Int) = {
       eventToUserTable += EventToUser(eventId, userId)
    }
 
-   def deleteUserFromEvent(userId: Long, eventId: Long) = {
+   def deleteUserFromEvent(userId: Int, eventId: Long) = {
       eventToUserTable.filter { eventToUser =>
          eventToUser.userId === userId && eventToUser.eventId === eventId
       }.delete
    }
 
-   def cancel(userId: Long, eventId: Long)(implicit ec: ExecutionContext) = {
+   def cancel(eventId:Long,userId:Int)(implicit ec: ExecutionContext) = {
       eventTable
          .filter(_.id === eventId)
          .map(_.ownerId)
@@ -93,10 +94,10 @@ private[dao] object EventSql {
             if (id == userId) {
                eventToUserTable.filter { e => e.eventId === eventId }.delete.andThen(
                   eventTable.filter(_.id === eventId).delete
-               ).andThen(Sql(id))
+               )
             }
             else
-               Sql(id)
+               Sql(0)
       }
    }
 

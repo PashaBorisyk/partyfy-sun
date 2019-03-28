@@ -18,7 +18,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class ImageWriterServiceImpl @Inject()()(implicit executionContext: ExecutionContext) extends ImageWriterService[Future] {
 
-   private val logger = Logger(this.getClass)
+   private val logger = Logger("application")
 
    lazy val PICTURE_PATH = {
 
@@ -86,7 +86,7 @@ class ImageWriterServiceImpl @Inject()()(implicit executionContext: ExecutionCon
 
    )
 
-   private def createImage(userId: Long, eventId: Long, ratio: Float, width: Long, height: Long, imageNames: ImageNames,
+   private def createImage(userId: Int, eventId: Long, ratio: Float, width: Long, height: Long, imageNames: ImageNames,
                            host: String)
    = {
       Image(

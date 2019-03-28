@@ -14,24 +14,24 @@ trait EventService[T[_]] {
 
    def delete(id: Long)(implicit token:TokenRepPrivate): T[Int]
 
-   def create(event: (Event, Set[Long]))(implicit token:TokenRepPrivate): T[Long]
+   def create(event: (Event, Array[Int]))(implicit token:TokenRepPrivate): T[Long]
 
    def update(event: Event)(implicit token:TokenRepPrivate): T[Int]
 
-   def getEventsByOwner(userId: Long)(implicit token:TokenRepPrivate): T[Seq[(Event, Option[Image])]]
+   def getEventsByOwner(userId: Int)(implicit token:TokenRepPrivate): T[Seq[(Event, Option[Image])]]
 
-   def getEventsByMemberId(userId: Long)(implicit token:TokenRepPrivate): T[Seq[(Event, Option[Image])]]
+   def getEventsByMemberId(userId: Int)(implicit token:TokenRepPrivate): T[Seq[(Event, Option[Image])]]
 
-   def getEventIdsByMemberId(userId: Long)(implicit token:TokenRepPrivate): T[Seq[Long]]
+   def getEventIdsByMemberId(userId: Int)(implicit token:TokenRepPrivate): T[Seq[Long]]
 
    def getEvents(latitude: Double, longtitude: Double, lastReadEventId: Long)(implicit token:TokenRepPrivate): T[Seq[
       (Event, Option[Image])]]
 
-   def addMemberToEvent(userId: Long, eventId: Long, advancedUserId: Long)(implicit token:TokenRepPrivate): T[Int]
+   def addUserToEvent(eventId: Long, userId: Int)(implicit token:TokenRepPrivate): T[Int]
 
-   def cancelEvent(userId: Long, eventId: Long)(implicit token:TokenRepPrivate): T[Long]
+   def cancelEvent(eventId: Long)(implicit token:TokenRepPrivate): T[Int]
 
-   def removeMember(userId: Long, advancedUserId: Long, eventId: Long)(implicit token:TokenRepPrivate): T[Int]
+   def removeUserFromEvent(eventId: Long,userId:Int)(implicit token:TokenRepPrivate): T[Int]
 
    def test()
 }

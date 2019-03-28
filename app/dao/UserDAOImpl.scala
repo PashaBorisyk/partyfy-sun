@@ -31,20 +31,20 @@ class UserDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigProvid
       db.run(UserSql.clientUpdateUser(user))
    }
 
-   override def getFriends(userId: Long) = {
+   override def getFriends(userId: Int) = {
       db.run(UserSql.getFriends(userId))
    }
 
-   override def getFriendsIds(userId: Long) = {
+   override def getFriendsIds(userId: Int) = {
       db.run(UserSql.getFriendsIds(userId))
    }
 
-   override def findUser(userId: Long, searchString: String) = {
+   override def findUser(userId: Int, searchString: String) = {
       db.run(UserSql.findUser(userId, searchString))
    }
 
-   override def getById(id: Long) = {
-      db.run(UserSql.getById(id))
+   override def getById(userId: Int) = {
+      db.run(UserSql.getById(userId))
    }
 
    override def createUsersRelation(userToUser: UserToUserRelation) = {

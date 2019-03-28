@@ -11,25 +11,26 @@ trait EventDAO[T[_]] {
 
    def getEventById(id: Long): T[Seq[(Event, Option[Image])]]
 
-   def deleteById(id: Long) : T[Int]
+   def deleteById(id: Long): T[Int]
 
-   def create(event: (Event, Set[Long])) : T[Long]
+   def create(event: Event, usersIds: Array[Int]): T[Long]
 
-   def update(event: Event) : T[Int]
+   def update(event: Event): T[Int]
 
-   def getEventsByOwner(userId: Long): T[Seq[(Event, Option[Image])]]
+   def getEventsByOwner(userId: Int): T[Seq[(Event, Option[Image])]]
 
-   def getEventsByMemberId(userId: Long): T[Seq[(Event, Option[Image])]]
+   def getEventsByMemberId(userId: Int): T[Seq[(Event, Option[Image])]]
 
-   def getEventIdsByMemberId(userId: Long): T[Seq[Long]]
+   def getEventIdsByMemberId(userId: Int): T[Seq[Long]]
 
-   def getEvents(userId: Long, latitude: Double, longtitude: Double, lastReadEventId: Long): T[Seq[(Event, Option[Image])]]
+   def getEvents(userId: Int, latitude: Double, longtitude: Double, lastReadEventId: Long): T[Seq[(Event,
+      Option[Image])]]
 
-   def addMemberToEvent(userId: Long, eventId: Long, advancedUserId: Long): T[Int]
+   def addUserToEvent(eventId: Long, userId: Int): T[Int]
 
-   def cancelEvent(userId: Long, eventId: Long): T[Long]
+   def cancelEvent(eventId: Long, userId: Int): T[Int]
 
-   def removeMember(userId: Long, advancedUserId: Long, eventId: Long): T[Int]
+   def removeUserFromEvent(eventId: Long,userId: Int): T[Int]
 
    def test()
 }

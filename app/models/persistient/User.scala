@@ -1,7 +1,7 @@
 package models.persistient
 
 final case class User(
-                  id: Long = 0,
+                  id: Int = 0,
                   username: String = "",
                   token: String = "",
                   name: String = "",

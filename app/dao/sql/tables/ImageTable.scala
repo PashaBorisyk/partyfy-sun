@@ -24,7 +24,7 @@ private[dao] class ImageTable(tag: Tag)
 
    def urlHuge = column[String]("url_huge")
 
-   def ownerId = column[Long]("owner_id")
+   def ownerId = column[Int]("owner_id")
 
    def eventId = column[Long]("event_id")
 

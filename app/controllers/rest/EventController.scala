@@ -1,31 +1,29 @@
 package controllers.rest
 
-import implicits._
+import controllers.rest.implicits._
 import javax.inject.Inject
 import models.persistient.Event
-import play.api.Logger
 import models.persistient.implicits._
+import play.api.Logger
 import play.api.libs.json.Json
 import play.api.mvc._
 import services.database.UserServiceImpl
 import services.database.traits.EventService
-import services.traits.{EventMessagePublisherService, JWTCoder}
-import util.Const
+import services.traits.JWTCoder
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.language.implicitConversions
 
 class EventController @Inject()(
-                                      cc: ControllerComponents,
-                                      val eventMessagePublisherService: EventMessagePublisherService,
-                                      val eventService: EventService[Future],
-                                      val userService: UserServiceImpl,
-                                   )(implicit ec: ExecutionContext,jwtCoder: JWTCoder)
+                                  cc: ControllerComponents,
+                                  val eventService: EventService[Future],
+                                  val userService: UserServiceImpl,
+                               )(implicit ec: ExecutionContext, jwtCoder: JWTCoder)
    extends AbstractController(cc) {
 
-   private val logger = Logger(this.getClass)
+   private val logger = Logger("application")
 
-   def createEvent() = Action.async(parse.json[(Event, Set[Long])]) {
+   def createEvent() = Action.async(parse.json[(Event, Array[Int])]) {
       implicit req =>
          logger.debug(req.toString())
          implicit val token = getToken
@@ -34,47 +32,47 @@ class EventController @Inject()(
                Created(Json.toJson(eventId))
          }
    }
-   
+
    def updateEvent() = Action.async(parse.json[Event]) {
-      implicit req=>
+      implicit req =>
          implicit val token = getToken
          eventService.update(req.body).map {
             rowsUpdated =>
                Ok(rowsUpdated.toString)
          }
    }
-   
+
    def getById(id: Long) = Action.async {
-      implicit req=>
+      implicit req =>
          logger.debug(req.toString)
          implicit val token = getToken
          eventService.getEventById(id).map {
             eventWithImage => Ok(Json.toJson(eventWithImage))
          }
-      
+
    }
-   
-   def getByOwner(userId: Long) = Action.async {
+
+   def getByOwner(userId: Int) = Action.async {
       implicit req =>
          logger.debug(req.toString())
          implicit val token = getToken
          eventService.getEventsByOwner(userId).map {
             eventWithImages => if (eventWithImages.nonEmpty) Ok(Json.toJson(eventWithImages)) else NoContent
          }
-      
+
    }
-   
-   def getByMember(userId: Long) = Action.async {
+
+   def getByMember(userId: Int) = Action.async {
       implicit req =>
          logger.debug(req.toString())
          implicit val token = getToken
          eventService.getEventsByMemberId(userId).map {
             eventsWithImages => if (eventsWithImages.nonEmpty) Ok(Json.toJson(eventsWithImages)) else NoContent
          }
-      
+
    }
 
-   def getEvents(userId: Long, latitude: Double, longtitude: Double, lastReadEventId: Long) = Action.async {
+   def getEvents(latitude: Double, longtitude: Double, lastReadEventId: Long) = Action.async {
       implicit req =>
          logger.debug(req.toString())
          implicit val token = getToken
@@ -82,37 +80,37 @@ class EventController @Inject()(
             eventsWithImages =>
                Ok(Json.toJson(eventsWithImages))
          }
-      
+
    }
-   
-   def cancelEvent(userId: Long, eventId: Long) = Action.async {
+
+   def cancelEvent(eventId: Long) = Action.async {
       implicit req =>
          logger.debug(req.toString())
          implicit val token = getToken
-         eventService.cancelEvent(userId, eventId).map {
+         eventService.cancelEvent(eventId).map {
             creatorId =>
                Ok(creatorId.toString)
          }
    }
-   
-   def removeMember(userId: Long, advancedUserId: Long, eventId: Long): Action[AnyContent] = Action.async {
+
+   def removeMember(eventId: Long, userId: Int): Action[AnyContent] = Action.async {
       implicit req =>
          logger.debug(req.toString())
          implicit val token = getToken
-         eventService.removeMember(userId, advancedUserId, eventId).map {
+         eventService.removeUserFromEvent(eventId,userId).map {
             _ => Accepted
          }
-      
+
    }
-   
-   def addMemberToEvent(eventId: Long, userId: Long, advancedUserId: Long): Action[AnyContent] = Action.async {
+
+   def addMemberToEvent(eventId: Long, userId: Int): Action[AnyContent] = Action.async {
       implicit req =>
          logger.debug(req.toString())
          implicit val token = getToken
-         eventService.addMemberToEvent(eventId, userId, advancedUserId).map {
+         eventService.addUserToEvent(eventId, userId).map {
             _ => Accepted
          }
-      
+
    }
 
    def test(): Action[AnyContent] = Action.async {
@@ -123,5 +121,5 @@ class EventController @Inject()(
             Ok("Something")
          }
    }
-   
+
 }

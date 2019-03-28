@@ -21,6 +21,8 @@ trait ImageService[T[_]] {
 
    def findByEventId(eventId: Long)(implicit token: TokenRepPrivate): T[Seq[Image]]
 
-   def findByUserId(userId: Long)(implicit token: TokenRepPrivate): T[Seq[Image]]
+   def findByUserId(userId: Int)(implicit token: TokenRepPrivate): T[Seq[Image]]
+
+   def attachUsersToImage(usersToImage: Array[UserToImage])(implicit token: TokenRepPrivate) : T[Option[Int]]
 
 }

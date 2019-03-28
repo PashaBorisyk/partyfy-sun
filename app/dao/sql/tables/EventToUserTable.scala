@@ -7,7 +7,7 @@ private[sql] class EventToUserTable(tag: Tag) extends Table[EventToUser](tag, "e
 
    def eventId = column[Long]("event_id")
 
-   def userId = column[Long]("user_id")
+   def userId = column[Int]("user_id")
 
    def isNewForMember = column[Boolean]("is_new_for_member")
 

@@ -34,9 +34,9 @@ private[dao] object UserSql {
       }.map(_ => 1).exists.result
    }
 
-   def checkUserExistence(id: Long) = {
+   def checkUserExistence(userId: Int) = {
       userTable.filter { user =>
-         user.id === id
+         user.id === userId
       }.map(_ => 1).exists.result
    }
 
@@ -52,7 +52,7 @@ private[dao] object UserSql {
       }.update(user).map(_ => user)
    }
 
-   def getFriends(userId: Long) = {
+   def getFriends(userId: Int) = {
       (userTable joinLeft imageTable on (_.imageId === _.id)).filter { case (user, _) =>
          user.state === UserState.ACTIVE && (user.id in {
             userToUserRelationTable.filter { userToUser =>
@@ -62,19 +62,19 @@ private[dao] object UserSql {
       }.sortBy { case (user, _) => user.id.desc }.result
    }
 
-   def getFriendsIds(userId: Long) = {
+   def getFriendsIds(userId: Int) = {
       userToUserRelationTable.filter { userToUser =>
          userToUser.userFrom === userId && userToUser.relation === UsersRelationType.FRIEND
       }.map(userToUser => userToUser.userFrom).result
    }
 
-   def getFollowersIds(userId: Long) = {
+   def getFollowersIds(userId: Int) = {
       userToUserRelationTable.filter { userToUser =>
          userToUser.userTo === userId && userToUser.relation === UsersRelationType.FOLLOW
       }.map(userToUser => userToUser.userFrom).result
    }
 
-   def findUser(userId: Long, searchRegex: String) = {
+   def findUser(userId: Int, searchRegex: String) = {
 
       (userTable joinLeft imageTable on (_.imageId === _.id)).filter { case (user, _) =>
          ((user.username regexLike searchRegex) ||
@@ -86,7 +86,7 @@ private[dao] object UserSql {
 
    }
 
-   def getById(userId: Long) = {
+   def getById(userId: Int) = {
       (userTable joinLeft imageTable on (_.imageId === _.id)).filter { case (user, _) =>
          user.id === userId && user.state === UserState.ACTIVE
       }.result.head
@@ -96,7 +96,7 @@ private[dao] object UserSql {
       userToUserRelationTable.insertOrUpdate(userToUser)
    }
 
-   def checkIsBlocked(userBlocked: Long, userBy: Long) = {
+   def checkIsBlocked(userBlocked: Int, userBy: Int) = {
       userToUserRelationTable.filter { usersRelation =>
          usersRelation.userTo === userBlocked &&
             usersRelation.userFrom === userBy &&

@@ -20,40 +20,40 @@ class EventDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigProvi
       db.run(EventSql.deleteById(id))
    }
 
-   override def create(event: (Event, Set[Long])) = {
-      db.run(EventSql.create(event).map(_.asInstanceOf[Int]))
+   override def create(event: Event, usersIds: Array[Int]) = {
+      db.run(EventSql.create(event, usersIds).map(_.asInstanceOf[Int]))
    }
 
    override def update(event: Event) = {
       db.run(EventSql.update(event))
    }
 
-   override def getEventsByOwner(userId: Long) = {
+   override def getEventsByOwner(userId: Int) = {
       db.run(EventSql.getByOwnerId(userId))
    }
 
-   override def getEventsByMemberId(userId: Long) = {
+   override def getEventsByMemberId(userId: Int) = {
       db.run(EventSql.getByMemberId(userId))
    }
 
-   override def getEventIdsByMemberId(userId: Long): Future[Seq[Long]] = {
+   override def getEventIdsByMemberId(userId: Int): Future[Seq[Long]] = {
       db.run(EventSql.getIdsByMemberId(userId))
    }
 
-   override def getEvents(userId: Long, latitude: Double, longtitude: Double, lastReadEventId: Long) = {
+   override def getEvents(userId: Int, latitude: Double, longtitude: Double, lastReadEventId: Long) = {
       db.run(EventSql.getPublicEvents(userId, latitude, longtitude, lastReadEventId))
    }
 
-   override def addMemberToEvent(eventId: Long, userId: Long, advancedUserId: Long) = {
-      db.run(EventSql.addUserToEvent(eventId,userId))
+   override def addUserToEvent(eventId: Long, userId: Int) = {
+      db.run(EventSql.addUserToEvent(eventId, userId))
    }
 
-   override def cancelEvent(userId: Long, eventId: Long) = {
-      db.run(EventSql.cancel(eventId,userId))
+   override def cancelEvent(eventId: Long, userId: Int) = {
+      db.run(EventSql.cancel(eventId, userId))
    }
 
-   override def removeMember(userId: Long, advancedUserId: Long, eventId: Long) = {
-      db.run(EventSql.deleteUserFromEvent(userId,eventId))
+   override def removeUserFromEvent( eventId: Long,userId: Int) = {
+      db.run(EventSql.deleteUserFromEvent(userId, eventId))
    }
 
    override def test(): Unit = {

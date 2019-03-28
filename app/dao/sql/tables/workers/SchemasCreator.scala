@@ -14,7 +14,7 @@ class SchemasCreator @Inject()(
                                  protected val dbConfigProvider: DatabaseConfigProvider)(implicit ec: ExecutionContext)
    extends HasDatabaseConfigProvider[JdbcProfile] {
 
-   private val logger = Logger(this.getClass)
+   private val logger = Logger("application")
 
    lazy val schema = TableQuery[ImageTable].schema
    lazy val schema2 = TableQuery[EventTable].schema

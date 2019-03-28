@@ -6,7 +6,7 @@ import models.persistient.{User, UserSex, UserState}
 
 private[sql] class UserTable(tag: Tag) extends Table[User](tag, "user") {
 
-   def id = column[Long]("id",O.PrimaryKey, O.AutoInc)
+   def id = column[Int]("id",O.PrimaryKey, O.AutoInc)
 
    def username = column[String]("username", O.Unique)
 

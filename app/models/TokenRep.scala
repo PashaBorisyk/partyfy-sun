@@ -19,7 +19,7 @@ object TokenRep {
    final val SECRET = "secret"
    final val EMAIL = "email"
 
-   def apply(tokenRep:TokenRep)(userId:Long): TokenRep = TokenRepPrivate(
+   def apply(tokenRep:TokenRep)(userId:Int): TokenRep = TokenRepPrivate(
       userId,
       tokenRep.username, tokenRep.secret,
       tokenRep.email
@@ -35,7 +35,7 @@ case class TokenRepRegistration(
 }
 
 case class TokenRepPrivate(
-                             userId:Long,
+                             userId:Int,
                              override val username:String,
                              override val secret:String,
                              override val email:String,

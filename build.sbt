@@ -29,7 +29,8 @@ libraryDependencies ++= Seq(
    "org.scalatest" %% "scalatest" % "3.0.5" % "test",
    "org.scalatestplus.play" %% "scalatestplus-play" % "4.0.1" % "test",
    "com.h2database" % "h2" % "1.4.192",
-   "com.ning" % "async-http-client" % "1.9.40"
+   "com.ning" % "async-http-client" % "1.9.40",
+   "com.typesafe.akka" %% "akka-stream-kafka" % "1.0.1"
 )
 
 mainClass in assembly := Some("play.core.server.ProdServerStart")

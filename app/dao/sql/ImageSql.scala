@@ -12,45 +12,59 @@ private[dao] object ImageSql {
    private lazy val userToImageTable = TableQuery[UserToImageTable]
    private lazy val eventTable = TableQuery[EventTable]
 
-   def create(eventId: Long, image: Image)(implicit ec: ExecutionContext) = {
+   def create(image: Image)(implicit ec: ExecutionContext) = {
       val query = imageTable returning imageTable.map(_.id)
-      eventTable.filter(_.id === eventId).result.head.zip(query += image).flatMap {
-         eventWithImageID =>
-            eventTable.insertOrUpdate(eventWithImageID._1.copy(eventImageId = eventWithImageID._2)).map { _ =>
-               image.copy(id = eventWithImageID._2)
-            }
-      }
+      eventTable
+         .filter(_.id === image.eventId)
+         .result
+         .headOption
+         .zip(query += image)
+         .flatMap {
+            case (Some(event), imageId) =>
+               eventTable
+                  .insertOrUpdate(event.copy(eventImageId = imageId))
+                  .map { _ =>
+                     image.copy(id = imageId)
+                  }
+            case (None,imageId)=> Sql(image.copy(id = imageId))
+         }
    }
 
    def delete(id: Long) = {
-      imageTable.filter { image => image.id === id }.delete
+      imageTable
+         .filter { image => image.id === id }
+         .delete
    }
 
    def getById(id: Long) = {
       imageTable
-         .filter { image => image.id === id}
+         .filter { image => image.id === id }
          .result
          .headOption
    }
 
    def findByEventId(eventId: Long) = {
-      imageTable.filter { image =>
-         image.eventId === eventId
-      }.sortBy(_.creationMills.desc).result
+      imageTable
+         .filter { image => image.eventId === eventId }
+         .sortBy(_.creationMills.desc)
+         .result
    }
 
-   def findByUserId(userId: Long) = {
+   def findByUserId(userId: Int) = {
 
-      imageTable.filter { image =>
-         image.id in userToImageTable
-            .filter(_.userId === userId)
-            .map(_.imageId)
-      }.sortBy(_.creationMills.desc).result
+      imageTable
+         .filter { image =>
+            image.id in userToImageTable
+               .filter(_.userId === userId)
+               .map(_.imageId)
+         }
+         .sortBy(_.creationMills.desc)
+         .result
 
    }
 
-   def attachToUser(userToImage: UserToImage)(implicit ec:ExecutionContext) = {
-      (userToImageTable+=userToImage).map(_=>userToImage)
+   def attachToUser(usersToImages: Array[UserToImage])(implicit ec: ExecutionContext) = {
+      userToImageTable ++= usersToImages
    }
 
 }

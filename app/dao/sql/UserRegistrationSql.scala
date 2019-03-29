@@ -1,53 +1,63 @@
 package dao.sql
 
 import dao.sql.tables.UserRegistrationTable
-import dao.sql.tables.implicits._
-import models.persistient.{UserRegistration, UserRegistrationState}
+import models.persistient.UserRegistration
 import slick.jdbc.PostgresProfile.api._
-
-import scala.concurrent.ExecutionContext
-
 
 private[dao] object UserRegistrationSql extends Sql {
 
    private val userRegistrationTable = TableQuery[UserRegistrationTable]
 
-   def create(userRegistration: UserRegistration)(implicit ec: ExecutionContext) = {
-      (userRegistrationTable returning userRegistrationTable.map(_.id) += userRegistration).map { userRegistrationId =>
-         userRegistration.copy(id = userRegistrationId)
-      }
+   def create(userRegistration: UserRegistration) = {
+      (userRegistrationTable returning userRegistrationTable.map(_.id)
+         into ((registration, id) => registration.copy(id))) += userRegistration
    }
 
    def existsWithRegistrationToken(registrationToken: String) = {
-      userRegistrationTable.filter {
-         user =>
+      _existsWithRegistrationToken(registrationToken).result
+   }
+
+   private val _existsWithRegistrationToken = Compiled {
+      registrationToken: Rep[String] =>
+         userRegistrationTable.filter { user =>
             user.registrationToken === registrationToken
-      }.exists.result
+         }.exists
    }
 
    def findByRegistrationToken(registrationToken: String) = {
-      userRegistrationTable.filter {
-         user =>
+      _getByRegistrationToken(registrationToken).result.headOption
+   }
+
+   private val _getByRegistrationToken = Compiled {
+      registrationToken: Rep[String] =>
+         userRegistrationTable.filter { user =>
             user.registrationToken === registrationToken
-      }.result.headOption
+         }
    }
 
-   def update(userRegistration: UserRegistration)(implicit ec: ExecutionContext) = {
-      userRegistrationTable.insertOrUpdate(userRegistration).map { _ =>
-         userRegistration
-      }
+   def update(userRegistration: UserRegistration) = {
+      userRegistrationTable.insertOrUpdate(userRegistration)
    }
 
-   def getByUsernameAndPublicTokenFirst(username: String, publicTokenFirst: String) = {
-      userRegistrationTable.filter {
-         userRegistration =>
+   def getByUsernameAndPublicTokenFirst(username: String,
+                                        registrationToken: String) = {
+      _getByUsernameAndPublicTokenFirst(username, registrationToken).result.headOption
+   }
+
+   private val _getByUsernameAndPublicTokenFirst = Compiled {
+      (username: Rep[String], registrationToken: Rep[String]) =>
+         userRegistrationTable.filter { userRegistration =>
             (userRegistration.username === username) &&
-               (userRegistration.registrationToken === publicTokenFirst)
-      }.result.headOption
+               (userRegistration.registrationToken === registrationToken)
+         }
    }
 
    def deleteUserRegistration(registrationId: Long) = {
-      userRegistrationTable.filter(_.id === registrationId).delete
+      _getById(registrationId).delete
+   }
+
+   private val _getById = Compiled { registrationId: Rep[Long] =>
+      userRegistrationTable.filter(_.id === registrationId)
    }
 
 }

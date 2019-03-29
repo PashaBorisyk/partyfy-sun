@@ -23,14 +23,16 @@ trait EventDAO[T[_]] {
 
    def getEventIdsByMemberId(userId: Int): T[Seq[Long]]
 
-   def getEvents(userId: Int, latitude: Double, longtitude: Double, lastReadEventId: Long): T[Seq[(Event,
-      Option[Image])]]
+   def getEvents(userId: Int,
+                 latitude: Double,
+                 longtitude: Double,
+                 lastReadEventId: Long): T[Seq[(Event, Option[Image])]]
 
    def addUserToEvent(eventId: Long, userId: Int): T[Int]
 
    def cancelEvent(eventId: Long, userId: Int): T[Int]
 
-   def removeUserFromEvent(eventId: Long,userId: Int): T[Int]
+   def removeUserFromEvent(eventId: Long, userId: Int): T[Int]
 
    def test()
 }

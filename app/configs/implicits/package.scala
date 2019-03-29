@@ -13,20 +13,24 @@ package object implicits {
 
          val properties = new Properties()
 
-         config.getConfig(path).entrySet().toArray(Array[SimpleImmutableEntry[String, ConfigValue]]()).foreach { item =>
-            properties.put(item.getKey, item.getValue.unwrapped())
-         }
+         config
+            .getConfig(path)
+            .entrySet()
+            .toArray(Array[SimpleImmutableEntry[String, ConfigValue]]())
+            .foreach { item =>
+               properties.put(item.getKey, item.getValue.unwrapped())
+            }
 
          properties
       }
    }
 
-   implicit class PropertiesImplicits(properties:Properties){
+   implicit class PropertiesImplicits(properties: Properties) {
 
       def toMap = {
-         var map = Map[String,String]()
-         properties.forEach{ (key,value) =>
-            map += (key.toString->value.toString)
+         var map = Map[String, String]()
+         properties.forEach { (key, value) =>
+            map += (key.toString -> value.toString)
          }
          map
       }

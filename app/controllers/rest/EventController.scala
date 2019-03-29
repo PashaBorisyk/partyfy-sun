@@ -27,53 +27,49 @@ class EventController @Inject()(
       implicit req =>
          logger.debug(req.toString())
          implicit val token = getToken
-         eventService.create(req.body).map {
-            eventId =>
-               Created(Json.toJson(eventId))
+         eventService.create(req.body).map { eventId =>
+            Created(Json.toJson(eventId))
          }
    }
 
-   def updateEvent() = Action.async(parse.json[Event]) {
-      implicit req =>
-         implicit val token = getToken
-         eventService.update(req.body).map {
-            rowsUpdated =>
-               Ok(rowsUpdated.toString)
-         }
+   def updateEvent() = Action.async(parse.json[Event]) { implicit req =>
+      implicit val token = getToken
+      eventService.update(req.body).map { rowsUpdated =>
+         Ok(rowsUpdated.toString)
+      }
    }
 
-   def getById(id: Long) = Action.async {
-      implicit req =>
-         logger.debug(req.toString)
-         implicit val token = getToken
-         eventService.getEventById(id).map {
-            eventWithImage => Ok(Json.toJson(eventWithImage))
-         }
+   def getById(id: Long) = Action.async { implicit req =>
+      logger.debug(req.toString)
+      implicit val token = getToken
+      eventService.getEventById(id).map { eventWithImage =>
+         Ok(Json.toJson(eventWithImage))
+      }
 
    }
 
-   def getByOwner(userId: Int) = Action.async {
-      implicit req =>
-         logger.debug(req.toString())
-         implicit val token = getToken
-         eventService.getEventsByOwner(userId).map {
-            eventWithImages => if (eventWithImages.nonEmpty) Ok(Json.toJson(eventWithImages)) else NoContent
-         }
+   def getByOwner(userId: Int) = Action.async { implicit req =>
+      logger.debug(req.toString())
+      implicit val token = getToken
+      eventService.getEventsByOwner(userId).map { eventWithImages =>
+         if (eventWithImages.nonEmpty) Ok(Json.toJson(eventWithImages))
+         else NoContent
+      }
 
    }
 
-   def getByMember(userId: Int) = Action.async {
-      implicit req =>
-         logger.debug(req.toString())
-         implicit val token = getToken
-         eventService.getEventsByMemberId(userId).map {
-            eventsWithImages => if (eventsWithImages.nonEmpty) Ok(Json.toJson(eventsWithImages)) else NoContent
-         }
+   def getByMember(userId: Int) = Action.async { implicit req =>
+      logger.debug(req.toString())
+      implicit val token = getToken
+      eventService.getEventsByMemberId(userId).map { eventsWithImages =>
+         if (eventsWithImages.nonEmpty) Ok(Json.toJson(eventsWithImages))
+         else NoContent
+      }
 
    }
 
-   def getEvents(latitude: Double, longtitude: Double, lastReadEventId: Long) = Action.async {
-      implicit req =>
+   def getEvents(latitude: Double, longtitude: Double, lastReadEventId: Long) =
+      Action.async { implicit req =>
          logger.debug(req.toString())
          implicit val token = getToken
          eventService.getEvents(latitude, longtitude, lastReadEventId).map {
@@ -81,45 +77,42 @@ class EventController @Inject()(
                Ok(Json.toJson(eventsWithImages))
          }
 
+      }
+
+   def cancelEvent(eventId: Long) = Action.async { implicit req =>
+      logger.debug(req.toString())
+      implicit val token = getToken
+      eventService.cancelEvent(eventId).map { creatorId =>
+         Ok(creatorId.toString)
+      }
    }
 
-   def cancelEvent(eventId: Long) = Action.async {
-      implicit req =>
+   def removeMember(eventId: Long, userId: Int): Action[AnyContent] =
+      Action.async { implicit req =>
          logger.debug(req.toString())
          implicit val token = getToken
-         eventService.cancelEvent(eventId).map {
-            creatorId =>
-               Ok(creatorId.toString)
+         eventService.removeUserFromEvent(eventId, userId).map { _ =>
+            Accepted
          }
-   }
 
-   def removeMember(eventId: Long, userId: Int): Action[AnyContent] = Action.async {
-      implicit req =>
+      }
+
+   def addMemberToEvent(eventId: Long, userId: Int): Action[AnyContent] =
+      Action.async { implicit req =>
          logger.debug(req.toString())
          implicit val token = getToken
-         eventService.removeUserFromEvent(eventId,userId).map {
-            _ => Accepted
+         eventService.addUserToEvent(eventId, userId).map { _ =>
+            Accepted
          }
 
-   }
+      }
 
-   def addMemberToEvent(eventId: Long, userId: Int): Action[AnyContent] = Action.async {
-      implicit req =>
-         logger.debug(req.toString())
-         implicit val token = getToken
-         eventService.addUserToEvent(eventId, userId).map {
-            _ => Accepted
-         }
-
-   }
-
-   def test(): Action[AnyContent] = Action.async {
-      implicit req =>
-         logger.debug("Test method")
-         eventService.test()
-         Future {
-            Ok("Something")
-         }
+   def test(): Action[AnyContent] = Action.async { implicit req =>
+      logger.debug("Test method")
+      eventService.test()
+      Future {
+         Ok("Something")
+      }
    }
 
 }

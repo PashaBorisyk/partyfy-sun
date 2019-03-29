@@ -11,7 +11,8 @@ import scala.concurrent.ExecutionContext
 
 @Singleton
 class SchemasCreator @Inject()(
-                                 protected val dbConfigProvider: DatabaseConfigProvider)(implicit ec: ExecutionContext)
+                                 protected val dbConfigProvider: DatabaseConfigProvider)(
+                                 implicit ec: ExecutionContext)
    extends HasDatabaseConfigProvider[JdbcProfile] {
 
    private val logger = Logger("application")
@@ -25,16 +26,19 @@ class SchemasCreator @Inject()(
    lazy val schema8 = TableQuery[UserToImageTable].schema
 
    lazy val schemaArr = Array(
-      schema, schema2,
+      schema,
+      schema2,
       schema4,
-      schema5, schema6,
-      schema7,schema8
+      schema5,
+      schema6,
+      schema7,
+      schema8
    )
 
    db.run(
-//      DBIO.seq(schemaArr.map(schema => schema.dropIfExists): _*)
-         DBIO.seq(schemaArr.map(schema => schema.create): _*)
+      //      DBIO.seq(schemaArr.map(schema => schema.dropIfExists): _*)
+      DBIO.seq(schemaArr.map(schema => schema.create): _*)
    ).recover {
-      case e: Exception => logger.debug("Error while creating tables : ", e)
+         case e: Exception => logger.debug("Error while creating tables : ", e)
    }
 }

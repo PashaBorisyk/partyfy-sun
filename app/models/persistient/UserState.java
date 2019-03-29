@@ -2,6 +2,8 @@ package models.persistient;
 
 public enum UserState {
 
-    ACTIVE,REGISTRATION,BLOCKED
+    ACTIVE,
+    REGISTRATION,
+    BLOCKED
 
 }

@@ -9,11 +9,13 @@ import scala.language.higherKinds
 @ImplementedBy(classOf[UserRegistrationDAOImpl])
 trait UserRegistrationDAO[T[_]] {
 
-   def createUserRegistration(userRegistration: UserRegistration) : T[UserRegistration]
+  def createUserRegistration(
+      userRegistration: UserRegistration): T[UserRegistration]
 
-   def confirmRegistrationAndGetUser(userRegistration: UserRegistration, tokenGen : Int => String)
-   : T[(UserRegistration,User)]
+  def confirmRegistrationAndGetUser(
+      userRegistration: UserRegistration,
+      tokenGen: Int => String): T[(UserRegistration, User)]
 
-   def deleteUserRegistration(id: Long): T[Int]
+  def deleteUserRegistration(id: Long): T[Int]
 
 }

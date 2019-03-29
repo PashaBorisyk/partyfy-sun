@@ -1,12 +1,5 @@
 package implicits
 
-
-import java.util.AbstractMap.SimpleImmutableEntry
-import java.util.Properties
-
-import com.typesafe.config.{Config, ConfigValue}
-import play.api.ConfigLoader
-
 import scala.language.implicitConversions
 
 package object implicits {
@@ -16,7 +9,5 @@ package object implicits {
       @inline def notNullOrEmpty = !(string == null || string.trim.isEmpty)
 
    }
-
-
 
 }

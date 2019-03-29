@@ -21,11 +21,16 @@ sealed trait EventActionRecord extends Protocol with Record {
 }
 
 object EventActionRecord {
-   implicit val eventUpdatedFormat: OWrites[EventUpdatedRecord] = Json.writes[EventUpdatedRecord]
-   implicit val eventDeletedFormat: OWrites[EventDeletedRecord] = Json.writes[EventDeletedRecord]
-   implicit val eventCreatedFormat: OWrites[EventCreatedRecord] = Json.writes[EventCreatedRecord]
-   implicit val userWasRemovedFormat: OWrites[EventUserRemovedRecord] = Json.writes[EventUserRemovedRecord]
-   implicit val userWasAddedFormat: OWrites[EventUserAddedRecord] = Json.writes[EventUserAddedRecord]
+   implicit val eventUpdatedFormat: OWrites[EventUpdatedRecord] =
+      Json.writes[EventUpdatedRecord]
+   implicit val eventDeletedFormat: OWrites[EventDeletedRecord] =
+      Json.writes[EventDeletedRecord]
+   implicit val eventCreatedFormat: OWrites[EventCreatedRecord] =
+      Json.writes[EventCreatedRecord]
+   implicit val userWasRemovedFormat: OWrites[EventUserRemovedRecord] =
+      Json.writes[EventUserRemovedRecord]
+   implicit val userWasAddedFormat: OWrites[EventUserAddedRecord] =
+      Json.writes[EventUserAddedRecord]
 }
 
 final case class EventUpdatedRecord(
@@ -73,7 +78,7 @@ final case class EventUserRemovedRecord(
                                           eventId: Long,
                                           passiveUserId: Int,
                                           time: Long = System.currentTimeMillis()
-                               ) extends EventActionRecord {
+                                       ) extends EventActionRecord {
 
    override private[actors] val TOPIC_NAME = "event-user-removed"
 
@@ -87,7 +92,7 @@ final case class EventUserAddedRecord(
                                         eventId: Long,
                                         passiveUserId: Int,
                                         time: Long = System.currentTimeMillis()
-                             ) extends EventActionRecord {
+                                     ) extends EventActionRecord {
 
    override private[actors] val TOPIC_NAME = "event-user-added"
 
@@ -100,31 +105,32 @@ sealed trait ImageActionRecord extends Protocol with Record {
 }
 
 object ImageActionRecord {
-   implicit val imageWasAddedFormat: OWrites[ImageAddedRecord] = Json.writes[ImageAddedRecord]
-   implicit val userWasAttachedToImageFormat: OWrites[ImageUserAttachedRecord] = Json.writes[ImageUserAttachedRecord]
+   implicit val imageWasAddedFormat: OWrites[ImageAddedRecord] =
+      Json.writes[ImageAddedRecord]
+   implicit val userWasAttachedToImageFormat: OWrites[ImageUserAttachedRecord] =
+      Json.writes[ImageUserAttachedRecord]
 }
 
 final case class ImageAddedRecord(
-                                 userId: Int,
-                                 username: String,
-                                 imageId: Long,
-                                 eventId: Long,
-                                 markedUsers: Array[Int],
-                                 time: Long = System.currentTimeMillis()
-                              )
-   extends ImageActionRecord {
+                                    userId: Int,
+                                    username: String,
+                                    imageId: Long,
+                                    eventId: Long,
+                                    markedUsers: Array[Int],
+                                    time: Long = System.currentTimeMillis()
+                                 ) extends ImageActionRecord {
    override private[actors] val TOPIC_NAME = "image-added"
 
    override def toJson = Json.toJson(this).toString()
 }
 
 final case class ImageUserAttachedRecord(
-                                            userId: Int,
-                                            username: String,
-                                            imageId: Long,
-                                            markedUsers: Array[Int],
-                                            time: Long = System.currentTimeMillis()
-                                         ) extends ImageActionRecord {
+                                           userId: Int,
+                                           username: String,
+                                           imageId: Long,
+                                           markedUsers: Array[Int],
+                                           time: Long = System.currentTimeMillis()
+                                        ) extends ImageActionRecord {
 
    override private[actors] val TOPIC_NAME = "image-user-attached"
 
@@ -135,8 +141,10 @@ final case class ImageUserAttachedRecord(
 sealed trait UserActionRecord extends Protocol with Record {
    val receiverUser: Int
 
-   implicit val usersRelationTypeWrites:Writes[UsersRelationType] = (o: UsersRelationType) => JsString(o.toString)
-   implicit val userRelationCreatedWrites: OWrites[UserRelationCreatedRecord] = Json.writes[UserRelationCreatedRecord]
+   implicit val usersRelationTypeWrites: Writes[UsersRelationType] =
+      (o: UsersRelationType) => JsString(o.toString)
+   implicit val userRelationCreatedWrites: OWrites[UserRelationCreatedRecord] =
+      Json.writes[UserRelationCreatedRecord]
 
 }
 

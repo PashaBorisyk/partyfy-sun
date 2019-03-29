@@ -3,7 +3,9 @@ package models
 import play.api.libs.json.Json
 import play.api.libs.json.Json.{JsValueWrapper => Wrapper}
 
-sealed abstract class TokenRep (val username:String, val secret:String, val email:String) {
+sealed abstract class TokenRep(val username: String,
+                               val secret: String,
+                               val email: String) {
 
    def toMapOfFields: Seq[(String, Wrapper)] = Vector(
       TokenRep.USERNAME -> username,
@@ -19,31 +21,29 @@ object TokenRep {
    final val SECRET = "secret"
    final val EMAIL = "email"
 
-   def apply(tokenRep:TokenRep)(userId:Int): TokenRep = TokenRepPrivate(
+   def apply(tokenRep: TokenRep)(userId: Int): TokenRep = TokenRepPrivate(
       userId,
-      tokenRep.username, tokenRep.secret,
+      tokenRep.username,
+      tokenRep.secret,
       tokenRep.email
    )
 }
 
 case class TokenRepRegistration(
-                                  override val username:String,
-                                  override val secret:String,
-                                  override val email:String
-                               ) extends TokenRep(username, secret,email){
-
-}
+                                  override val username: String,
+                                  override val secret: String,
+                                  override val email: String
+                               ) extends TokenRep(username, secret, email) {}
 
 case class TokenRepPrivate(
-                             userId:Int,
-                             override val username:String,
-                             override val secret:String,
-                             override val email:String,
-                             token:String = null
-                          ) extends TokenRep (username,secret,email) {
+                             userId: Int,
+                             override val username: String,
+                             override val secret: String,
+                             override val email: String,
+                             token: String = null
+                          ) extends TokenRep(username, secret, email) {
 
-
-   override val toMapOfFields : Seq[(String, Wrapper)] = super.toMapOfFields :+
+   override val toMapOfFields: Seq[(String, Wrapper)] = super.toMapOfFields :+
       (TokenRep.USER_ID -> Json.toJsFieldJsValueWrapper(userId))
 
 }

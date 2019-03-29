@@ -131,7 +131,7 @@ class EventControllerTest extends BaseTestSuite {
       }
    }
 
-   "getById" in {
+   "getByIdJoinImages" in {
 
       usernames.foreach { username =>
          val getByIdUrl = s"$eventUrl/get_by_id/$randomEventId/"

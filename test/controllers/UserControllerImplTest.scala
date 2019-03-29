@@ -99,7 +99,7 @@ class UserControllerImplTest extends BaseTestSuite {
 
    }
 
-   "getById" in {
+   "getByIdJoinImages" in {
 
       usernames.foreach { username =>
          val getByIdUrl = s"$baseUrl/user/get_by_id/$randomUserId/"

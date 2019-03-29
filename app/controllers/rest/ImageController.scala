@@ -25,61 +25,59 @@ class ImageController @Inject()(
          logger.debug(request.toString())
          implicit val token = getToken
 
-         request.body.file(Const.PART_FILE).map { picture =>
-            imageService.create(eventId, picture, request.host).map {
-               image => Created(Json.toJson(image))
+         request.body
+            .file(Const.PART_FILE)
+            .map { picture =>
+               imageService.create(eventId, picture, request.host).map { image =>
+                  Created(Json.toJson(image))
+               }
+
             }
-
-         }.getOrElse(Future.successful(
-            BadRequest(s"No image part with name ${Const.PART_FILE} found")
-         ))
+            .getOrElse(Future.successful(
+               BadRequest(s"No image part with name ${Const.PART_FILE} found")
+            ))
 
    }
 
-   def get(id: Long) = Action.async {
-      implicit req =>
-         logger.debug(req.toString())
-         implicit val token = getToken
-         imageService.findById(id).map {
-            image =>
-               if (image.isEmpty)
-                  NoContent
-               else
-                  Ok(Json.toJson(image))
-         }
+   def get(id: Long) = Action.async { implicit req =>
+      logger.debug(req.toString())
+      implicit val token = getToken
+      imageService.findById(id).map { image =>
+         if (image.isEmpty)
+            NoContent
+         else
+            Ok(Json.toJson(image))
+      }
    }
 
-   def delete(id: Long) = Action.async {
-      implicit req =>
-         logger.debug(req.toString())
-         implicit val token = getToken
-         imageService.delete(id).map {
-            deletedRows => Accepted(deletedRows.toString)
-         }
+   def delete(id: Long) = Action.async { implicit req =>
+      logger.debug(req.toString())
+      implicit val token = getToken
+      imageService.delete(id).map { deletedRows =>
+         Accepted(deletedRows.toString)
+      }
    }
 
-   def getByEventId(eventId: Long) = Action.async {
-      implicit req =>
-         logger.debug(req.toString())
-         implicit val token = getToken
-         imageService.findByEventId(eventId).map {
-            images => if (images.nonEmpty)
-               Ok(Json.toJson(images))
-            else
-               NoContent
-         }
+   def getByEventId(eventId: Long) = Action.async { implicit req =>
+      logger.debug(req.toString())
+      implicit val token = getToken
+      imageService.findByEventId(eventId).map { images =>
+         if (images.nonEmpty)
+            Ok(Json.toJson(images))
+         else
+            NoContent
+      }
    }
 
-   def getByUserId(userId: Int) = Action.async {
-      implicit req =>
-         logger.debug(req.toString())
-         implicit val token = getToken
-         imageService.findByUserId(userId).map {
-            images => if (images.nonEmpty)
-               Ok(Json.toJson(images))
-            else
-               NoContent
-         }
+   def getByUserId(userId: Int) = Action.async { implicit req =>
+      logger.debug(req.toString())
+      implicit val token = getToken
+      imageService.findByUserId(userId).map { images =>
+         if (images.nonEmpty)
+            Ok(Json.toJson(images))
+         else
+            NoContent
+      }
    }
 
 }

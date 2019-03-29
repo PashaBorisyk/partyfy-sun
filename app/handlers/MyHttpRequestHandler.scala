@@ -7,12 +7,15 @@ import play.api.mvc._
 import play.api.routing.Router
 import services.traits.JWTCoder
 
-class MyHttpRequestHandler @Inject()(router: Router, jwtCoder: JWTCoder, defaultActionBuilder: DefaultActionBuilder) extends
-   HttpRequestHandler {
+class MyHttpRequestHandler @Inject()(router: Router,
+                                     jwtCoder: JWTCoder,
+                                     defaultActionBuilder: DefaultActionBuilder)
+   extends HttpRequestHandler {
 
    private val logger = Logger("application")
 
-   def handlerForRequest(requestHeader: RequestHeader): (RequestHeader, Handler) = {
+   def handlerForRequest(
+                           requestHeader: RequestHeader): (RequestHeader, Handler) = {
       logger.debug(s"Incomming request $requestHeader")
       router.routes.lift(requestHeader) match {
          case Some(handler) =>
@@ -21,12 +24,15 @@ class MyHttpRequestHandler @Inject()(router: Router, jwtCoder: JWTCoder, default
                try {
                   val tokenRep = jwtCoder.decodePrivateToken(token)
                   Handler.applyStages(
-                     requestHeader.withHeaders(requestHeader.headers), handler
+                     requestHeader.withHeaders(requestHeader.headers),
+                     handler
                   )
                } catch {
                   case e: Exception =>
                      logger.debug("Error while parsing token : ", e)
-                     (requestHeader, defaultActionBuilder(Results.Unauthorized("Unable to parse token")))
+                     (requestHeader,
+                        defaultActionBuilder(
+                           Results.Unauthorized("Unable to parse token")))
                }
 
             } else {
@@ -34,22 +40,21 @@ class MyHttpRequestHandler @Inject()(router: Router, jwtCoder: JWTCoder, default
                if (path.size > 1) {
                   path(1) match {
                      case "user_register" =>
-                        logger.debug(s"Incoming login request : ${requestHeader.path} with params : ${requestHeader.rawQueryString}")
+                        logger.debug(
+                           s"Incoming login request : ${requestHeader.path} with params : ${requestHeader.rawQueryString}")
                         Handler.applyStages(requestHeader, handler)
                      case "user" if path(2) == "login" =>
-                        logger.debug(s"Incoming login request : ${requestHeader.path} with params : ${requestHeader.rawQueryString}")
+                        logger.debug(
+                           s"Incoming login request : ${requestHeader.path} with params : ${requestHeader.rawQueryString}")
                         Handler.applyStages(requestHeader, handler)
                      case _ => (requestHeader, defaultActionBuilder(Results.Forbidden))
                   }
-               }
-               else if (path.isEmpty) {
+               } else if (path.isEmpty) {
                   Handler.applyStages(requestHeader, handler)
-               }
-               else {
+               } else {
                   (requestHeader, defaultActionBuilder(Results.Forbidden))
                }
             }
-
 
          case None =>
             logger.debug("Returning 404, cause required page not found")

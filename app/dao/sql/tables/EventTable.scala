@@ -1,7 +1,7 @@
 package dao.sql.tables
 
-import models.persistient.{Event, EventPrivacyType, UserSex}
-import implicits._
+import dao.sql.tables.implicits._
+import models.persistient.{Event, EventPrivacyType, EventState, UserSex}
 import slick.jdbc.PostgresProfile.api._
 
 private[sql] class EventTable(tag: Tag) extends Table[Event](tag, "event") {
@@ -40,13 +40,28 @@ private[sql] class EventTable(tag: Tag) extends Table[Event](tag, "event") {
 
    def ownerImageUrl = column[String]("owner_image_url")
 
-   def * = (
-      id, ownerId, dateMills,
-      creationDateMills, maxMembers, longtitude,
-      latitude, ownerUsername, country,
-      city, street, localName,
-      description, openedFor, privacyType,
-      eventImageId, ownerImageUrl
-   ) <> (Event.tupled, Event.unapply)
+   def state = column[EventState]("state")
+
+   def * =
+      (
+         id,
+         ownerId,
+         dateMills,
+         creationDateMills,
+         maxMembers,
+         longtitude,
+         latitude,
+         ownerUsername,
+         country,
+         city,
+         street,
+         localName,
+         description,
+         openedFor,
+         privacyType,
+         eventImageId,
+         ownerImageUrl,
+         state
+      ) <> (Event.tupled, Event.unapply)
 
 }

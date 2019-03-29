@@ -19,31 +19,48 @@ import services.images.traits.ImageWriterService
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Success
 
-class ImageServiceImpl @Inject()(@Named("kafka-producer") imageProducer: ActorRef,
-                                 imageWriterService: ImageWriterService[Future],
-                                 imageDAO: ImageDAO[Future]
-                                )(implicit ec: ExecutionContext)
+class ImageServiceImpl @Inject()(
+                                   @Named("kafka-producer") imageProducer: ActorRef,
+                                   imageWriterService: ImageWriterService[Future],
+                                   imageDAO: ImageDAO[Future])(implicit ec: ExecutionContext)
    extends ImageService[Future] {
 
    private final val logger = Logger("application")
 
-   override def create(eventId: Long, picture: MultipartFormData
-   .FilePart[Files.TemporaryFile], host: String)(implicit token: TokenRepPrivate) = {
+   override def create(eventId: Long,
+                       picture: MultipartFormData.FilePart[Files.TemporaryFile],
+                       host: String)(implicit token: TokenRepPrivate) = {
 
       val (imageIO, formatName) = getImageWithName(picture)
-      val createAction = imageWriterService.write(eventId, token, formatName, imageIO, host).flatMap {
-         image =>
-            imageDAO.create(image, Array(UserToImage(token.userId, image.id, isMarked = false)))
-      }
+      val createAction = imageWriterService
+         .write(eventId, token, formatName, imageIO, host)
+         .flatMap { image =>
+            imageDAO.create(image)
+         }
+         .flatMap { image =>
+            val usersToImage =
+               Array(UserToImage(token.userId, image.id, markerId = token.userId))
+            imageDAO
+               .attachUserToImage(usersToImage)
+               .map(_ => usersToImage)
+               .zip(Future.successful(image))
+         }
       createAction.onComplete {
-         case Success((image, _)) =>
-            imageProducer ! ImageAddedRecord(image.ownerId, token.username, image.id, image.eventId, Array(image.ownerId))
+         case Success((usersToImage, image)) =>
+            imageProducer ! ImageAddedRecord(
+               userId = token.userId,
+               username = token.username,
+               imageId = usersToImage.head.imageId,
+               eventId = image.eventId,
+               markedUsers = usersToImage.map(_.userId)
+            )
 
       }
-      createAction.map(_._1)
+      createAction.map(_._2)
    }
 
-   private def getImageWithName(picture: MultipartFormData.FilePart[Files.TemporaryFile]) = {
+   private def getImageWithName(
+                                  picture: MultipartFormData.FilePart[Files.TemporaryFile]) = {
 
       try {
          val filename = Paths.get(picture.filename).getFileName
@@ -73,13 +90,17 @@ class ImageServiceImpl @Inject()(@Named("kafka-producer") imageProducer: ActorRe
       imageDAO.findByUserId(userId)
    }
 
-   override def attachUsersToImage(userToImage: Array[UserToImage])(implicit token: TokenRepPrivate) = {
-      val attachAction = imageDAO.attachToUser(userToImage)
+   override def attachUsersToImage(userToImage: Array[UserToImage])(
+      implicit token: TokenRepPrivate) = {
+      val attachAction = imageDAO.attachUserToImage(userToImage)
       attachAction.onComplete {
-         case Success(Some(insertedRows)) if insertedRows != 0 && userToImage.nonEmpty =>
+         case Success(Some(insertedRows))
+            if insertedRows != 0 && userToImage.nonEmpty =>
             imageProducer ! ImageUserAttachedRecord(
-               token.userId, token.username,
-               userToImage.head.imageId, userToImage.map(_.userId)
+               token.userId,
+               token.username,
+               userToImage.head.imageId,
+               userToImage.map(_.userId)
             )
       }
       attachAction

@@ -10,13 +10,14 @@ import slick.jdbc.JdbcProfile
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class UserDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigProvider,
-                            private val jwtCoder: JWTCoder
-                           )(implicit ec: ExecutionContext)
-   extends HasDatabaseConfigProvider[JdbcProfile] with UserDAO[Future] {
+class UserDAOImpl @Inject()(
+                              protected val dbConfigProvider: DatabaseConfigProvider,
+                              private val jwtCoder: JWTCoder)(implicit ec: ExecutionContext)
+   extends HasDatabaseConfigProvider[JdbcProfile]
+      with UserDAO[Future] {
 
    override def getUsersByEventId(eventId: Long) = {
-      db.run(UserSql.getUsersByEventId(eventId))
+      db.run(UserSql.getUsersByEventIdJoinImage(eventId))
    }
 
    override def checkUserExistence(username: String) = {
@@ -24,11 +25,11 @@ class UserDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigProvid
    }
 
    override def updateUser(user: User) = {
-      db.run(UserSql.updateUser(user))
+      db.run(UserSql.updateUser(user).map(_ => user))
    }
 
    override def clientUpdateUser(user: User) = {
-      db.run(UserSql.clientUpdateUser(user))
+      db.run(UserSql.clientUpdateUser(user).map(_ => user))
    }
 
    override def getFriends(userId: Int) = {
@@ -48,13 +49,15 @@ class UserDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigProvid
    }
 
    override def createUsersRelation(userToUser: UserToUserRelation) = {
-      val query = UserSql.checkUserExistence(userToUser.userTo)
-         .zip(UserSql.checkIsBlocked(userToUser.userFrom,userToUser.userTo))
-         .flatMap{
-            case (userExists,userIsBlockedBy)=> if(userExists && !userIsBlockedBy)
-               UserSql.createUserRelation(userToUser)
-            else
-               Sql(0)
+      val query = UserSql
+         .checkUserExistence(userToUser.userTo)
+         .zip(UserSql.checkIsBlocked(userToUser.userFrom, userToUser.userTo))
+         .flatMap {
+            case (userExists, userIsBlockedBy) =>
+               if (userExists && !userIsBlockedBy)
+                  UserSql.createUserRelation(userToUser)
+               else
+                  Sql(0)
          }
 
       db.run(query)

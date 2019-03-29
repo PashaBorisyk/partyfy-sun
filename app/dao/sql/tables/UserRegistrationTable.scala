@@ -1,10 +1,11 @@
 package dao.sql.tables
 
-import slick.jdbc.PostgresProfile.api._
+import dao.sql.tables.implicits._
 import models.persistient.{UserRegistration, UserRegistrationState}
-import implicits._
+import slick.jdbc.PostgresProfile.api._
 
-private[sql] class UserRegistrationTable(tag: Tag) extends Table[UserRegistration](tag, "user_registration") {
+private[sql] class UserRegistrationTable(tag: Tag)
+   extends Table[UserRegistration](tag, "user_registration") {
 
    def id = column[Long]("id", O.PrimaryKey, O.AutoInc, O.Unique)
 
@@ -18,11 +19,14 @@ private[sql] class UserRegistrationTable(tag: Tag) extends Table[UserRegistratio
 
    def expirationDateMills = column[Long]("expiration_date_mills")
 
-   def * = (
-      id,
-      username,
-      emailAddress,
-      registrationToken, state ,expirationDateMills
-   ) <> (UserRegistration.tupled, UserRegistration.unapply)
+   def * =
+      (
+         id,
+         username,
+         emailAddress,
+         registrationToken,
+         state,
+         expirationDateMills
+      ) <> (UserRegistration.tupled, UserRegistration.unapply)
 
 }

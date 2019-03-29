@@ -1,8 +1,7 @@
 package util
 
-
 object Const {
-   
+
    final val USER_ID = "user_id"
    final val NICKNAME = "nickname"
    final val ADVANCED_USER_ID = "advanced_user_id"
@@ -48,14 +47,16 @@ object Const {
    final val IS_MALE = "is_male"
    final val IS_REGISTERED = "is_registered"
    final val QUERY = "query"
-   final val HIPE_APPLICATION_SHARED_PREFERENCES = "hipe_application_shared_preferences"
+   final val HIPE_APPLICATION_SHARED_PREFERENCES =
+      "hipe_application_shared_preferences"
    final val FLAG_USER_REGISTER = "flag_user_register"
    final val FLAG_USER_UPDATE = "flag_user_update"
    final val FLAG_USER_GET_USER = "flag_user_get_user"
    final val FLAG_EVENT_CREATE = "flag_event_create"
    final val FLAG_EVENT_UPDATE = "flag_event_update"
    final val LIVING_PLACE = "living_place"
-   final val MESSAGE_INFORMATIVE_REMOVE_EVENT = "message_informative_remove_event"
+   final val MESSAGE_INFORMATIVE_REMOVE_EVENT =
+      "message_informative_remove_event"
    final val TYPE = "type"
    final val TYPE_EVENT = "type_event"
    final val TYPE_USER = "type_user"
@@ -84,11 +85,11 @@ object Const {
    final val FILE_CREATE_SIMPLE = 0x003
    final val IMAGE_WIDTH = "image_width"
    final val IMAGE_HEIGHT = "image_height"
-   
+
    final val MSG_CATEGORY_COMMAND = 0
    final val MSG_CATEGORY_ENTITY = 1
    final val MSG_CATEGORY_MESSAGE = 2
-   
+
    final val MSG_INSTANCE_OF_EVENT = 0
    final val MSG_INSTANCE_OF_USER = 1
    final val MSG_INSTANCE_OF_MESSAGE = 2
@@ -96,5 +97,5 @@ object Const {
    final val CONNECTION_FOR_CATEGORY = "for_category"
    final val CONNECTION_FOR_TYPE = "for_type"
    final val CONNECTION_FOR_INSTANCE_OF = "for_instance_of"
-   
+
 }

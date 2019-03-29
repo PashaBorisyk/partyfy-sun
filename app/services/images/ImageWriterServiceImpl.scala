@@ -16,7 +16,9 @@ import util.generateName
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class ImageWriterServiceImpl @Inject()()(implicit executionContext: ExecutionContext) extends ImageWriterService[Future] {
+class ImageWriterServiceImpl @Inject()()(
+   implicit executionContext: ExecutionContext)
+   extends ImageWriterService[Future] {
 
    private val logger = Logger("application")
 
@@ -30,9 +32,14 @@ class ImageWriterServiceImpl @Inject()()(implicit executionContext: ExecutionCon
       path
    }
 
-   override def write(eventId: Long, token: TokenRepPrivate, formatName: String, imageIO: BufferedImage, host: String) =
+   override def write(eventId: Long,
+                      token: TokenRepPrivate,
+                      formatName: String,
+                      imageIO: BufferedImage,
+                      host: String) =
       Future {
-         logger.debug(s"Image write() format name : $formatName ; ratio : ; width : ${imageIO.getWidth}")
+         logger.debug(
+            s"Image write() format name : $formatName ; ratio : ; width : ${imageIO.getWidth}")
 
          val ratio = imageIO.getHeight.toFloat / imageIO.getWidth.toFloat
 
@@ -40,22 +47,31 @@ class ImageWriterServiceImpl @Inject()()(implicit executionContext: ExecutionCon
          val pathSizeMap = getPathSizeMap(imageNames)
 
          pathSizeMap.foreach {
-            case (path,size) =>
+            case (path, size) =>
                if (imageIO.getWidth > size) {
                   logger.debug("Resizing image")
                   ImageIO.write(
-                     Scalr.resize(imageIO, Scalr.Method.ULTRA_QUALITY, size, (size / ratio).toInt),
-                     formatName, Paths.get(path).toFile
+                     Scalr.resize(imageIO,
+                        Scalr.Method.ULTRA_QUALITY,
+                        size,
+                        (size / ratio).toInt),
+                     formatName,
+                     Paths.get(path).toFile
                   )
-               }
-               else {
+               } else {
                   logger.debug("Not resizing image")
                   ImageIO.write(imageIO, formatName, Paths.get(path).toFile)
                }
 
          }
 
-         val image = createImage(token.userId, eventId, ratio, imageIO.getWidth(), imageIO.getHeight(), imageNames, host)
+         val image = createImage(token.userId,
+            eventId,
+            ratio,
+            imageIO.getWidth(),
+            imageIO.getHeight(),
+            imageNames,
+            host)
          image
       }
 
@@ -77,18 +93,20 @@ class ImageWriterServiceImpl @Inject()()(implicit executionContext: ExecutionCon
    }
 
    private def createImageNames(formatName: String) = ImageNames(
-
       miniName = generateName(formatName),
       smallName = generateName(formatName),
       mediumName = generateName(formatName),
       largeName = generateName(formatName),
       hugeName = generateName(formatName),
-
    )
 
-   private def createImage(userId: Int, eventId: Long, ratio: Float, width: Long, height: Long, imageNames: ImageNames,
-                           host: String)
-   = {
+   private def createImage(userId: Int,
+                           eventId: Long,
+                           ratio: Float,
+                           width: Long,
+                           height: Long,
+                           imageNames: ImageNames,
+                           host: String) = {
       Image(
          ratio = 1f / ratio,
          eventId = eventId,

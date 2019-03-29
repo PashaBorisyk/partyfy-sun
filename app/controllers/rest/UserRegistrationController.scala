@@ -16,39 +16,44 @@ class UserRegistrationController @Inject()(
                                              protected val dbConfigProvider: DatabaseConfigProvider,
                                              protected val userRegistrationService: UserRegistrationService[Future],
                                              cc: ControllerComponents)(implicit ec: ExecutionContext, jwtCoder: JWTCoder)
-   extends AbstractController(cc) with HasDatabaseConfigProvider[JdbcProfile] {
+   extends AbstractController(cc)
+      with HasDatabaseConfigProvider[JdbcProfile] {
 
    private val logger = Logger("application")
 
    //todo usernameToken -> usernameEmailToken -> usernamePasswordId token. End of registration
-   def createRegistration(username: String, secret: String, email: String) = Action.async {
-      implicit req =>
+   def createRegistration(username: String, secret: String, email: String) =
+      Action.async { implicit req =>
          logger.debug(req.toString)
-         userRegistrationService.createRegistration(username, secret,email).map {
+         userRegistrationService.createRegistration(username, secret, email).map {
             userRegistration =>
-               if(userRegistration.state == UserRegistrationState.DUPLICATE){
+               if (userRegistration.state == UserRegistrationState.DUPLICATE) {
                   Conflict
                } else {
-                  logger.debug(s"Created with userRegistration : ${userRegistration.username}")
+                  logger.debug(
+                     s"Created with userRegistration : ${userRegistration.username}")
                   Created(userRegistration.registrationToken)
                }
          }
-   }
-   
-   def confirmRegistrationAndCreateUser(registrationToken: String) = Action.async {
-      implicit req =>
+      }
+
+   def confirmRegistrationAndCreateUser(registrationToken: String) =
+      Action.async { implicit req =>
          logger.debug(req.toString)
-         userRegistrationService.confirmRegistrationAndCreateUser(registrationToken).map {
-            case (registration,user)=>
-               if (registration.state == UserRegistrationState.EXPIRED) {
-                  Gone
-               } else if (registration.state == UserRegistrationState.CONFIRMED){
-                  Ok(user.token)
-               } else {
-                  InternalServerError(s"Illegal registration state : ${registration.state}")
-               }
-         }
-      
-   }
+         userRegistrationService
+            .confirmRegistrationAndCreateUser(registrationToken)
+            .map {
+               case (registration, user) =>
+                  if (registration.state == UserRegistrationState.EXPIRED) {
+                     Gone
+                  } else if (registration.state == UserRegistrationState.CONFIRMED) {
+                     Ok(user.token)
+                  } else {
+                     InternalServerError(
+                        s"Illegal registration state : ${registration.state}")
+                  }
+            }
+
+      }
 
 }

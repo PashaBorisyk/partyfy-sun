@@ -9,7 +9,7 @@ import scala.language.higherKinds
 @ImplementedBy(classOf[ImageDAOImpl])
 trait ImageDAO[T[_]] {
 
-   def create(image: Image,usersToImages: Array[UserToImage]): T[(Image,Option[Int])]
+   def create(image: Image): T[Image]
 
    def delete(id: Long): T[Int]
 
@@ -19,6 +19,6 @@ trait ImageDAO[T[_]] {
 
    def findByUserId(userId: Int): T[Seq[Image]]
 
-   def attachToUser(usersToImages:Array[UserToImage]) : T[Option[Int]]
+   def attachUserToImage(usersToImages: Array[UserToImage]): T[Option[Int]]
 
 }

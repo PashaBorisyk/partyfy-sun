@@ -3,8 +3,7 @@ package dao.sql.tables
 import models.persistient.Image
 import slick.jdbc.PostgresProfile.api._
 
-private[dao] class ImageTable(tag: Tag)
-   extends Table[Image](tag, "image") {
+private[dao] class ImageTable(tag: Tag) extends Table[Image](tag, "image") {
 
    def id = column[Long]("id", O.Unique, O.PrimaryKey, O.AutoInc)
 
@@ -30,14 +29,20 @@ private[dao] class ImageTable(tag: Tag)
 
    def creationMills = column[Long]("creation_mills")
 
-   def * = (
-      id,
-      width, ratio, height,
-      urlMini, urlSmall,
-      urlMedium, urlLarge,
-      urlHuge, ownerId,
-      eventId,
-      creationMills
-   ) <> (Image.tupled, Image.unapply)
+   def * =
+      (
+         id,
+         width,
+         ratio,
+         height,
+         urlMini,
+         urlSmall,
+         urlMedium,
+         urlLarge,
+         urlHuge,
+         ownerId,
+         eventId,
+         creationMills
+      ) <> (Image.tupled, Image.unapply)
 
 }

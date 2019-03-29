@@ -22,23 +22,28 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class AuthFilter @Inject()(implicit override val mat: Materializer,
                            val jwtCoder: JWTCoder,
-                           exec: ExecutionContext) extends Filter {
+                           exec: ExecutionContext)
+   extends Filter {
 
    private val logger = Logger("application")
 
-   lazy val unauthorizedMap: Result => Result = {
-      _ => Results.Unauthorized
+   lazy val unauthorizedMap: Result => Result = { _ =>
+      Results.Unauthorized
    }
 
-   override def apply(nextFilter: RequestHeader => Future[Result])(requestHeader: RequestHeader): Future[Result] = {
+   override def apply(nextFilter: RequestHeader => Future[Result])(
+      requestHeader: RequestHeader): Future[Result] = {
       // Run the next filter in the chain. This will call other filters
       // and eventually call the action. Take the result and modify it
       // by adding a new header.
 
-      var map: Result => Result = { result => result }
+      var map: Result => Result = { result =>
+         result
+      }
       var initialRequestHeader = requestHeader
 
-      val token = requestHeader.headers.get(HeaderNames.AUTHORIZATION).getOrElse("")
+      val token =
+         requestHeader.headers.get(HeaderNames.AUTHORIZATION).getOrElse("")
       if (token.nonEmpty) {
          try {
 
@@ -61,12 +66,16 @@ class AuthFilter @Inject()(implicit override val mat: Materializer,
          //
          //            }
 
-      } else requestHeader.path match {
-         case "/user/login/" => logger.debug(s"Incoming login request : ${requestHeader.path}")
-         case "/user/register/" => logger.debug(s"Incoming register request : ${requestHeader.path}")
-         case "/event/test/" => logger.debug(s"Incoming test request : ${requestHeader.path}")
-         case _ => map = unauthorizedMap
-      }
+      } else
+         requestHeader.path match {
+            case "/user/login/" =>
+               logger.debug(s"Incoming login request : ${requestHeader.path}")
+            case "/user/register/" =>
+               logger.debug(s"Incoming register request : ${requestHeader.path}")
+            case "/event/test/" =>
+               logger.debug(s"Incoming test request : ${requestHeader.path}")
+            case _ => map = unauthorizedMap
+         }
 
       nextFilter(initialRequestHeader).map(map)
 

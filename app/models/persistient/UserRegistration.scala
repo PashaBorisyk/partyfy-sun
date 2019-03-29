@@ -9,10 +9,9 @@ private object UserRegistrationUtil {
 
 case class UserRegistration(
                               id: Long = 0L,
-                              username:String = "",
+                              username: String = "",
                               emailAddress: String = "",
                               registrationToken: String = "",
                               state: UserRegistrationState = UserRegistrationState.IN_PROGRESS,
                               expirationDateMills: Long = UserRegistrationUtil.expDate
-
                            )

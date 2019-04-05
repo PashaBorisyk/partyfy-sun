@@ -32,7 +32,7 @@ class ImageWriterServiceImpl @Inject()()(
       path
    }
 
-   override def write(eventId: Long,
+   override def write(eventID: Long,
                       token: TokenRepPrivate,
                       formatName: String,
                       imageIO: BufferedImage,
@@ -65,8 +65,8 @@ class ImageWriterServiceImpl @Inject()()(
 
          }
 
-         val image = createImage(token.userId,
-            eventId,
+         val image = createImage(token.userID,
+            eventID,
             ratio,
             imageIO.getWidth(),
             imageIO.getHeight(),
@@ -100,8 +100,8 @@ class ImageWriterServiceImpl @Inject()()(
       hugeName = generateName(formatName),
    )
 
-   private def createImage(userId: Int,
-                           eventId: Long,
+   private def createImage(userID: Int,
+                           eventID: Long,
                            ratio: Float,
                            width: Long,
                            height: Long,
@@ -109,7 +109,7 @@ class ImageWriterServiceImpl @Inject()()(
                            host: String) = {
       Image(
          ratio = 1f / ratio,
-         eventId = eventId,
+         eventID = eventID,
          width = width,
          height = height,
          urlMini = getPublicPath(host, imageNames.miniName),
@@ -117,7 +117,7 @@ class ImageWriterServiceImpl @Inject()()(
          urlMedium = getPublicPath(host, imageNames.mediumName),
          urlLarge = getPublicPath(host, imageNames.largeName),
          urlHuge = getPublicPath(host, imageNames.hugeName),
-         ownerId = userId
+         ownerId = userID
       )
 
    }

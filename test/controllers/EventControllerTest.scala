@@ -30,9 +30,9 @@ class EventControllerTest extends BaseTestSuite {
       usernames.foreach { username =>
          val addMemberToEventUrl = s"$eventUrl/add_member/"
          val request = wsClient.url(addMemberToEventUrl).addQueryStringParameters(
-            ("event_id", randomEventId.toString),
-            ("user_id", randomUserId.toString),
-            ("advanced_user_id", randomEventId.toString)
+            ("event_id", randomEventID.toString),
+            ("user_id", randomUserID.toString),
+            ("advanced_user_id", randomEventID.toString)
          ).withHttpHeaders(
             AUTHORIZATION -> token(username)
          ).execute("PUT")
@@ -48,9 +48,9 @@ class EventControllerTest extends BaseTestSuite {
       val removeMemberUrl = s"$eventUrl/remove_member/"
       usernames.foreach { username =>
          val request = wsClient.url(removeMemberUrl).addQueryStringParameters(
-            ("user_id", randomUserId.toString),
-            ("advanced_user_id", randomUserId.toString),
-            ("event_id", randomEventId.toString)
+            ("user_id", randomUserID.toString),
+            ("advanced_user_id", randomUserID.toString),
+            ("event_id", randomEventID.toString)
          ).withHttpHeaders(
             AUTHORIZATION -> token(username)
          ).delete()
@@ -67,8 +67,8 @@ class EventControllerTest extends BaseTestSuite {
       usernames.foreach { username =>
          val cancelEvent = s"$eventUrl/cancel/"
          val request = wsClient.url(cancelEvent).addQueryStringParameters(
-            ("user_id", randomUserId.toString),
-            ("event_id", randomEventId.toString)
+            ("user_id", randomUserID.toString),
+            ("event_id", randomEventID.toString)
          ).withHttpHeaders(
             AUTHORIZATION -> token(username)
          ).delete()
@@ -87,7 +87,7 @@ class EventControllerTest extends BaseTestSuite {
          val request = wsClient.url(getEventsUrl).addQueryStringParameters(
             ("latitude", randomCoordinate.toString),
             ("longitude", randomCoordinate.toString),
-            ("last_read_event_id", randomEventId.toString)
+            ("last_read_event_id", randomEventID.toString)
          ).withHttpHeaders(
             AUTHORIZATION -> token(username)
          ).get()
@@ -102,9 +102,9 @@ class EventControllerTest extends BaseTestSuite {
    "getByMember" in {
 
       usernames.foreach { username =>
-         val getByMemberUrl = s"$eventUrl/get_by_member_id/$randomUserId/"
+         val getByMemberUrl = s"$eventUrl/get_by_member_id/$randomUserID/"
          val request = wsClient.url(getByMemberUrl).addQueryStringParameters(
-            ("user_id", randomUserId.toString)
+            ("user_id", randomUserID.toString)
          ).withHttpHeaders(
             AUTHORIZATION -> token(username)
          ).get()
@@ -119,7 +119,7 @@ class EventControllerTest extends BaseTestSuite {
 
    "getByOwner" in {
       usernames.foreach { username =>
-         val getByMemberIdUrl = s"$eventUrl/get_by_owner_id/$randomUserId/"
+         val getByMemberIdUrl = s"$eventUrl/get_by_owner_id/$randomUserID/"
          val request = wsClient.url(getByMemberIdUrl).withHttpHeaders(
             AUTHORIZATION -> token(username)
          ).get()
@@ -134,7 +134,7 @@ class EventControllerTest extends BaseTestSuite {
    "getByIdJoinImages" in {
 
       usernames.foreach { username =>
-         val getByIdUrl = s"$eventUrl/get_by_id/$randomEventId/"
+         val getByIdUrl = s"$eventUrl/get_by_id/$randomEventID/"
          val request = wsClient.url(getByIdUrl).withHttpHeaders(
             AUTHORIZATION -> token(username)
          ).get()
@@ -144,6 +144,23 @@ class EventControllerTest extends BaseTestSuite {
          val isSuccess = result.status == OK || result.status == NO_CONTENT
          isSuccess mustBe true
       }
+
+   }
+
+   "getEventsIDsByMemberID" in {
+
+      usernames.foreach { username =>
+         val getByIdUrl = s"$eventUrl/get_ids_by_member_id/$randomUserID/"
+         val request = wsClient.url(getByIdUrl).withHttpHeaders(
+            AUTHORIZATION -> token(username)
+         ).get()
+
+         val result = await(request)
+         println(result.body)
+         val isSuccess = result.status == OK || result.status == NO_CONTENT
+         isSuccess mustBe true
+      }
+
 
    }
 

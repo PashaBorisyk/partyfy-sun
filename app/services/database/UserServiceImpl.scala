@@ -21,8 +21,8 @@ class UserServiceImpl @Inject()(
    extends HasDatabaseConfigProvider[JdbcProfile]
       with UserService[Future] {
 
-   def getUsersByEventId(eventId: Long)(implicit token: TokenRepPrivate) = {
-      userDAO.getUsersByEventId(eventId)
+   def getUsersByeventID(eventID: Long)(implicit token: TokenRepPrivate) = {
+      userDAO.getUsersByeventID(eventID)
    }
 
    def checkUserExistence(username: String) = {
@@ -31,61 +31,65 @@ class UserServiceImpl @Inject()(
 
    def clientUpdateUser(user: User)(implicit token: TokenRepPrivate) = {
       val newTokenRep = TokenRepPrivate(
-         userId = token.userId,
+         userID = token.userID,
          email = user.email,
          username = user.username,
          secret = token.secret
       )
       val newToken = jwtCoder.encode(newTokenRep)
       userDAO.clientUpdateUser(
-         user.copy(id = token.userId, token = newToken, state = UserState.ACTIVE))
+         user.copy(id = token.userID, token = newToken, state = UserState.ACTIVE))
    }
 
-   def getFriends(userId: Int)(implicit token: TokenRepPrivate) = {
-      userDAO.getFriends(userId)
+   def getFriends(userID: Int)(implicit token: TokenRepPrivate) = {
+      userDAO.getFriends(userID)
    }
 
-   def getFriendsIds(userId: Int)(implicit token: TokenRepPrivate) = {
-      userDAO.getFriendsIds(userId)
+   def getFriendsIds(userID: Int)(implicit token: TokenRepPrivate) = {
+      userDAO.getFriendsIds(userID)
    }
 
    def findUser(searchString: String)(implicit token: TokenRepPrivate) = {
-      userDAO.findUser(token.userId, searchString)
+      userDAO.findUser(token.userID, searchString)
    }
 
-   def getById(userId: Int)(implicit token: TokenRepPrivate) = {
-      userDAO.getById(userId)
+   def getById(userID: Int)(implicit token: TokenRepPrivate) = {
+      userDAO.getById(userID)
    }
 
-   def createUsersRelation(userId: Int, relationType: String)(
+   def createUsersRelation(userID: Int, relationType: String)(
       implicit token: TokenRepPrivate) = {
-      if (token.userId == userId)
+      if (token.userID == userID)
          throw new RuntimeException("User is not allowed to relate to himself.")
       val relation = UsersRelationType.valueOf(relationType)
-      val userToUser = UserToUserRelation(token.userId, userId, relation)
+      val userToUser = UserToUserRelation(token.userID, userID, relation)
       val createAction = userDAO.createUsersRelation(userToUser)
       createAction.onComplete { insertedRows =>
          if (insertedRows.getOrElse(0) != 0) {
-            userActionProducer ! UserRelationCreatedRecord(token.userId,
+            userActionProducer ! UserRelationCreatedRecord(token.userID,
                token.username,
-               userId,
+               userID,
                relation)
          }
       }
       createAction
    }
 
-   def removeUsersRelation(userId: Int)(implicit token: TokenRepPrivate) = {
-      val userToUser = UserToUserRelation(token.userId, userId)
+   def removeUsersRelation(userID: Int)(implicit token: TokenRepPrivate) = {
+      val userToUser = UserToUserRelation(token.userID, userID)
       userDAO.removeUsersRelation(userToUser)
    }
 
    def login(username: String, secret: String) = {
-      userDAO.getTokenByUserId(username).map {
+      userDAO.getTokenByuserID(username).map {
          case Some(token) if jwtCoder.decodePrivateToken(token).secret == secret =>
             Some(token)
          case _ => None
       }
+   }
+
+   override def getusersIDssByeventID(eventID: Long)(implicit token: TokenRepPrivate) = {
+      userDAO.getusersIDssByeventID(eventID:Long)
    }
 
 }

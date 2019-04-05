@@ -15,9 +15,9 @@ trait ImageDAO[T[_]] {
 
    def getById(id: Long): T[Option[Image]]
 
-   def findByEventId(eventId: Long): T[Seq[Image]]
+   def findByeventID(eventID: Long): T[Seq[Image]]
 
-   def findByUserId(userId: Int): T[Seq[Image]]
+   def findByuserID(userID: Int): T[Seq[Image]]
 
    def attachUserToImage(usersToImages: Array[UserToImage]): T[Option[Int]]
 

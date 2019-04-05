@@ -36,13 +36,13 @@ class JWTCoderImpl @Inject()()(implicit val configuration: Configuration)
 
       val (username, secret, emailAddress) = getBasicCredentials(session)
 
-      val userId = session
+      val userID = session
          .getAs[Int](TokenRep.USER_ID)
          .getOrElse(
-            throw new RuntimeException("Can not get userId from private token")
+            throw new RuntimeException("Can not get userID from private token")
          )
 
-      TokenRepPrivate(userId, username, secret, emailAddress, jwt)
+      TokenRepPrivate(userID, username, secret, emailAddress, jwt)
 
    }
 

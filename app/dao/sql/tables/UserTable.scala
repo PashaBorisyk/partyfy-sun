@@ -26,7 +26,7 @@ private[sql] class UserTable(tag: Tag) extends Table[User](tag, "user") {
 
    def longtitude = column[Double]("longtitude")
 
-   def imageId = column[Long]("image_id")
+   def imageID = column[Long]("image_id")
 
    def email = column[String]("email", O.Unique)
 
@@ -43,7 +43,7 @@ private[sql] class UserTable(tag: Tag) extends Table[User](tag, "user") {
          status,
          latitude,
          longtitude,
-         imageId,
+         imageID,
          email,
          state) <> (User.tupled, User.unapply)
 

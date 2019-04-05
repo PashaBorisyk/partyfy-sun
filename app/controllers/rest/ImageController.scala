@@ -20,7 +20,7 @@ class ImageController @Inject()(
 
    private val logger = Logger("application")
 
-   def upload(eventId: Long) = Action.async(parse.multipartFormData) {
+   def upload(eventID: Long) = Action.async(parse.multipartFormData) {
       implicit request =>
          logger.debug(request.toString())
          implicit val token = getToken
@@ -28,7 +28,7 @@ class ImageController @Inject()(
          request.body
             .file(Const.PART_FILE)
             .map { picture =>
-               imageService.create(eventId, picture, request.host).map { image =>
+               imageService.create(eventID, picture, request.host).map { image =>
                   Created(Json.toJson(image))
                }
 
@@ -58,10 +58,10 @@ class ImageController @Inject()(
       }
    }
 
-   def getByEventId(eventId: Long) = Action.async { implicit req =>
+   def getByeventID(eventID: Long) = Action.async { implicit req =>
       logger.debug(req.toString())
       implicit val token = getToken
-      imageService.findByEventId(eventId).map { images =>
+      imageService.findByeventID(eventID).map { images =>
          if (images.nonEmpty)
             Ok(Json.toJson(images))
          else
@@ -69,10 +69,10 @@ class ImageController @Inject()(
       }
    }
 
-   def getByUserId(userId: Int) = Action.async { implicit req =>
+   def getByuserID(userID: Int) = Action.async { implicit req =>
       logger.debug(req.toString())
       implicit val token = getToken
-      imageService.findByUserId(userId).map { images =>
+      imageService.findByuserID(userID).map { images =>
          if (images.nonEmpty)
             Ok(Json.toJson(images))
          else

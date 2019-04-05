@@ -9,7 +9,7 @@ sealed trait Record {
 
    val time: Long
    val username: String
-   val userId: Int
+   val userID: Int
 
    def toJson: String
 
@@ -17,7 +17,7 @@ sealed trait Record {
 }
 
 sealed trait EventActionRecord extends Protocol with Record {
-   val eventId: Long
+   val eventID: Long
 }
 
 object EventActionRecord {
@@ -34,9 +34,9 @@ object EventActionRecord {
 }
 
 final case class EventUpdatedRecord(
-                                      userId: Int,
+                                      userID: Int,
                                       username: String,
-                                      eventId: Long,
+                                      eventID: Long,
                                       time: Long = System.currentTimeMillis()
                                    ) extends EventActionRecord {
 
@@ -46,9 +46,9 @@ final case class EventUpdatedRecord(
 }
 
 final case class EventDeletedRecord(
-                                      userId: Int,
+                                      userID: Int,
                                       username: String,
-                                      eventId: Long,
+                                      eventID: Long,
                                       time: Long = System.currentTimeMillis()
                                    ) extends EventActionRecord {
 
@@ -59,10 +59,9 @@ final case class EventDeletedRecord(
 }
 
 final case class EventCreatedRecord(
-                                      userId: Int,
+                                      userID: Int,
                                       username: String,
-                                      eventId: Long,
-                                      usersId: Array[Int],
+                                      eventID: Long,
                                       time: Long = System.currentTimeMillis()
                                    ) extends EventActionRecord {
 
@@ -72,13 +71,17 @@ final case class EventCreatedRecord(
 
 }
 
+sealed trait EventUserAction extends EventActionRecord {
+   val receiverUserID: Int
+}
+
 final case class EventUserRemovedRecord(
-                                          userId: Int,
+                                          userID: Int,
                                           username: String,
-                                          eventId: Long,
-                                          passiveUserId: Int,
+                                          eventID: Long,
+                                          receiverUserID: Int,
                                           time: Long = System.currentTimeMillis()
-                                       ) extends EventActionRecord {
+                                       ) extends EventUserAction {
 
    override private[actors] val TOPIC_NAME = "event-user-removed"
 
@@ -87,12 +90,12 @@ final case class EventUserRemovedRecord(
 }
 
 final case class EventUserAddedRecord(
-                                        userId: Int,
+                                        userID: Int,
                                         username: String,
-                                        eventId: Long,
-                                        passiveUserId: Int,
+                                        eventID: Long,
+                                        receiverUserID: Int,
                                         time: Long = System.currentTimeMillis()
-                                     ) extends EventActionRecord {
+                                     ) extends EventUserAction {
 
    override private[actors] val TOPIC_NAME = "event-user-added"
 
@@ -101,7 +104,7 @@ final case class EventUserAddedRecord(
 }
 
 sealed trait ImageActionRecord extends Protocol with Record {
-   val imageId: Long
+   val imageID: Long
 }
 
 object ImageActionRecord {
@@ -112,10 +115,10 @@ object ImageActionRecord {
 }
 
 final case class ImageAddedRecord(
-                                    userId: Int,
+                                    userID: Int,
                                     username: String,
-                                    imageId: Long,
-                                    eventId: Long,
+                                    imageID: Long,
+                                    eventID: Long,
                                     markedUsers: Array[Int],
                                     time: Long = System.currentTimeMillis()
                                  ) extends ImageActionRecord {
@@ -125,10 +128,10 @@ final case class ImageAddedRecord(
 }
 
 final case class ImageUserAttachedRecord(
-                                           userId: Int,
+                                           userID: Int,
                                            username: String,
-                                           imageId: Long,
-                                           markedUsers: Array[Int],
+                                           imageID: Long,
+                                           usersIDs: Array[Int],
                                            time: Long = System.currentTimeMillis()
                                         ) extends ImageActionRecord {
 
@@ -139,7 +142,7 @@ final case class ImageUserAttachedRecord(
 }
 
 sealed trait UserActionRecord extends Protocol with Record {
-   val receiverUser: Int
+   val receiverUserID: Int
 
    implicit val usersRelationTypeWrites: Writes[UsersRelationType] =
       (o: UsersRelationType) => JsString(o.toString)
@@ -149,9 +152,9 @@ sealed trait UserActionRecord extends Protocol with Record {
 }
 
 final case class UserRelationCreatedRecord(
-                                             userId: Int,
+                                             userID: Int,
                                              username: String,
-                                             receiverUser: Int,
+                                             receiverUserID: Int,
                                              relationType: UsersRelationType,
                                              time: Long = System.currentTimeMillis()
                                           ) extends UserActionRecord {

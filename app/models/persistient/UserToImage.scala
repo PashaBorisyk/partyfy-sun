@@ -1,8 +1,8 @@
 package models.persistient
 
 final case class UserToImage(
-                               userId: Int,
-                               imageId: Long,
+                               userID: Int,
+                               imageID: Long,
                                isMarked: Boolean = false,
                                markerId: Int,
                                x: Float = -1,

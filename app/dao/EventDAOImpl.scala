@@ -24,15 +24,15 @@ class EventDAOImpl @Inject()(
       db.run(EventSql.deleteById(id))
    }
 
-   override def create(event: Event, usersIds: Array[Int]) = {
+   override def create(event: Event, usersIDss: Array[Int]) = {
       val insertAction = EventSql
          .insertEvent(event)
-         .flatMap { eventId =>
-            val eventToUserRecords = usersIds.map { userId =>
-               EventToUser(eventId, userId)
+         .flatMap { eventID =>
+            val eventToUserRecords = usersIDss.map { userID =>
+               EventToUser(eventID, userID)
             }
             EventSql.addUsersToEvent(eventToUserRecords).map { _ =>
-               eventId
+               eventID
             }
          }
       db.run(insertAction)
@@ -42,36 +42,36 @@ class EventDAOImpl @Inject()(
       db.run(EventSql.update(event))
    }
 
-   override def getEventsByOwner(userId: Int) = {
-      db.run(EventSql.getByOwnerIdJoinImage(userId))
+   override def getEventsByOwner(userID: Int) = {
+      db.run(EventSql.getByOwnerIdJoinImage(userID))
    }
 
-   override def getEventsByMemberId(userId: Int) = {
-      db.run(EventSql.getByMemberIdJoinImage(userId))
+   override def getEventsByMemberId(userID: Int) = {
+      db.run(EventSql.getByMemberIdJoinImage(userID))
    }
 
-   override def getEventIdsByMemberId(userId: Int): Future[Seq[Long]] = {
-      db.run(EventSql.getIdsByMemberId(userId))
+   override def getEventIDsByMemberID(userID: Int): Future[Seq[Long]] = {
+      db.run(EventSql.getIdsByMemberId(userID))
    }
 
-   override def getEvents(userId: Int,
+   override def getEvents(userID: Int,
                           latitude: Double,
                           longtitude: Double,
-                          lastReadEventId: Long) = {
+                          lastReadeventID: Long) = {
       db.run(
-         EventSql.getPublicEvents(userId, latitude, longtitude, lastReadEventId))
+         EventSql.getPublicEvents(userID, latitude, longtitude, lastReadeventID))
    }
 
-   override def addUserToEvent(eventId: Long, userId: Int) = {
-      db.run(EventSql.addUserToEvent(eventId, userId))
+   override def addUserToEvent(eventID: Long, userID: Int) = {
+      db.run(EventSql.addUserToEvent(eventID, userID))
    }
 
-   override def cancelEvent(eventId: Long, userId: Int) = {
-      db.run(EventSql.cancelEvent(eventId, userId))
+   override def cancelEvent(eventID: Long, userID: Int) = {
+      db.run(EventSql.cancelEvent(eventID, userID))
    }
 
-   override def removeUserFromEvent(eventId: Long, userId: Int) = {
-      db.run(EventSql.deleteUserFromEvent(userId, eventId))
+   override def removeUserFromEvent(eventID: Long, userID: Int) = {
+      db.run(EventSql.deleteUserFromEvent(userID, eventID))
    }
 
    override def test(): Unit = {}

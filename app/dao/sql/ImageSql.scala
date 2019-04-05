@@ -15,43 +15,43 @@ private[dao] object ImageSql {
          .into((image, id) => image.copy(id = id)) += image
    }
 
-   def delete(imageId: Long) = {
-      _getById(imageId).delete
+   def delete(imageID: Long) = {
+      _getById(imageID).delete
    }
 
-   def getById(imageId: Long) = {
-      _getById(imageId).result.headOption
+   def getById(imageID: Long) = {
+      _getById(imageID).result.headOption
    }
 
-   private val _getById = Compiled { imageId: Rep[Long] =>
+   private val _getById = Compiled { imageID: Rep[Long] =>
       imageTable
          .filter { image =>
-            image.id === imageId
+            image.id === imageID
          }
    }
 
-   def findByEventId(eventId: Long) = {
-      _findByEventId(eventId).result
+   def findByeventID(eventID: Long) = {
+      _findByeventID(eventID).result
    }
 
-   private val _findByEventId = Compiled { eventId: Rep[Long] =>
+   private val _findByeventID = Compiled { eventID: Rep[Long] =>
       imageTable
          .filter { image =>
-            image.eventId === eventId
+            image.eventID === eventID
          }
          .sortBy(_.creationMills.desc)
    }
 
-   def findByUserId(userId: Int) = {
-      _findByUserId(userId).result
+   def findByuserID(userID: Int) = {
+      _findByuserID(userID).result
    }
 
-   private val _findByUserId = Compiled { userId: Rep[Int] =>
+   private val _findByuserID = Compiled { userID: Rep[Int] =>
       imageTable
          .filter { image =>
             image.id in userToImageTable
-               .filter(_.userId === userId)
-               .map(_.imageId)
+               .filter(_.userID === userID)
+               .map(_.imageID)
          }
          .sortBy(_.creationMills.desc)
    }

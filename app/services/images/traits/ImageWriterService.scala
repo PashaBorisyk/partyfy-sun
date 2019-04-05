@@ -18,7 +18,7 @@ trait ImageWriterService[T[_]] {
    final val IMG_SIZE_SMALL_WIDTH = 360
    final val IMG_SIZE_MINI_WIDTH = 90
 
-   def write(eventId: Long,
+   def write(eventID: Long,
              token: TokenRepPrivate,
              formatName: String,
              imageIO: BufferedImage,

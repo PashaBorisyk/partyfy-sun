@@ -20,25 +20,26 @@ trait EventService[T[_]] {
 
    def update(event: Event)(implicit token: TokenRepPrivate): T[Int]
 
-   def getEventsByOwner(userId: Int)(
+   def getEventsByOwner(userID: Int)(
       implicit token: TokenRepPrivate): T[Seq[(Event, Option[Image])]]
 
-   def getEventsByMemberId(userId: Int)(
+   def getEventsByMemberId(userID: Int)(
       implicit token: TokenRepPrivate): T[Seq[(Event, Option[Image])]]
 
-   def getEventIdsByMemberId(userId: Int)(
+   def getEventIDsByMemberId(userID: Int)(
       implicit token: TokenRepPrivate): T[Seq[Long]]
 
-   def getEvents(latitude: Double, longtitude: Double, lastReadEventId: Long)(
+   def getEvents(latitude: Double, longtitude: Double, lastReadeventID: Long)(
       implicit token: TokenRepPrivate): T[Seq[(Event, Option[Image])]]
 
-   def addUserToEvent(eventId: Long, userId: Int)(
+   def addUserToEvent(eventID: Long, userID: Int)(
       implicit token: TokenRepPrivate): T[Int]
 
-   def cancelEvent(eventId: Long)(implicit token: TokenRepPrivate): T[Int]
+   def cancelEvent(eventID: Long)(implicit token: TokenRepPrivate): T[Int]
 
-   def removeUserFromEvent(eventId: Long, userId: Int)(
+   def removeUserFromEvent(eventID: Long, userID: Int)(
       implicit token: TokenRepPrivate): T[Int]
+
 
    def test()
 }

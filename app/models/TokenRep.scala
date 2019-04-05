@@ -21,8 +21,8 @@ object TokenRep {
    final val SECRET = "secret"
    final val EMAIL = "email"
 
-   def apply(tokenRep: TokenRep)(userId: Int): TokenRep = TokenRepPrivate(
-      userId,
+   def apply(tokenRep: TokenRep)(userID: Int): TokenRep = TokenRepPrivate(
+      userID,
       tokenRep.username,
       tokenRep.secret,
       tokenRep.email
@@ -36,7 +36,7 @@ case class TokenRepRegistration(
                                ) extends TokenRep(username, secret, email) {}
 
 case class TokenRepPrivate(
-                             userId: Int,
+                             userID: Int,
                              override val username: String,
                              override val secret: String,
                              override val email: String,
@@ -44,6 +44,6 @@ case class TokenRepPrivate(
                           ) extends TokenRep(username, secret, email) {
 
    override val toMapOfFields: Seq[(String, Wrapper)] = super.toMapOfFields :+
-      (TokenRep.USER_ID -> Json.toJsFieldJsValueWrapper(userId))
+      (TokenRep.USER_ID -> Json.toJsFieldJsValueWrapper(userID))
 
 }

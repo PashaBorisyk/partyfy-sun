@@ -56,11 +56,11 @@ class UserControllerImpl @Inject()(
       }
    }
 
-   def createUsersRelation(userId: Int, relationType: String) = Action.async {
+   def createUsersRelation(userID: Int, relationType: String) = Action.async {
       implicit req =>
          logger.debug(req.toString)
          implicit val token = getToken
-         userService.createUsersRelation(userId, relationType).map {
+         userService.createUsersRelation(userID, relationType).map {
             insertedRows =>
                if (insertedRows > 0)
                   Ok
@@ -70,10 +70,10 @@ class UserControllerImpl @Inject()(
 
    }
 
-   def removeUsersRelation(userId: Int) = Action.async { implicit req =>
+   def removeUsersRelation(userID: Int) = Action.async { implicit req =>
       logger.debug(req.toString)
       implicit val token = getToken
-      userService.removeUsersRelation(userId).map { rowsDeleted =>
+      userService.removeUsersRelation(userID).map { rowsDeleted =>
          if (rowsDeleted > 0)
             Accepted
          else NotModified
@@ -81,19 +81,19 @@ class UserControllerImpl @Inject()(
 
    }
 
-   def getById(userId: Int) = Action.async { implicit req =>
+   def getById(userID: Int) = Action.async { implicit req =>
       logger.debug(req.toString)
       implicit val token = getToken
-      userService.getById(userId).map { userWithImage =>
+      userService.getById(userID).map { userWithImage =>
          Ok(Json.toJson(userWithImage))
       }
 
    }
 
-   def getFriends(userId: Int) = Action.async { implicit req =>
+   def getFriends(userID: Int) = Action.async { implicit req =>
       logger.debug(req.toString)
       implicit val token = getToken
-      userService.getFriends(userId).map { usersWithImages =>
+      userService.getFriends(userID).map { usersWithImages =>
          if (usersWithImages.nonEmpty)
             Ok(Json.toJson(usersWithImages))
          else
@@ -101,10 +101,10 @@ class UserControllerImpl @Inject()(
       }
    }
 
-   def getFriendsIds(userId: Int) = Action.async { implicit req =>
+   def getFriendsIds(userID: Int) = Action.async { implicit req =>
       logger.debug(req.toString)
       implicit val token = getToken
-      userService.getFriendsIds(userId).map { friendsIds =>
+      userService.getFriendsIds(userID).map { friendsIds =>
          if (friendsIds.nonEmpty)
             Ok(Json.toJson(friendsIds))
          else
@@ -112,16 +112,27 @@ class UserControllerImpl @Inject()(
       }
    }
 
-   def getUsersByEvent(eventId: Long) = Action.async { implicit req =>
+   def getUsersByEventID(eventID: Long) = Action.async { implicit req =>
       logger.debug(req.toString)
       implicit val token = getToken
-      userService.getUsersByEventId(eventId).map { usersWithImages =>
+      userService.getUsersByeventID(eventID).map { usersWithImages =>
          if (usersWithImages.nonEmpty)
             Ok(Json.toJson(usersWithImages))
          else
             NoContent
       }
 
+   }
+
+   def getUsersIDsByEventID(eventID:Long) = Action.async{ implicit req =>
+      logger.debug(req.toString())
+      implicit val token = getToken
+      userService.getusersIDssByeventID(eventID).map{ usersIDss =>
+         if(usersIDss.nonEmpty)
+            Ok(Json.toJson(usersIDss))
+         else
+            NoContent
+      }
    }
 
    def login(username: String, password: String) = Action.async { implicit req =>

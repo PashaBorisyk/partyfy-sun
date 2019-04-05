@@ -6,13 +6,13 @@ import slick.jdbc.PostgresProfile.api._
 private[sql] class EventToUserTable(tag: Tag)
    extends Table[EventToUser](tag, "event_to_user") {
 
-   def eventId = column[Long]("event_id")
+   def eventID = column[Long]("event_id")
 
-   def userId = column[Int]("user_id")
+   def userID = column[Int]("user_id")
 
    def isNewForMember = column[Boolean]("is_new_for_member")
 
    def * =
-      (eventId, userId, isNewForMember) <> (EventToUser.tupled, EventToUser.unapply)
+      (eventID, userID, isNewForMember) <> (EventToUser.tupled, EventToUser.unapply)
 
 }

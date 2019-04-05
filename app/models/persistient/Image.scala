@@ -11,6 +11,6 @@ final case class Image(
                          urlLarge: String = "",
                          urlHuge: String = "",
                          ownerId: Int = 0,
-                         eventId: Long = 0l,
+                         eventID: Long = 0l,
                          creationMills: Long = System.currentTimeMillis()
                       )

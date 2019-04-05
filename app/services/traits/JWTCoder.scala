@@ -13,7 +13,7 @@ trait JWTCoder {
 
    def decodeRegistrationToken(token: String): TokenRepRegistration
 
-   def fromLazyUserId(tokenRep: TokenRep)(userId: Int) =
-      encode(TokenRep(tokenRep)(userId))
+   def fromLazyUserID(tokenRep: TokenRep)(userID: Int) =
+      encode(TokenRep(tokenRep)(userID))
 
 }

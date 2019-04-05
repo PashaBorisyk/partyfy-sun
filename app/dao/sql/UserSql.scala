@@ -18,18 +18,18 @@ private[dao] object UserSql {
    private val userToUserRelationTable = TableQuery[UserToUserRelationTable]
    private val imageTable = TableQuery[ImageTable]
 
-   def getUsersByEventIdJoinImage(eventId: Long) = {
-      _getUsersByEventIdJoinImage(eventId).result
+   def getUsersByeventIDJoinImage(eventID: Long) = {
+      _getUsersByeventIDJoinImage(eventID).result
    }
 
-   private val _getUsersByEventIdJoinImage = Compiled { eventId: Rep[Long] =>
-      (userTable joinLeft imageTable on (_.imageId === _.id)).filter {
+   private val _getUsersByeventIDJoinImage = Compiled { eventID: Rep[Long] =>
+      (userTable joinLeft imageTable on (_.imageID === _.id)).filter {
          case (user, _) =>
             (user.state === UserState.ACTIVE) && (user.id in eventToUserTable
                .filter { eventToUser =>
-                  eventToUser.eventId === eventId
+                  eventToUser.eventID === eventID
                }
-               .map(_.userId))
+               .map(_.userID))
       }
    }
 
@@ -50,14 +50,14 @@ private[dao] object UserSql {
          .exists
    }
 
-   def checkUserExistence(userId: Int) = {
-      _checkUserExistenceById(userId).result
+   def checkUserExistence(userID: Int) = {
+      _checkUserExistenceById(userID).result
    }
 
-   private val _checkUserExistenceById = Compiled { userId: Rep[Int] =>
+   private val _checkUserExistenceById = Compiled { userID: Rep[Int] =>
       userTable
          .filter { user =>
-            user.id === userId
+            user.id === userID
          }
          .map(_ => 1)
          .exists
@@ -72,24 +72,24 @@ private[dao] object UserSql {
       _clientUpdateUser(user.id).update(user)
    }
 
-   private val _clientUpdateUser = Compiled { userId: Rep[Int] =>
+   private val _clientUpdateUser = Compiled { userID: Rep[Int] =>
       userTable.filter { userTable =>
-         userTable.state === UserState.ACTIVE && userTable.id === userId
+         userTable.state === UserState.ACTIVE && userTable.id === userID
       }
    }
 
-   def getFriends(userId: Int) = {
-      _getUserFriends(userId).result
+   def getFriends(userID: Int) = {
+      _getUserFriends(userID).result
    }
 
-   private val _getUserFriends = Compiled { userId: Rep[Int] =>
-      (userTable joinLeft imageTable on (_.imageId === _.id))
+   private val _getUserFriends = Compiled { userID: Rep[Int] =>
+      (userTable joinLeft imageTable on (_.imageID === _.id))
          .filter {
             case (user, _) =>
                user.state === UserState.ACTIVE && (user.id in {
                   userToUserRelationTable
                      .filter { userToUser =>
-                        userToUser.userFrom === userId && userToUser.relation === UsersRelationType.FRIEND
+                        userToUser.userFrom === userID && userToUser.relation === UsersRelationType.FRIEND
                      }
                      .map(userToUser => userToUser.userTo)
                })
@@ -97,54 +97,54 @@ private[dao] object UserSql {
          .sortBy { case (user, _) => user.id.desc }
    }
 
-   def getFriendsIds(userId: Int) = {
-      _getFriendsIds(userId).result
+   def getFriendsIds(userID: Int) = {
+      _getFriendsIds(userID).result
    }
 
-   private val _getFriendsIds = Compiled { userId: Rep[Int] =>
+   private val _getFriendsIds = Compiled { userID: Rep[Int] =>
       userToUserRelationTable
          .filter { userToUser =>
-            userToUser.userFrom === userId && userToUser.relation === UsersRelationType.FRIEND
+            userToUser.userFrom === userID && userToUser.relation === UsersRelationType.FRIEND
          }
          .map(userToUser => userToUser.userFrom)
    }
 
-   def getFollowersIds(userId: Int) = {
-      _getFollowersIds(userId).result
+   def getFollowersIds(userID: Int) = {
+      _getFollowersIds(userID).result
    }
 
-   private val _getFollowersIds = Compiled { userId: Rep[Int] =>
+   private val _getFollowersIds = Compiled { userID: Rep[Int] =>
       userToUserRelationTable
          .filter { userToUser =>
-            userToUser.userTo === userId && userToUser.relation === UsersRelationType.FOLLOW
+            userToUser.userTo === userID && userToUser.relation === UsersRelationType.FOLLOW
          }
          .map(userToUser => userToUser.userFrom)
    }
 
-   def findUser(userId: Int, searchRegex: String) = {
-      _findUser(userId, searchRegex).result
+   def findUser(userID: Int, searchRegex: String) = {
+      _findUser(userID, searchRegex).result
    }
 
    private val _findUser = Compiled {
-      (userId: Rep[Int], searchRegex: Rep[String]) =>
-         (userTable joinLeft imageTable on (_.imageId === _.id)).filter {
+      (userID: Rep[Int], searchRegex: Rep[String]) =>
+         (userTable joinLeft imageTable on (_.imageID === _.id)).filter {
             case (user, _) =>
                ((user.username regexLike searchRegex) ||
                   (user.name regexLike searchRegex) ||
                   (user.surname regexLike searchRegex)) &&
-                  (user.id =!= userId) &&
+                  (user.id =!= userID) &&
                   user.state === UserState.ACTIVE
          }
    }
 
-   def getById(userId: Int) = {
-      _getById(userId).result.head
+   def getById(userID: Int) = {
+      _getById(userID).result.head
    }
 
-   private val _getById = Compiled { userId: Rep[Int] =>
-      (userTable joinLeft imageTable on (_.imageId === _.id)).filter {
+   private val _getById = Compiled { userID: Rep[Int] =>
+      (userTable joinLeft imageTable on (_.imageID === _.id)).filter {
          case (user, _) =>
-            user.id === userId && user.state === UserState.ACTIVE
+            user.id === userID && user.state === UserState.ACTIVE
       }
    }
 
@@ -201,6 +201,14 @@ private[dao] object UserSql {
             user.username === username
          }
          .map(user => user.token)
+   }
+
+   def getusersIDssByeventID(eventID:Long) = {
+      _getusersIDssByeventID(eventID).result
+   }
+
+   private val _getusersIDssByeventID = Compiled{ eventID:Rep[Long] =>
+      eventToUserTable.filter{eventToUser => eventToUser.eventID === eventID}.map(_.userID)
    }
 
 }

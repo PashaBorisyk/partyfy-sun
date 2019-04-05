@@ -48,7 +48,8 @@ abstract class BaseTestSuite extends PlaySpec with GuiceOneServerPerSuite {
       "deathamstring",
       "fanfarebunch",
       "anthemnaive",
-      "cookblink"
+      "cookblink",
+      "message-processor"
    )
 
    final lazy val events = {
@@ -96,7 +97,7 @@ abstract class BaseTestSuite extends PlaySpec with GuiceOneServerPerSuite {
       events(username)
    }
 
-   def randomEventId = {
+   def randomEventID = {
       val i = new Random().nextInt(events.size)
       val array = events.values.toArray
       array(i).id
@@ -122,7 +123,7 @@ abstract class BaseTestSuite extends PlaySpec with GuiceOneServerPerSuite {
       val loginUrl = s"$baseUrl/user/login/"
       val request = wsClient.url(loginUrl).addQueryStringParameters(
          ("username", username),
-         ("password", "Puschinarij1")
+         ("secret", "password")
       ).get()
 
       await(request)
@@ -136,7 +137,7 @@ abstract class BaseTestSuite extends PlaySpec with GuiceOneServerPerSuite {
       usernamesWithTokens += (username -> token)
    }
 
-   def randomUserId = random + 1
+   def randomUserID = random + 1
 
    def randomUsername = usernames(random)
 

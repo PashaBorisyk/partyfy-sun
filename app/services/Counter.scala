@@ -15,7 +15,7 @@ trait Counter {
 
 /**
   * This class is a concrete implementation of the [[Counter]] trait.
-  * It is configured for Guice dependency injection in the [[Module]]
+  * It is configured for Guice dependency injection in the [[com.google.inject.Module]]
   * class.
   *
   * This class has a `Singleton` annotation because we need to make

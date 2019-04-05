@@ -17,11 +17,11 @@ class ImageDAOImpl @Inject()(
 
    override def create(image: Image) = {
       val createAction = EventSql
-         .getById(image.eventId)
+         .getById(image.eventID)
          .zip(ImageSql.insertImage(image))
          .flatMap {
             case (Some(event), image) =>
-               EventSql.update(event.copy(eventImageId = image.id)).map(_ => image)
+               EventSql.update(event.copy(eventimageID = image.id)).map(_ => image)
             case (None, image) => Sql(image)
          }
       db.run(createAction)
@@ -35,12 +35,12 @@ class ImageDAOImpl @Inject()(
       db.run(ImageSql.getById(id))
    }
 
-   override def findByEventId(eventId: Long) = {
-      db.run(ImageSql.findByEventId(eventId))
+   override def findByeventID(eventID: Long) = {
+      db.run(ImageSql.findByeventID(eventID))
    }
 
-   override def findByUserId(userId: Int) = {
-      db.run(ImageSql.findByUserId(userId))
+   override def findByuserID(userID: Int) = {
+      db.run(ImageSql.findByuserID(userID))
    }
 
    override def attachUserToImage(usersToImages: Array[UserToImage]) = {

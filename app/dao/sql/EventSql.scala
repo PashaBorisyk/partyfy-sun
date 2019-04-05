@@ -36,76 +36,76 @@ private[dao] object EventSql {
    }
 
    private val _getByIdJoinImages = Compiled { id: Rep[Long] =>
-      (eventTable joinLeft imageTable on (_.eventImageId === _.id))
+      (eventTable joinLeft imageTable on (_.eventimageID === _.id))
          .filter { case (event, image) => event.id === id }
    }
 
-   def getById(eventId: Long) = {
-      _getById(eventId).result.headOption
+   def getById(eventID: Long) = {
+      _getById(eventID).result.headOption
    }
 
-   private val _getById = Compiled { eventId: Rep[Long] =>
-      eventTable.filter(_.id === eventId)
+   private val _getById = Compiled { eventID: Rep[Long] =>
+      eventTable.filter(_.id === eventID)
    }
 
-   def getByOwnerIdJoinImage(userId: Int) = {
-      _getByOwnerIdJoinImage(userId).result
+   def getByOwnerIdJoinImage(userID: Int) = {
+      _getByOwnerIdJoinImage(userID).result
    }
 
-   private val _getByOwnerIdJoinImage = Compiled { userId: Rep[Int] =>
-      (eventTable joinLeft imageTable on (_.eventImageId === _.id))
+   private val _getByOwnerIdJoinImage = Compiled { userID: Rep[Int] =>
+      (eventTable joinLeft imageTable on (_.eventimageID === _.id))
          .filter {
             case (event, _) =>
                event.ownerId ===
-                  userId
+                  userID
          }
          .sortBy(_._1.dateMills.desc)
    }
 
-   def getByMemberIdJoinImage(userId: Int)(implicit ec: ExecutionContext) = {
-      _getByMemberId(userId).result
+   def getByMemberIdJoinImage(userID: Int)(implicit ec: ExecutionContext) = {
+      _getByMemberId(userID).result
    }
 
-   private val _getByMemberId = Compiled { userId: Rep[Int] =>
-      (eventTable joinLeft imageTable on (_.eventImageId === _.id)).filter {
+   private val _getByMemberId = Compiled { userID: Rep[Int] =>
+      (eventTable joinLeft imageTable on (_.eventimageID === _.id)).filter {
          event =>
             event._1.id in eventToUserTable
                .filter { event =>
-                  event.userId === userId
+                  event.userID === userID
                }
-               .map(_.eventId)
+               .map(_.eventID)
       }
    }
 
-   def getIdsByMemberId(userId: Int) = {
-      _getIdsByMemberId(userId).result
+   def getIdsByMemberId(userID: Int) = {
+      _getIdsByMemberId(userID).result
    }
 
-   private val _getIdsByMemberId = Compiled { userId: Rep[Int] =>
+   private val _getIdsByMemberId = Compiled { userID: Rep[Int] =>
       eventTable
          .filter { event =>
             event.id in eventToUserTable
                .filter { eventToUser =>
-                  eventToUser.userId === userId
+                  eventToUser.userID === userID
                }
-               .map(_.eventId)
+               .map(_.eventID)
          }
          .map(_.id)
    }
 
-   def getPublicEvents(userId: Int,
+   def getPublicEvents(userID: Int,
                        latitude: Double,
                        longtitude: Double,
-                       lastReadEventId: Long) = {
+                       lastReadeventID: Long) = {
 
-      _getPublicEvents(latitude, longtitude, lastReadEventId).result
+      _getPublicEvents(latitude, longtitude, lastReadeventID).result
    }
 
    private val _getPublicEvents = Compiled {
       (latitude: Rep[Double],
        longtitude: Rep[Double],
-       lastReadEventId: Rep[Long]) =>
-         (eventTable joinLeft imageTable on (_.eventImageId === _.id))
+       lastReadeventID: Rep[Long]) =>
+         (eventTable joinLeft imageTable on (_.eventimageID === _.id))
             .filter {
                case (event, _) =>
                   event.privacyType === EventPrivacyType.PUBLIC &&
@@ -116,35 +116,35 @@ private[dao] object EventSql {
                case (event, _) =>
                   event.longtitude > (longtitude - 0.3) && event.longtitude < (longtitude + 0.3)
             }
-            .filter(_._1.id > lastReadEventId)
+            .filter(_._1.id > lastReadeventID)
             .take(30)
             .sortBy(_._1.creationDateMills.desc)
    }
 
-   def addUserToEvent(eventId: Long, userId: Int) = {
-      eventToUserTable += EventToUser(eventId, userId)
+   def addUserToEvent(eventID: Long, userID: Int) = {
+      eventToUserTable += EventToUser(eventID, userID)
    }
 
-   def deleteUserFromEvent(userId: Int, eventId: Long) = {
-      _deleteUserFromEvent(userId, eventId).delete
+   def deleteUserFromEvent(userID: Int, eventID: Long) = {
+      _deleteUserFromEvent(userID, eventID).delete
    }
 
    private val _deleteUserFromEvent = Compiled {
-      (userId: Rep[Int], eventId: Rep[Long]) =>
+      (userID: Rep[Int], eventID: Rep[Long]) =>
          eventToUserTable.filter { eventToUser =>
-            eventToUser.userId === userId && eventToUser.eventId === eventId
+            eventToUser.userID === userID && eventToUser.eventID === eventID
          }
    }
 
-   def cancelEvent(eventId: Long, ownerId: Int) = {
-      _cancelEvent(eventId, ownerId).update(EventState.CANCELED)
+   def cancelEvent(eventID: Long, ownerId: Int) = {
+      _cancelEvent(eventID, ownerId).update(EventState.CANCELED)
    }
 
    private val _cancelEvent = Compiled {
-      (eventId: Rep[Long], ownerId: Rep[Int]) =>
+      (eventID: Rep[Long], ownerId: Rep[Int]) =>
          eventTable
             .filter { event =>
-               event.id === eventId &&
+               event.id === eventID &&
                   event.ownerId === ownerId
             }
             .map(_.state)

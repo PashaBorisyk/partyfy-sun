@@ -23,21 +23,21 @@ class EventServiceImpl @Inject()(
       val deleteAction = eventDAO.deleteById(id)
       deleteAction.onComplete { deletedRows =>
          if (deletedRows.getOrElse(0) != 0)
-            eventPublisher ! EventDeletedRecord(token.userId, token.username, id)
+            eventPublisher ! EventDeletedRecord(token.userID, token.username, id)
       }
       deleteAction
    }
 
-   override def create(eventWithUsersIds: (Event, Array[Int]))(
+   override def create(eventWithUsersIDs: (Event, Array[Int]))(
       implicit token: TokenRepPrivate) = {
-      val (event, usersIds) = eventWithUsersIds
-      val createAction = eventDAO.create(writeEventFields(event), usersIds)
-      createAction.onComplete { eventId =>
-         if (eventId.getOrElse(0) != 0)
-            eventPublisher ! EventCreatedRecord(token.userId,
+      val (event, usersIDss) = eventWithUsersIDs
+      val createAction = eventDAO.create(writeEventFields(event), usersIDss)
+      createAction.onComplete { eventID =>
+         if (eventID.getOrElse(0) != 0)
+            eventPublisher ! EventCreatedRecord(token.userID,
                token.username,
-               eventId.get,
-               usersIds)
+               eventID.get
+            )
       }
       createAction
    }
@@ -46,62 +46,62 @@ class EventServiceImpl @Inject()(
       val updateAction = eventDAO.update(event)
       updateAction.onComplete { updatedRows =>
          if (updatedRows.getOrElse(0) != 0)
-            eventPublisher ! EventUpdatedRecord(token.userId,
+            eventPublisher ! EventUpdatedRecord(token.userID,
                token.username,
                event.id)
       }
       updateAction
    }
 
-   override def getEventsByOwner(userId: Int)(
+   override def getEventsByOwner(userID: Int)(
       implicit token: TokenRepPrivate) = {
-      eventDAO.getEventsByOwner(userId)
+      eventDAO.getEventsByOwner(userID)
    }
 
-   override def getEventsByMemberId(userId: Int)(
+   override def getEventsByMemberId(userID: Int)(
       implicit token: TokenRepPrivate) = {
-      eventDAO.getEventsByMemberId(userId)
+      eventDAO.getEventsByMemberId(userID)
    }
 
-   override def getEventIdsByMemberId(userId: Int)(
+   override def getEventIDsByMemberId(userID: Int)(
       implicit token: TokenRepPrivate) = {
-      eventDAO.getEventIdsByMemberId(userId)
+      eventDAO.getEventIDsByMemberID(userID)
    }
 
    override def getEvents(
                             latitude: Double,
                             longtitude: Double,
-                            lastReadEventId: Long)(implicit token: TokenRepPrivate) = {
-      eventDAO.getEvents(token.userId, latitude, longtitude, lastReadEventId)
+                            lastReadeventID: Long)(implicit token: TokenRepPrivate) = {
+      eventDAO.getEvents(token.userID, latitude, longtitude, lastReadeventID)
    }
 
-   override def addUserToEvent(eventId: Long, userId: Int)(
+   override def addUserToEvent(eventID: Long, userID: Int)(
       implicit token: TokenRepPrivate) = {
-      val addUserAction = eventDAO.addUserToEvent(eventId, userId)
+      val addUserAction = eventDAO.addUserToEvent(eventID, userID)
       addUserAction.onComplete { insertedRows =>
          if (insertedRows.getOrElse(0) != 0) {
-            eventPublisher ! EventUserAddedRecord(token.userId,
+            eventPublisher ! EventUserAddedRecord(token.userID,
                token.username,
-               eventId,
-               userId)
+               eventID,
+               userID)
          }
       }
       addUserAction
    }
 
-   override def cancelEvent(eventId: Long)(implicit token: TokenRepPrivate) = {
-      eventDAO.cancelEvent(eventId, token.userId)
+   override def cancelEvent(eventID: Long)(implicit token: TokenRepPrivate) = {
+      eventDAO.cancelEvent(eventID, token.userID)
    }
 
-   override def removeUserFromEvent(eventId: Long, userId: Int)(
+   override def removeUserFromEvent(eventID: Long, userID: Int)(
       implicit token: TokenRepPrivate) = {
-      val removeUserAction = eventDAO.removeUserFromEvent(eventId, token.userId)
+      val removeUserAction = eventDAO.removeUserFromEvent(eventID, token.userID)
       removeUserAction.onComplete { deletedRows =>
          if (deletedRows.getOrElse(0) != 0) {
-            eventPublisher ! EventUserRemovedRecord(token.userId,
+            eventPublisher ! EventUserRemovedRecord(token.userID,
                token.username,
-               eventId,
-               userId)
+               eventID,
+               userID)
          }
       }
       removeUserAction
@@ -111,7 +111,7 @@ class EventServiceImpl @Inject()(
 
    private final def writeEventFields(event: Event)(
       implicit token: TokenRepPrivate) = {
-      event.copy(ownerId = token.userId, ownerUsername = token.username)
+      event.copy(ownerId = token.userID, ownerUsername = token.username)
    }
 
 }

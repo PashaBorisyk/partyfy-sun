@@ -25,7 +25,7 @@ private[dao] class ImageTable(tag: Tag) extends Table[Image](tag, "image") {
 
    def ownerId = column[Int]("owner_id")
 
-   def eventId = column[Long]("event_id")
+   def eventID = column[Long]("event_id")
 
    def creationMills = column[Long]("creation_mills")
 
@@ -41,7 +41,7 @@ private[dao] class ImageTable(tag: Tag) extends Table[Image](tag, "image") {
          urlLarge,
          urlHuge,
          ownerId,
-         eventId,
+         eventID,
          creationMills
       ) <> (Image.tupled, Image.unapply)
 

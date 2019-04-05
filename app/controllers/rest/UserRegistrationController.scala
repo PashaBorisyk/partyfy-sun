@@ -31,7 +31,7 @@ class UserRegistrationController @Inject()(
                   Conflict
                } else {
                   logger.debug(
-                     s"Created with userRegistration : ${userRegistration.username}")
+                     s"User with username ${userRegistration.username} created")
                   Created(userRegistration.registrationToken)
                }
          }

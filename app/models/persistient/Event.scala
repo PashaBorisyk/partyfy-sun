@@ -16,7 +16,7 @@ final case class Event(
                          description: String = "",
                          openedFor: UserSex = UserSex.ANY,
                          privacy: EventPrivacyType = EventPrivacyType.PUBLIC,
-                         eventImageId: Long = 0L,
+                         eventimageID: Long = 0L,
                          creatorsImageUrl: String = "",
                          state: EventState = EventState.BEFORE
                       )

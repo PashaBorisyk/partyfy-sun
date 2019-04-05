@@ -21,7 +21,7 @@ class UserRegistrationControllerImplTest extends BaseTestSuite {
       val loginFirstUrl = s"$baseUrl/user_register/create_registration/"
       val firstRequest = wsClient.url(loginFirstUrl).addQueryStringParameters(
          ("username", username),
-         ("secret", "Puschinarij1"),
+         ("secret", "password"),
          ("email", s"$username@gmail.com")
       ).execute("POST")
 

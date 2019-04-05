@@ -26,7 +26,7 @@ class ImageControllerTest extends BaseTestSuite {
          val imageFile = new File(pathToFile)
          imageFile.exists() mustBe true
 
-         val uploadUrl = s"$imageUrl/upload/?event_id=$randomEventId"
+         val uploadUrl = s"$imageUrl/upload/?event_id=$randomEventID"
 
          val httpClient = HttpClients.createDefault
          val builder = MultipartEntityBuilder.create
@@ -48,7 +48,7 @@ class ImageControllerTest extends BaseTestSuite {
    "get" in {
 
       usernames.foreach { username =>
-         val getUrl = s"$imageUrl/get_by_id/$randomEventId/"
+         val getUrl = s"$imageUrl/get_by_id/$randomEventID/"
          val request = wsClient.url(getUrl).withHttpHeaders(
             AUTHORIZATION -> token(username)
          ).get()
@@ -61,12 +61,12 @@ class ImageControllerTest extends BaseTestSuite {
 
    }
 
-   "getByUserId" in {
+   "getByuserID" in {
 
       usernames.foreach { username =>
 
-         val getByUserIdUrl = s"$imageUrl/get_by_user_id/$randomUserId/"
-         val request = wsClient.url(getByUserIdUrl).withHttpHeaders(
+         val getByuserIDUrl = s"$imageUrl/get_by_user_id/$randomUserID/"
+         val request = wsClient.url(getByuserIDUrl).withHttpHeaders(
             AUTHORIZATION -> token(username)
          ).get()
 
@@ -77,11 +77,11 @@ class ImageControllerTest extends BaseTestSuite {
       }
    }
 
-   "getByEventId" in {
+   "getByeventID" in {
 
       usernames.foreach { username =>
-         val getByEventIdUrl = s"$imageUrl/get_by_event_id/$randomEventId/"
-         val request = wsClient.url(getByEventIdUrl).withHttpHeaders(
+         val getByeventIDUrl = s"$imageUrl/get_by_event_id/$randomEventID/"
+         val request = wsClient.url(getByeventIDUrl).withHttpHeaders(
             AUTHORIZATION -> token(username)
          ).get()
 

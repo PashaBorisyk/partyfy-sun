@@ -27,19 +27,19 @@ class ImageServiceImpl @Inject()(
 
    private final val logger = Logger("application")
 
-   override def create(eventId: Long,
+   override def create(eventID: Long,
                        picture: MultipartFormData.FilePart[Files.TemporaryFile],
                        host: String)(implicit token: TokenRepPrivate) = {
 
       val (imageIO, formatName) = getImageWithName(picture)
       val createAction = imageWriterService
-         .write(eventId, token, formatName, imageIO, host)
+         .write(eventID, token, formatName, imageIO, host)
          .flatMap { image =>
             imageDAO.create(image)
          }
          .flatMap { image =>
             val usersToImage =
-               Array(UserToImage(token.userId, image.id, markerId = token.userId))
+               Array(UserToImage(token.userID, image.id, markerId = token.userID))
             imageDAO
                .attachUserToImage(usersToImage)
                .map(_ => usersToImage)
@@ -48,11 +48,11 @@ class ImageServiceImpl @Inject()(
       createAction.onComplete {
          case Success((usersToImage, image)) =>
             imageProducer ! ImageAddedRecord(
-               userId = token.userId,
+               userID = token.userID,
                username = token.username,
-               imageId = usersToImage.head.imageId,
-               eventId = image.eventId,
-               markedUsers = usersToImage.map(_.userId)
+               imageID = usersToImage.head.imageID,
+               eventID = image.eventID,
+               markedUsers = usersToImage.map(_.userID)
             )
 
       }
@@ -82,12 +82,12 @@ class ImageServiceImpl @Inject()(
       imageDAO.getById(id)
    }
 
-   override def findByEventId(eventId: Long)(implicit token: TokenRepPrivate) = {
-      imageDAO.findByEventId(eventId)
+   override def findByeventID(eventID: Long)(implicit token: TokenRepPrivate) = {
+      imageDAO.findByeventID(eventID)
    }
 
-   override def findByUserId(userId: Int)(implicit token: TokenRepPrivate) = {
-      imageDAO.findByUserId(userId)
+   override def findByuserID(userID: Int)(implicit token: TokenRepPrivate) = {
+      imageDAO.findByuserID(userID)
    }
 
    override def attachUsersToImage(userToImage: Array[UserToImage])(
@@ -97,10 +97,10 @@ class ImageServiceImpl @Inject()(
          case Success(Some(insertedRows))
             if insertedRows != 0 && userToImage.nonEmpty =>
             imageProducer ! ImageUserAttachedRecord(
-               token.userId,
+               token.userID,
                token.username,
-               userToImage.head.imageId,
-               userToImage.map(_.userId)
+               userToImage.head.imageID,
+               userToImage.map(_.userID)
             )
       }
       attachAction

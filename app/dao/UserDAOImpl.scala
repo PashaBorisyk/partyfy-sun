@@ -16,8 +16,8 @@ class UserDAOImpl @Inject()(
    extends HasDatabaseConfigProvider[JdbcProfile]
       with UserDAO[Future] {
 
-   override def getUsersByEventId(eventId: Long) = {
-      db.run(UserSql.getUsersByEventIdJoinImage(eventId))
+   override def getUsersByeventID(eventID: Long) = {
+      db.run(UserSql.getUsersByeventIDJoinImage(eventID))
    }
 
    override def checkUserExistence(username: String) = {
@@ -32,20 +32,20 @@ class UserDAOImpl @Inject()(
       db.run(UserSql.clientUpdateUser(user).map(_ => user))
    }
 
-   override def getFriends(userId: Int) = {
-      db.run(UserSql.getFriends(userId))
+   override def getFriends(userID: Int) = {
+      db.run(UserSql.getFriends(userID))
    }
 
-   override def getFriendsIds(userId: Int) = {
-      db.run(UserSql.getFriendsIds(userId))
+   override def getFriendsIds(userID: Int) = {
+      db.run(UserSql.getFriendsIds(userID))
    }
 
-   override def findUser(userId: Int, searchString: String) = {
-      db.run(UserSql.findUser(userId, searchString))
+   override def findUser(userID: Int, searchString: String) = {
+      db.run(UserSql.findUser(userID, searchString))
    }
 
-   override def getById(userId: Int) = {
-      db.run(UserSql.getById(userId))
+   override def getById(userID: Int) = {
+      db.run(UserSql.getById(userID))
    }
 
    override def createUsersRelation(userToUser: UserToUserRelation) = {
@@ -72,8 +72,12 @@ class UserDAOImpl @Inject()(
       db.run(UserSql.getByUsername(username))
    }
 
-   override def getTokenByUserId(username: String) = {
+   override def getTokenByuserID(username: String) = {
       db.run(UserSql.getTokenByUsername(username))
+   }
+
+   override def getusersIDssByeventID(eventID: Long) = {
+      db.run(UserSql.getusersIDssByeventID(eventID))
    }
 
 }

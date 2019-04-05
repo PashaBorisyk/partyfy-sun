@@ -11,7 +11,7 @@ class UserControllerImplTest extends BaseTestSuite {
    println(s"Strarting ${classOf[UserControllerImplTest].getSimpleName}")
 
    final val eventUrl = s"$baseUrl/user"
-   final val eventId = 0
+   final val eventID = 0
 
    "checkUserExistence" in {
       usernames.foreach { username =>
@@ -70,7 +70,7 @@ class UserControllerImplTest extends BaseTestSuite {
          val request = wsClient.url(addUserToFriendsUrl).withHttpHeaders(
             AUTHORIZATION -> token(username)
          ).withQueryStringParameters(
-            "user_id" -> randomUserId.toString,
+            "user_id" -> randomUserID.toString,
             "relation_type" -> randomUsersRelationType.toString
          ).execute(PUT)
 
@@ -88,7 +88,7 @@ class UserControllerImplTest extends BaseTestSuite {
          val request = wsClient.url(removeUserFromFriendsUrl).withHttpHeaders(
             AUTHORIZATION -> token(username)
          ).withQueryStringParameters(
-            "user_id" -> randomUserId.toString
+            "user_id" -> randomUserID.toString
          ).execute(DELETE)
 
          val response = await(request)
@@ -102,7 +102,7 @@ class UserControllerImplTest extends BaseTestSuite {
    "getByIdJoinImages" in {
 
       usernames.foreach { username =>
-         val getByIdUrl = s"$baseUrl/user/get_by_id/$randomUserId/"
+         val getByIdUrl = s"$baseUrl/user/get_by_id/$randomUserID/"
 
          val request = wsClient.url(getByIdUrl).withHttpHeaders(
             AUTHORIZATION -> token(username)
@@ -117,7 +117,7 @@ class UserControllerImplTest extends BaseTestSuite {
    "getFriends" in {
 
       usernames.foreach { username =>
-         val getFriendsUrl = s"$baseUrl/user/get_friends/$randomUserId/"
+         val getFriendsUrl = s"$baseUrl/user/get_friends/$randomUserID/"
 
          val request = wsClient.url(getFriendsUrl).withHttpHeaders(
             AUTHORIZATION -> token(username)
@@ -134,7 +134,7 @@ class UserControllerImplTest extends BaseTestSuite {
    "getFriendsIds" in {
       usernames.foreach { username =>
 
-         val getFriendsIdsUrl = s"$baseUrl/user/get_friends_ids/$randomUserId/"
+         val getFriendsIdsUrl = s"$baseUrl/user/get_friends_ids/$randomUserID/"
          val request = wsClient.url(getFriendsIdsUrl).withHttpHeaders(
             AUTHORIZATION -> token(username)
          ).get()
@@ -146,10 +146,25 @@ class UserControllerImplTest extends BaseTestSuite {
       }
    }
 
-   "getUsersByEvent" in {
+   "getUsersByeventID" in {
 
       usernames.foreach { username =>
-         val getUsersByEventUrl = s"$baseUrl/user/get_users_by_event_id/$eventId/"
+         val getUsersByEventUrl = s"$baseUrl/user/get_users_by_event_id/$randomEventID/"
+         val request = wsClient.url(getUsersByEventUrl).withHttpHeaders(
+            AUTHORIZATION -> token(username)
+         ).get()
+         val response = await(request)
+
+         println(response.body)
+         val isOk = response.status == OK || response.status == NO_CONTENT
+         isOk mustBe true
+      }
+   }
+
+   "getusersIDssByeventID" in {
+
+      usernames.foreach { username =>
+         val getUsersByEventUrl = s"$baseUrl/user/get_users_ids_by_event_id/$randomEventID/"
          val request = wsClient.url(getUsersByEventUrl).withHttpHeaders(
             AUTHORIZATION -> token(username)
          ).get()

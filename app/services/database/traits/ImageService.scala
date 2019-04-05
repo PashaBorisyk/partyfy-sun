@@ -12,7 +12,7 @@ import scala.language.higherKinds
 @ImplementedBy(classOf[ImageServiceImpl])
 trait ImageService[T[_]] {
 
-   def create(eventId: Long,
+   def create(eventID: Long,
               picture: MultipartFormData.FilePart[Files.TemporaryFile],
               host: String)(implicit token: TokenRepPrivate): T[Image]
 
@@ -20,10 +20,10 @@ trait ImageService[T[_]] {
 
    def findById(id: Long)(implicit token: TokenRepPrivate): T[Option[Image]]
 
-   def findByEventId(eventId: Long)(
+   def findByeventID(eventID: Long)(
       implicit token: TokenRepPrivate): T[Seq[Image]]
 
-   def findByUserId(userId: Int)(implicit token: TokenRepPrivate): T[Seq[Image]]
+   def findByuserID(userID: Int)(implicit token: TokenRepPrivate): T[Seq[Image]]
 
    def attachUsersToImage(usersToImage: Array[UserToImage])(
       implicit token: TokenRepPrivate): T[Option[Int]]

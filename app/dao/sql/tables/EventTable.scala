@@ -36,7 +36,7 @@ private[sql] class EventTable(tag: Tag) extends Table[Event](tag, "event") {
 
    def privacyType = column[EventPrivacyType]("privacy_type")
 
-   def eventImageId = column[Long]("event_image_id")
+   def eventimageID = column[Long]("event_image_id")
 
    def ownerImageUrl = column[String]("owner_image_url")
 
@@ -59,7 +59,7 @@ private[sql] class EventTable(tag: Tag) extends Table[Event](tag, "event") {
          description,
          openedFor,
          privacyType,
-         eventImageId,
+         eventimageID,
          ownerImageUrl,
          state
       ) <> (Event.tupled, Event.unapply)

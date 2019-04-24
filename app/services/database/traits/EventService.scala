@@ -11,7 +11,7 @@ import scala.language.higherKinds
 trait EventService[T[_]] {
 
    def getEventById(id: Long)(
-      implicit token: TokenRepPrivate): T[Seq[(Event, Option[Image])]]
+      implicit token: TokenRepPrivate): T[Option[(Event, Option[Image])]]
 
    def delete(id: Long)(implicit token: TokenRepPrivate): T[Int]
 

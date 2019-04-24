@@ -75,12 +75,12 @@ class EventControllerTest extends BaseTestSuite {
 
          val result = await(request)
          println(result.body)
-         val isSuccess = result.status == OK || result.status == NO_CONTENT
+         val isSuccess = result.status == ACCEPTED || result.status == NOT_MODIFIED
          isSuccess mustBe true
       }
    }
 
-   "getEvents" in {
+   "get" in {
       usernames.foreach { username =>
 
          val getEventsUrl = s"$eventUrl/get/"
@@ -99,7 +99,7 @@ class EventControllerTest extends BaseTestSuite {
       }
    }
 
-   "getByMember" in {
+   "getByUserID" in {
 
       usernames.foreach { username =>
          val getByMemberUrl = s"$eventUrl/get_by_member_id/$randomUserID/"
@@ -117,7 +117,7 @@ class EventControllerTest extends BaseTestSuite {
       }
    }
 
-   "getByOwner" in {
+   "getByOwnerID" in {
       usernames.foreach { username =>
          val getByMemberIdUrl = s"$eventUrl/get_by_owner_id/$randomUserID/"
          val request = wsClient.url(getByMemberIdUrl).withHttpHeaders(

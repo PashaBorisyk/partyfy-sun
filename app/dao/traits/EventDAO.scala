@@ -9,7 +9,7 @@ import scala.language.higherKinds
 @ImplementedBy(classOf[EventDAOImpl])
 trait EventDAO[T[_]] {
 
-   def getEventById(id: Long): T[Seq[(Event, Option[Image])]]
+   def getEventById(id: Long): T[Option[(Event, Option[Image])]]
 
    def deleteById(id: Long): T[Int]
 

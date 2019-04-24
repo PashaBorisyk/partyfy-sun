@@ -11,7 +11,7 @@ final case class User(
                         status: String = "",
                         latitude: Double = 0.0,
                         longitude: Double = 0.0,
-                        imageID: Long = 0L,
+                        imageID: Long = 1L,
                         email: String = "",
                         state: UserState = UserState.REGISTRATION
                      )

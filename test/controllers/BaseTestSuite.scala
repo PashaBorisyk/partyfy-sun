@@ -84,7 +84,7 @@ abstract class BaseTestSuite extends PlaySpec with GuiceOneServerPerSuite {
       maxMembers = new Random().nextInt(usernames.length),
       description = s"Created by me : $username",
       privacy = EventPrivacyType.values()(new Random().nextInt(EventPrivacyType.values().length)),
-      ownerId = usernames.indexOf(username),
+      ownerID = usernames.indexOf(username),
       country = "PL",
       city = "Warsaw",
       street = "Iganska 20",

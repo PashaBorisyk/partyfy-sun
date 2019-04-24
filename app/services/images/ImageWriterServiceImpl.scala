@@ -117,7 +117,7 @@ class ImageWriterServiceImpl @Inject()()(
          urlMedium = getPublicPath(host, imageNames.mediumName),
          urlLarge = getPublicPath(host, imageNames.largeName),
          urlHuge = getPublicPath(host, imageNames.hugeName),
-         ownerId = userID
+         ownerID = userID
       )
 
    }

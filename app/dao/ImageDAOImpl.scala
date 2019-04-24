@@ -21,7 +21,7 @@ class ImageDAOImpl @Inject()(
          .zip(ImageSql.insertImage(image))
          .flatMap {
             case (Some(event), image) =>
-               EventSql.update(event.copy(eventimageID = image.id)).map(_ => image)
+               EventSql.update(event.copy(imageID = image.id)).map(_ => image)
             case (None, image) => Sql(image)
          }
       db.run(createAction)

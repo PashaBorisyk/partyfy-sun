@@ -4,56 +4,57 @@
 # ~~~~
 
 # Map static resources from the /public folder to the /assets URL path
-GET           /public/*file                                              controllers.Assets.versioned(path="/public", file: Asset)
+GET           /public/*file                                                   controllers.Assets.versioned(path="/public", file: Asset)
 
 ###########################################################
 ###################USER####################################
 ###########################################################
 
-GET           /user/check_existence/:username/                           controllers.rest.UserControllerImpl.checkUserExistence(username:String)
-GET           /user/login/                                               controllers.rest.UserControllerImpl.login(username:String,secret:String)
-PUT           /user/update/                                              controllers.rest.UserControllerImpl.updateUser()
-GET           /user/find/                                                controllers.rest.UserControllerImpl.findUser(query:String)
-PUT           /user/create_users_relation/                               controllers.rest.UserControllerImpl.createUsersRelation(user_id:Int,relation_type:String)
-DELETE        /user/remove_users_relation/                               controllers.rest.UserControllerImpl.removeUsersRelation(user_id:Int)
-GET           /user/get_by_id/:user_id/                                  controllers.rest.UserControllerImpl.getById(user_id:Int)
-GET           /user/get_friends/:user_id/                                controllers.rest.UserControllerImpl.getFriends(user_id:Int)
-GET           /user/get_friends_ids/:user_id/                            controllers.rest.UserControllerImpl.getFriendsIds(user_id:Int)
-GET           /user/get_users_by_event_id/:event_id/                     controllers.rest.UserControllerImpl.getUsersByEventID(event_id:Long)
-GET           /user/get_users_ids_by_event_id/:event_id/                 controllers.rest.UserControllerImpl.getUsersIDsByEventID(event_id:Long)
+GET           /user/check_existence/:username/                                controllers.rest.UserControllerImpl.checkUserExistence(username:String)
+GET           /user/login/                                                    controllers.rest.UserControllerImpl.login(username:String,secret:String)
+PUT           /user/update/                                                   controllers.rest.UserControllerImpl.update
+GET           /user/find/                                                     controllers.rest.UserControllerImpl.find(query:String)
+PUT           /user/create_users_relation/                                    controllers.rest.UserControllerImpl.createUsersRelation(user_id:Int,relation_type:String)
+DELETE        /user/remove_users_relation/                                    controllers.rest.UserControllerImpl.removeUsersRelation(user_id:Int)
+GET           /user/get_by_id/:user_id/                                       controllers.rest.UserControllerImpl.getById(user_id:Int)
+GET           /user/get_friends/:user_id/                                     controllers.rest.UserControllerImpl.getFriends(user_id:Int)
+GET           /user/get_friends_ids/:user_id/                                 controllers.rest.UserControllerImpl.getFriendsIDs(user_id:Int)
+GET           /user/get_by_event_id/:event_id/                                controllers.rest.UserControllerImpl.getByEventID(event_id:Long)
+GET           /user/get_ids_by_event_id/:event_id/                            controllers.rest.UserControllerImpl.getIDsByEventID(event_id:Long)
+GET           /user/search/                                                   controllers.rest.UserControllerImpl.searchUser(query:String)
 
 ###########################################################
 ###################USER REGISTRATION#######################
 ###########################################################
 
-POST          /user_register/create_registration/                        controllers.rest.UserRegistrationController.createRegistration(username:String,secret:String,email:String)
-POST          /user_register/confirmRegistration_and_create_user/        controllers.rest.UserRegistrationController.confirmRegistrationAndCreateUser(registrationToken:String)
+POST          /user_registration/create_registration/                         controllers.rest.UserRegistrationController.createRegistration(username:String,secret:String,email:String)
+POST          /user_registration/confirm_registration_and_create_user/        controllers.rest.UserRegistrationController.confirmRegistrationAndCreateUser(registration_token:String)
 
 ###########################################################
 ###################EVENT###################################
 ###########################################################
 
-POST          /event/create/                                             controllers.rest.EventController.createEvent
-PUT           /event/update/                                             controllers.rest.EventController.updateEvent
-DELETE        /event/cancel/                                             controllers.rest.EventController.cancelEvent(event_id: Long)
-DELETE        /event/remove_member/                                      controllers.rest.EventController.removeMember(event_id:Long,user_id:Int)
-PUT           /event/add_member/                                         controllers.rest.EventController.addMemberToEvent(event_id:Long, user_id: Int)
-GET           /event/get_by_id/:event_id/                                controllers.rest.EventController.getById(event_id:Long)
-GET           /event/get_by_owner_id/:user_id/                           controllers.rest.EventController.getByOwner(user_id:Int)
-GET           /event/get/                                                controllers.rest.EventController.getEvents(latitude: Double, longitude: Double, last_read_event_id: Long)
-GET           /event/get_by_member_id/:user_id/                          controllers.rest.EventController.getByMember(user_id:Int)
-GET           /event/get_ids_by_member_id/:user_id/                      controllers.rest.EventController.getIDsByMemberID(user_id:Int)
-GET           /event/test/                                               controllers.rest.EventController.test
+POST          /event/create/                                                  controllers.rest.EventController.create
+PUT           /event/update/                                                  controllers.rest.EventController.update
+PUT           /event/cancel/                                                  controllers.rest.EventController.cancel(event_id: Long)
+PUT           /event/remove_member/                                           controllers.rest.EventController.removeUser(event_id:Long,user_id:Int)
+PUT           /event/add_member/                                              controllers.rest.EventController.addUser(event_id:Long, user_id: Int)
+GET           /event/get_by_id/:event_id/                                     controllers.rest.EventController.getByID(event_id:Long)
+GET           /event/get_by_owner_id/:user_id/                                controllers.rest.EventController.getByOwnerID(user_id:Int)
+GET           /event/get/                                                     controllers.rest.EventController.get(latitude: Double, longitude: Double, last_read_event_id: Long)
+GET           /event/get_by_member_id/:user_id/                               controllers.rest.EventController.getByUserID(user_id:Int)
+GET           /event/get_ids_by_member_id/:user_id/                           controllers.rest.EventController.getIDsByUserID(user_id:Int)
+GET           /event/test/                                                    controllers.rest.EventController.test
 
 ###########################################################
 ###################HIPE_IMAGE##############################
 ###########################################################
 
-POST          /image/upload/                                             controllers.rest.ImageController.upload(event_id:Long)
-GET           /image/get_by_id/:id/                                      controllers.rest.ImageController.get(id:Long)
-GET           /image/get_by_user_id/:user_id/                            controllers.rest.ImageController.getByuserID(user_id:Int)
-GET           /image/get_by_event_id/:event_id/                          controllers.rest.ImageController.getByeventID(event_id:Long)
-DELETE        /image/delete/:id/                                         controllers.rest.ImageController.delete(id:Long)
+POST          /image/upload/                                                  controllers.rest.ImageController.upload(event_id:Long)
+GET           /image/get_by_id/:image_id/                                     controllers.rest.ImageController.get(image_id:Long)
+GET           /image/get_by_user_id/:user_id/                                 controllers.rest.ImageController.getByUserID(user_id:Int)
+GET           /image/get_by_event_id/:event_id/                               controllers.rest.ImageController.getByEventID(event_id:Long)
+DELETE        /image/delete/:image_id/                                        controllers.rest.ImageController.delete(image_id:Long)
 
 #GET           /publisher/                                      controllers.publishers.EventPublisherWebSocket.socket
 #(for_type:Long,for_category:Long)

@@ -4,7 +4,7 @@ final case class UserToImage(
                                userID: Int,
                                imageID: Long,
                                isMarked: Boolean = false,
-                               markerId: Int,
+                               markerID: Int,
                                x: Float = -1,
                                y: Float = -1
                             )

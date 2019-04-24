@@ -3,7 +3,7 @@ package controllers.rest
 import controllers.rest.implicits._
 import javax.inject.{Inject, Singleton}
 import models.persistient.User
-import models.persistient.implicits._
+import models.implicits._
 import play.api.Logger
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
 import play.api.libs.json.Json
@@ -36,7 +36,15 @@ class UserControllerImpl @Inject()(
 
    }
 
-   def updateUser() = Action.async(parse.json[User]) { implicit req =>
+   def login(username: String, password: String) = Action.async { implicit req =>
+      logger.debug(req.toString)
+      userService.login(username, password).map {
+         case Some(token) => Ok(Json.toJson(token))
+         case None => NoContent
+      }
+   }
+
+   def update() = Action.async(parse.json[User]) { implicit req =>
       logger.debug(req.toString)
       implicit val token = getToken
       userService.clientUpdateUser(req.body).map { user =>
@@ -45,7 +53,7 @@ class UserControllerImpl @Inject()(
 
    }
 
-   def findUser(query: String) = Action.async { implicit req =>
+   def find(query: String) = Action.async { implicit req =>
       logger.debug(req.toString)
       implicit val token = getToken
       userService.findUser(query).map { usersWithImage =>
@@ -101,7 +109,7 @@ class UserControllerImpl @Inject()(
       }
    }
 
-   def getFriendsIds(userID: Int) = Action.async { implicit req =>
+   def getFriendsIDs(userID: Int) = Action.async { implicit req =>
       logger.debug(req.toString)
       implicit val token = getToken
       userService.getFriendsIds(userID).map { friendsIds =>
@@ -112,7 +120,7 @@ class UserControllerImpl @Inject()(
       }
    }
 
-   def getUsersByEventID(eventID: Long) = Action.async { implicit req =>
+   def getByEventID(eventID: Long) = Action.async { implicit req =>
       logger.debug(req.toString)
       implicit val token = getToken
       userService.getUsersByeventID(eventID).map { usersWithImages =>
@@ -124,23 +132,28 @@ class UserControllerImpl @Inject()(
 
    }
 
-   def getUsersIDsByEventID(eventID:Long) = Action.async{ implicit req =>
+   def getIDsByEventID(eventID:Long) = Action.async{ implicit req =>
       logger.debug(req.toString())
       implicit val token = getToken
-      userService.getusersIDssByeventID(eventID).map{ usersIDss =>
-         if(usersIDss.nonEmpty)
-            Ok(Json.toJson(usersIDss))
+      userService.getUsersIDsByEventID(eventID).map{ usersIDs =>
+         if(usersIDs.nonEmpty)
+            Ok(Json.toJson(usersIDs))
          else
             NoContent
       }
    }
 
-   def login(username: String, password: String) = Action.async { implicit req =>
-      logger.debug(req.toString)
-      userService.login(username, password).map {
-         case Some(token) => Ok(token)
-         case None => NoContent
+   def searchUser(query:String) = Action.async{ implicit req =>
+      logger.debug(req.toString())
+      implicit val token = getToken
+      userService.searchUser(query).map{ userSearchableForms =>
+         if (userSearchableForms.nonEmpty)
+            Ok(Json.toJson(userSearchableForms))
+         else
+            NoContent
+
       }
    }
+
 
 }

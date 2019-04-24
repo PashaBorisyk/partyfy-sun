@@ -4,6 +4,7 @@ import javax.inject.Inject
 import models.persistient.UserRegistrationState
 import play.api.Logger
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
+import play.api.libs.json.Json
 import play.api.mvc.{AbstractController, ControllerComponents}
 import services.database.traits.UserRegistrationService
 import services.traits.JWTCoder
@@ -32,7 +33,7 @@ class UserRegistrationController @Inject()(
                } else {
                   logger.debug(
                      s"User with username ${userRegistration.username} created")
-                  Created(userRegistration.registrationToken)
+                  Created(Json.toJson(userRegistration.registrationToken))
                }
          }
       }

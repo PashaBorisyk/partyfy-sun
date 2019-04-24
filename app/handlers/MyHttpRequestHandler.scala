@@ -17,14 +17,15 @@ class MyHttpRequestHandler @Inject()(router: Router,
 
    def handlerForRequest(
                            requestHeader: RequestHeader): (RequestHeader, Handler) = {
-      logger.debug(s"Incomming request $requestHeader. Requests handled for this session: ${requestCounter+=1; requestCounter} ")
+      logger.debug(s"Incoming request $requestHeader; Requests handled for this session: ${requestCounter+=1;requestCounter} ")
       router.routes.lift(requestHeader) match {
          case Some(handler) =>
             val token = requestHeader.headers.get("Authorization").getOrElse("")
             if (!token.isEmpty) {
-               logger.debug("AUTHORIZATION token found. Trying to parse token")
+               logger.debug("AUTHORIZATION token found. Parsing token")
                try {
-                  val tokenRep = jwtCoder.decodePrivateToken(token)
+                  jwtCoder.decodePrivateToken(token)
+                  logger.debug("Parsing token successfully")
                   Handler.applyStages(
                      requestHeader.withHeaders(requestHeader.headers),
                      handler
@@ -38,7 +39,7 @@ class MyHttpRequestHandler @Inject()(router: Router,
                }
 
             } else {
-               logger.debug("Unauthorized user (No token in AUTHORIZATION header)")
+               logger.debug("Unauthorized user (No token in Authorization header)")
                val path = requestHeader.path.split("/")
                if (path.size > 1) {
                   path(1) match {

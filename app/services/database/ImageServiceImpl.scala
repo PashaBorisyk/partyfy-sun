@@ -39,7 +39,7 @@ class ImageServiceImpl @Inject()(
          }
          .flatMap { image =>
             val usersToImage =
-               Array(UserToImage(token.userID, image.id, markerId = token.userID))
+               Array(UserToImage(token.userID, image.id, markerID = token.userID))
             imageDAO
                .attachUserToImage(usersToImage)
                .map(_ => usersToImage)
@@ -52,7 +52,7 @@ class ImageServiceImpl @Inject()(
                username = token.username,
                imageID = usersToImage.head.imageID,
                eventID = image.eventID,
-               markedUsers = usersToImage.map(_.userID)
+               receiversIDs = usersToImage.map(_.userID)
             )
 
       }

@@ -2,12 +2,7 @@ package dao.sql
 
 import dao.sql.implicits._
 import dao.sql.tables.implicits._
-import dao.sql.tables.{
-   EventToUserTable,
-   ImageTable,
-   UserTable,
-   UserToUserRelationTable
-}
+import dao.sql.tables.{EventToUserTable, ImageTable, UserTable, UserToUserRelationTable}
 import models.persistient._
 import slick.jdbc.PostgresProfile.api._
 
@@ -203,12 +198,30 @@ private[dao] object UserSql {
          .map(user => user.token)
    }
 
-   def getusersIDssByeventID(eventID:Long) = {
+   def getusersIDssByeventID(eventID: Long) = {
       _getusersIDssByeventID(eventID).result
    }
 
-   private val _getusersIDssByeventID = Compiled{ eventID:Rep[Long] =>
-      eventToUserTable.filter{eventToUser => eventToUser.eventID === eventID}.map(_.userID)
+   private val _getusersIDssByeventID = Compiled { eventID: Rep[Long] =>
+      eventToUserTable.filter { eventToUser => eventToUser.eventID === eventID }.map(_.userID)
+   }
+
+   def searchUser(userID: Int, searchRegex: String) = {
+      _searchUser(userID, searchRegex).result
+   }
+
+   private val _searchUser = Compiled {
+      (userID: Rep[Int], searchRegex: Rep[String]) =>
+         (userTable join imageTable on (_.imageID === _.id)).filter {
+            case (user, _) =>
+               ((user.username regexLike searchRegex) ||
+                  (user.name regexLike searchRegex) ||
+                  (user.surname regexLike searchRegex)) &&
+                  ((user.id =!= userID) &&
+                  user.state === UserState.ACTIVE)
+         }.map {
+            case (user, image) => (user.id, user.username, image.urlSmall)
+         }
    }
 
 }

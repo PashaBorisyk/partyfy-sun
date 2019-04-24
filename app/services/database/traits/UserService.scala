@@ -2,6 +2,7 @@ package services.database.traits
 
 import com.google.inject.ImplementedBy
 import models.TokenRepPrivate
+import models.dto.SearchableUserForm
 import models.persistient.{Image, User}
 import services.database.UserServiceImpl
 
@@ -35,6 +36,8 @@ trait UserService[T[_]] {
 
    def login(username: String, password: String): T[Option[String]]
 
-   def getusersIDssByeventID(eventID:Long)(implicit token:TokenRepPrivate) : T[Seq[Int]]
+   def getUsersIDsByEventID(eventID:Long)(implicit token:TokenRepPrivate) : T[Seq[Int]]
+
+   def searchUser(query:String)(implicit token:TokenRepPrivate) : T[Seq[SearchableUserForm]]
 
 }

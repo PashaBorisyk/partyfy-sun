@@ -32,7 +32,7 @@ private[dao] object EventSql {
    }
 
    def getByIdJoinImages(id: Long) = {
-      _getByIdJoinImages(id).result
+      _getByIdJoinImages(id).result.headOption
    }
 
    private val _getByIdJoinImages = Compiled { id: Rep[Long] =>

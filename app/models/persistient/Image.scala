@@ -10,7 +10,7 @@ final case class Image(
                          urlMedium: String = "",
                          urlLarge: String = "",
                          urlHuge: String = "",
-                         ownerId: Int = 0,
+                         ownerID: Int = 0,
                          eventID: Long = 0l,
                          creationMills: Long = System.currentTimeMillis()
                       )

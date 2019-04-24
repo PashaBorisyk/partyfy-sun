@@ -88,8 +88,13 @@ class UserServiceImpl @Inject()(
       }
    }
 
-   override def getusersIDssByeventID(eventID: Long)(implicit token: TokenRepPrivate) = {
+   override def getUsersIDsByEventID(eventID: Long)(implicit token: TokenRepPrivate) = {
       userDAO.getusersIDssByeventID(eventID:Long)
    }
+
+   override def searchUser(query: String)(implicit token:TokenRepPrivate) = {
+      userDAO.searchUser(token.userID,query)
+   }
+
 
 }

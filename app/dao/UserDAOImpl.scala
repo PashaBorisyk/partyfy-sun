@@ -3,6 +3,7 @@ package dao
 import dao.sql.{Sql, UserSql}
 import dao.traits.UserDAO
 import javax.inject.Inject
+import models.dto.SearchableUserForm
 import models.persistient._
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
 import services.traits.JWTCoder
@@ -78,6 +79,10 @@ class UserDAOImpl @Inject()(
 
    override def getusersIDssByeventID(eventID: Long) = {
       db.run(UserSql.getusersIDssByeventID(eventID))
+   }
+
+   override def searchUser(userID:Int, query: String) = {
+      db.run(UserSql.searchUser(userID,query).map(_.map(SearchableUserForm.tupled)))
    }
 
 }

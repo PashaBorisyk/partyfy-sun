@@ -1,11 +1,18 @@
-package models.persistient
+package models
 
-import models.{TokenRep, TokenRepPrivate, TokenRepRegistration}
+
+import models.dto.SearchableUserForm
+import models.persistient.{Event, EventPrivacyType, EventState, Image, User, UserSex, UserState}
 import play.api.libs.json._
+import play.api.libs.json.Json
+import play.api.libs.json.JsonConfiguration.Aux
+import play.api.libs.functional.syntax._
 
 import scala.language.higherKinds
 
 package object implicits {
+
+   implicit val config: Aux[Json.MacroOptions] = JsonConfiguration(optionHandlers = OptionHandlers.WritesNull)
 
    implicit val myEnumFormat: Format[UserState] = new Format[UserState] {
       override def reads(json: JsValue) =
@@ -33,6 +40,8 @@ package object implicits {
       override def writes(o: EventState) = JsString(o.toString)
    }
 
+
+   implicit val searchableUserFormFormat:OFormat[SearchableUserForm] = Json.format[SearchableUserForm]
    implicit val eventFormat: OFormat[Event] = Json.format[Event]
    implicit val userFormat: OFormat[User] = Json.format[User]
    implicit val imageFormat: OFormat[Image] = Json.format[Image]
@@ -41,5 +50,12 @@ package object implicits {
       Json.format[TokenRepRegistration]
    implicit val tokenRepPrivateFormat: OFormat[TokenRepPrivate] =
       Json.format[TokenRepPrivate]
+
+   implicit def tuple2Writes[A,B](implicit a : Writes[A],b: Writes[B]) : Writes[(A, B)] =
+      (o: (A, B)) => JsObject(Seq("first" -> a.writes(o._1), "second" -> b.writes(o._2)))
+
+   implicit def tuple2Reads[A,B](implicit a : Reads[A],b: Reads[B]) : Reads[(A, B)] =
+      json => (a.reads((json \ "first").get) and b.reads((json \ "second").get)).tupled
+
 
 }

@@ -72,14 +72,14 @@ final case class EventCreatedRecord(
 }
 
 sealed trait EventUserAction extends EventActionRecord {
-   val receiverUserID: Int
+   val receiverID: Int
 }
 
 final case class EventUserRemovedRecord(
                                           userID: Int,
                                           username: String,
                                           eventID: Long,
-                                          receiverUserID: Int,
+                                          receiverID: Int,
                                           time: Long = System.currentTimeMillis()
                                        ) extends EventUserAction {
 
@@ -93,7 +93,7 @@ final case class EventUserAddedRecord(
                                         userID: Int,
                                         username: String,
                                         eventID: Long,
-                                        receiverUserID: Int,
+                                        receiverID: Int,
                                         time: Long = System.currentTimeMillis()
                                      ) extends EventUserAction {
 
@@ -119,7 +119,7 @@ final case class ImageAddedRecord(
                                     username: String,
                                     imageID: Long,
                                     eventID: Long,
-                                    markedUsers: Array[Int],
+                                    receiversIDs: Array[Int],
                                     time: Long = System.currentTimeMillis()
                                  ) extends ImageActionRecord {
    override private[actors] val TOPIC_NAME = "image-added"
@@ -131,7 +131,7 @@ final case class ImageUserAttachedRecord(
                                            userID: Int,
                                            username: String,
                                            imageID: Long,
-                                           usersIDs: Array[Int],
+                                           receiversIDs: Array[Int],
                                            time: Long = System.currentTimeMillis()
                                         ) extends ImageActionRecord {
 
@@ -142,7 +142,7 @@ final case class ImageUserAttachedRecord(
 }
 
 sealed trait UserActionRecord extends Protocol with Record {
-   val receiverUserID: Int
+   val receiverID: Int
 
    implicit val usersRelationTypeWrites: Writes[UsersRelationType] =
       (o: UsersRelationType) => JsString(o.toString)
@@ -154,7 +154,7 @@ sealed trait UserActionRecord extends Protocol with Record {
 final case class UserRelationCreatedRecord(
                                              userID: Int,
                                              username: String,
-                                             receiverUserID: Int,
+                                             receiverID: Int,
                                              relationType: UsersRelationType,
                                              time: Long = System.currentTimeMillis()
                                           ) extends UserActionRecord {

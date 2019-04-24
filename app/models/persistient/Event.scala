@@ -2,7 +2,7 @@ package models.persistient
 
 final case class Event(
                          id: Long = 0L,
-                         ownerId: Int = 0,
+                         ownerID: Int = 0,
                          dateMills: Long = System.currentTimeMillis(),
                          creationDateMills: Long = System.currentTimeMillis(),
                          maxMembers: Long = 0L,
@@ -16,7 +16,7 @@ final case class Event(
                          description: String = "",
                          openedFor: UserSex = UserSex.ANY,
                          privacy: EventPrivacyType = EventPrivacyType.PUBLIC,
-                         eventimageID: Long = 0L,
+                         imageID: Long = 0L,
                          creatorsImageUrl: String = "",
                          state: EventState = EventState.BEFORE
                       )

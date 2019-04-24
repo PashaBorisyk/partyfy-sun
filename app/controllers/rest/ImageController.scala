@@ -2,7 +2,7 @@ package controllers.rest
 
 import controllers.rest.implicits.getToken
 import javax.inject.Inject
-import models.persistient.implicits._
+import models.implicits._
 import play.api.Logger
 import play.api.libs.json.Json
 import play.api.mvc.{AbstractController, ControllerComponents}
@@ -50,15 +50,19 @@ class ImageController @Inject()(
       }
    }
 
-   def delete(id: Long) = Action.async { implicit req =>
+
+   def getByUserID(userID: Int) = Action.async { implicit req =>
       logger.debug(req.toString())
       implicit val token = getToken
-      imageService.delete(id).map { deletedRows =>
-         Accepted(deletedRows.toString)
+      imageService.findByuserID(userID).map { images =>
+         if (images.nonEmpty)
+            Ok(Json.toJson(images))
+         else
+            NoContent
       }
    }
 
-   def getByeventID(eventID: Long) = Action.async { implicit req =>
+   def getByEventID(eventID: Long) = Action.async { implicit req =>
       logger.debug(req.toString())
       implicit val token = getToken
       imageService.findByeventID(eventID).map { images =>
@@ -69,14 +73,14 @@ class ImageController @Inject()(
       }
    }
 
-   def getByuserID(userID: Int) = Action.async { implicit req =>
+   def delete(id: Long) = Action.async { implicit req =>
       logger.debug(req.toString())
       implicit val token = getToken
-      imageService.findByuserID(userID).map { images =>
-         if (images.nonEmpty)
-            Ok(Json.toJson(images))
+      imageService.delete(id).map { deletedRows =>
+         if (deletedRows > 0)
+            Accepted
          else
-            NoContent
+            NotModified
       }
    }
 

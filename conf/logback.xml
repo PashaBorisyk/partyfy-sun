@@ -17,14 +17,14 @@
     <root level="${log.root:-info}">
         <appender-ref ref="STDOUT" />
     </root>
-    <logger name="slick.basic.BasicBackend.action"          level="OFF" />  <!---->
-    <logger name="slick.basic.BasicBackend.stream"          level="OFF" /> <!---->
+    <logger name="slick.basic.BasicBackend.action"          level="ON" />  <!---->
+    <logger name="slick.basic.BasicBackend.stream"          level="ON" /> <!---->
     <logger name="slick.compiler.InsertCompiler"            level="OFF" />
     <logger name="slick.jdbc.DriverDataSource"              level="OFF" />
     <logger name="slick.jdbc.JdbcBackend.statement"         level="OFF" />
     <logger name="slick.jdbc.JdbcBackend.parameter"         level="OFF" />
     <logger name="slick.jdbc.JdbcBackend.benchmark"         level="OFF" />
-    <logger name="slick.jdbc.StatementInvoker.result"       level="OFF" /> <!---->
+    <logger name="slick.jdbc.StatementInvoker.result"       level="ON" /> <!---->
     <logger name="slick.jdbc.JdbcModelBuilder"              level="OFF" />
     <logger name="slick.memory.HeapBackend"                 level="OFF" />
     <logger name="slick.memory.QueryInterpreter"            level="OFF" />

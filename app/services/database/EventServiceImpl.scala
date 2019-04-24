@@ -111,7 +111,7 @@ class EventServiceImpl @Inject()(
 
    private final def writeEventFields(event: Event)(
       implicit token: TokenRepPrivate) = {
-      event.copy(ownerId = token.userID, ownerUsername = token.username)
+      event.copy(ownerID = token.userID, ownerUsername = token.username)
    }
 
 }

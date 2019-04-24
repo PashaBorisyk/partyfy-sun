@@ -131,7 +131,7 @@ class UserControllerImplTest extends BaseTestSuite {
 
    }
 
-   "getFriendsIds" in {
+   "getFriendsIDs" in {
       usernames.foreach { username =>
 
          val getFriendsIdsUrl = s"$baseUrl/user/get_friends_ids/$randomUserID/"
@@ -161,7 +161,7 @@ class UserControllerImplTest extends BaseTestSuite {
       }
    }
 
-   "getusersIDssByeventID" in {
+   "getIDsByEventID" in {
 
       usernames.foreach { username =>
          val getUsersByEventUrl = s"$baseUrl/user/get_users_ids_by_event_id/$randomEventID/"
@@ -174,6 +174,24 @@ class UserControllerImplTest extends BaseTestSuite {
          val isOk = response.status == OK || response.status == NO_CONTENT
          isOk mustBe true
       }
+   }
+
+   "searchUser" in {
+
+      usernames.foreach { username =>
+         val findUser = s"$baseUrl/user/search/"
+         val request = wsClient.url(findUser).withHttpHeaders(
+            AUTHORIZATION -> token(username)
+         ).withQueryStringParameters(
+            "query" -> randomUsername.substring(2)
+         ).get()
+
+         val response = await(request)
+         println(response.body)
+         val isSuccess = response.status == 204 || response.status == 200
+         isSuccess mustBe true
+      }
+
    }
 
    def getUser(username:String) = User(

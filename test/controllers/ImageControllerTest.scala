@@ -61,7 +61,7 @@ class ImageControllerTest extends BaseTestSuite {
 
    }
 
-   "getByuserID" in {
+   "getByUserID" in {
 
       usernames.foreach { username =>
 
@@ -77,7 +77,7 @@ class ImageControllerTest extends BaseTestSuite {
       }
    }
 
-   "getByeventID" in {
+   "getByEventID" in {
 
       usernames.foreach { username =>
          val getByeventIDUrl = s"$imageUrl/get_by_event_id/$randomEventID/"

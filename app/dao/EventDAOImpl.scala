@@ -16,7 +16,7 @@ class EventDAOImpl @Inject()(
    extends HasDatabaseConfigProvider[JdbcProfile]
       with EventDAO[Future] {
 
-   override def getEventById(id: Long): Future[Seq[(Event, Option[Image])]] = {
+   override def getEventById(id: Long) = {
       db.run(EventSql.getByIdJoinImages(id))
    }
 
